@@ -12,7 +12,7 @@ services: [
                             {os: [os()]},
                              RAM: non_neg_integer(),
                              HDD: non_neg_integer(),
-                             available_machines: [machine_id()]
+                             available_machines: [machine_id()] // empty means "every machine"
                            ]
              ],
 machines: [
