@@ -14,7 +14,8 @@ services: [
                              HDD: non_neg_integer(),
                              available_machines: [machine_id()] // empty means "every machine"
                            ]
-             ],
+             }
+            ],
 machines: [
            {machine_id: machine_id(),
             ip: ip() | null,  // in case of round robin DNS - random ip will be taken
