@@ -56,7 +56,7 @@ os() :: "linux" | "debian"
 machine_id() :: integer()
 ip() :: string() // ipv4 address in dot notation
 domain_name() :: string() // rfc1123 compliant
-metric_name() :: string()
+metric_name() :: string() // TODO: we need to specify them here
 unit() :: "%" | memory_unit() | time_unit()
 memory_unit() :: "kb" | "mb" | "gb" ...
 time_unit() :: "ns" | "ms" | "min" | "h" ...
