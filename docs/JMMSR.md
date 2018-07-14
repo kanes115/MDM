@@ -8,12 +8,12 @@ services: [
              service_dir: path(),
              service_executable: path(),
              containerized: boolean(),
-             requirements: [
-                            {os: [os()]},
-                             RAM: non_neg_integer(),
-                             HDD: non_neg_integer(),
+             requirements: {
+                             os: [os()], 
+                             RAM: non_neg_integer() | null,
+                             HDD: non_neg_integer() | null,
                              available_machines: [machine_id()] // empty means "every machine"
-                           ]
+                           }
              }
             ],
 machines: [
@@ -29,15 +29,13 @@ connections: [
                  port: port()
                 }
              ],
-config: {
-          metrics: [metric_name()],
-          persist: boolean(),
-          persist_machine: machine_id() | null,
-          pilot_machine: machine_id()
+config: {metrics: [metric_name()],
+         persist: boolean(),
+         persist_machine: machine_id() | null,
+         pilot_machine: machine_id()
         }
 live_metrics: [
-                {
-                 for_machine: boolean(),
+                {for_machine: boolean(),
                  service_name: service_name() | null,
                  machine_id: machine_id() | null,
                  metric: metric_name(),
