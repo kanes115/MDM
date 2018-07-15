@@ -1,34 +1,36 @@
 defmodule MDM.JmmsrParser.ConfigParser do
 
-    @available_metrics ["cpuUsage"] # TODO determine
+  alias MDM.JmmsrParser.Utils
 
-    def check(%{"config" => conf}) do
-      with :ok <- check_metrics(conf),
-           :ok <- check_persist(conf),
-           :ok <- check_pilot(conf), do: :ok
+  @available_metrics ["cpuUsage"] # TODO determine
+
+  def check(%{"config" => conf}) when is_map(conf) do
+    with :ok <- check_metrics(conf),
+         :ok <- check_persist(conf),
+         :ok <- check_pilot(conf), do: :ok
+  end
+  def check(%{"config" => _}), do: {:error, Utils.type_error_message("config", "object")}
+  def check(_), do: {:error, "config not specified"}
+
+  defp check_metrics(%{"metrics" => metrics}) when is_list(metrics) do
+    case Enum.all?(metrics, fn e -> Enum.member?(@available_metrics, e) end) do
+      true -> :ok
+      _ -> {:error, :unknown_metric}
     end
-    def check(_), do: {:error, :config_not_specified}
+  end
+  defp check_metrics(%{"metrics" => _}), do: {:error, Utils.type_error_message("metrics", "list")}
+  defp check_metrics(_), do: {:error, "metrics not found"}
 
-    defp check_metrics(%{"metrics" => metrics}) when is_list(metrics) do
-      case Enum.all?(metrics, fn e -> Enum.member?(@available_metrics, e) end) do
-        true -> :ok
-        _ -> {:error, :unknown_metric}
-      end
-    end
-    defp check_metrics(%{"metrics" => _}), do: {:error, :metrics_value_not_a_list}
-    defp check_metrics(_), do: {:error, :metrics_not_found}
+  defp check_persist(%{"persist" => true} = config) do
+    Utils.specified_int(config, "persist_machine", "perist_machine")
+  end
+  defp check_persist(%{"persist" => false} = config) do
+    Utils.if_specified_warn(config, "persist_machine", 
+                            "Option `persist` was false but `persist_machine` still defined")
+    :ok
+  end
+  defp check_persist(_), do: {:error, "persist flag not set"}
 
-    defp check_persist(%{"persist" => true, "persist_machine" => id}) when is_integer(id), do: :ok
-    defp check_persist(%{"persist" => true, "persist_machine" => _id}), do: {:error, :machine_id_not_int}
-    defp check_persist(%{"persist" => false, "persist_machine" => _}) do
-      #print warning
-      :ok
-    end
-    defp check_persist(%{"persist" => false}), do: :ok
-    defp check_persist(_), do: {:error, :persist_flag_not_set}
-
-    defp check_pilot(%{"pilot_machine" => id}) when is_integer(id), do: :ok
-    defp check_pilot(%{"pilot_machine" => _}), do: {:error, :machine_id_not_int}
-    defp check_pilot(_), do: {:error, :pilot_not_set}
+  defp check_pilot(config), do: Utils.specified_int(config, "pilot_machine", "pilot machine")
 
 end

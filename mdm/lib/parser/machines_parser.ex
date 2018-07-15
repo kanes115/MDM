@@ -11,47 +11,44 @@ defmodule MDM.JmmsrParser.MachinesParser do
       {machine, {:error, reason}} -> {:error, %{trouble_entry: machine, reason: reason}}
     end
   end
-  def check(%{"machines" => _}), do: {:error, :machines_not_a_list}
-  def check(_), do: {:error, :machines_undefined}
+  def check(%{"machines" => _}), do: {:error, Utils.type_error_message("machines", "list")}
+  def check(_), do: {:error, "machines undefined"}
 
-  defp check_machine(machine) do
+  defp check_machine(machine) when is_map(machine) do
     with :ok <- check_name(machine),
          :ok <- check_id(machine),
          :ok <- check_address(machine),
          :ok <- check_os(machine), do: :ok
   end
+  defp check_machine(_), do: {:error, "machine is not a map"}
 
-  defp check_name(%{"name" => s}) when is_bitstring(s), do: :ok
-  defp check_name(%{"name" => _}), do: {:error, :machine_name_not_string}
-  defp check_name(_), do: :ok
+  defp check_name(machine), do: Utils.if_specified_string(machine, "name", "machine's name")
 
-  defp check_id(%{"id" => i}) when is_integer(i), do: :ok
-  defp check_id(%{"id" => _}), do: {:error, :machine_id_not_int}
-  defp check_id(_), do: {:error, :id_undefined}
+  defp check_id(map), do: Utils.specified_int(map, "id", "machine's id")
 
-  defp check_address(%{"ip" => _, "domain" => _}), do: {:error, :ip_and_domain_sepcified}
+  defp check_address(%{"ip" => _, "domain" => _}), do: {:error, "ip and domain sepcified"}
   defp check_address(%{"ip" => ip}) do
     case correct_ip_format?(ip) do
       true -> :ok
-      false -> {:error, :incorrect_ip_format}
+      false -> {:error, "incorrect ip format"}
     end
   end
   defp check_address(%{"domain" => d}) do
     case correct_domain_name_format(d) do
       true -> :ok
-      false -> {:error, :incorrect_domain_format}
+      false -> {:error, "incorrect domain format"}
     end
   end
-  defp check_address(_), do: {:error, :address_undefined}
+  defp check_address(_), do: {:error, "address undefined"}
 
   defp check_os(%{"os" => os}) when is_bitstring(os) do
     case Enum.member?(@supported_os, os) do
       true -> :ok
-      false -> {:error, :os_not_supported}
+      false -> {:error, "#{inspect(os)} not supported"}
     end
   end
-  defp check_os(%{"os" => _}), do: {:error, :os_not_string}
-  defp check_os(_), do: {:error, :os_undefined}
+  defp check_os(%{"os" => _}), do: {:error, Utils.type_error_message("os", "string")}
+  defp check_os(_), do: {:error, "os undefined"}
 
   defp correct_ip_format?(s), do: is_bitstring(s) # TODO
 

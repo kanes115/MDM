@@ -16,4 +16,34 @@ defmodule MDM.JmmsrParser.Utils do
     end
   end
 
+  def if_specified_string(map, field, error_subject) when is_map(map) do
+    case Map.get(map, field, :undefined) do
+      s when is_bitstring(s) -> :ok
+      :undefined -> :ok
+      _ -> {:error, type_error_message(error_subject, "string")}
+    end
+  end
+
+  def specified_int(map, field, error_subject) when is_map(map) do
+    case Map.get(map, field, :undefined) do
+      s when is_integer(s) -> :ok
+      :undefined -> {:error, "#{inspect(error_subject)} not specified"}
+      _ -> {:error, type_error_message(error_subject, "integer")}
+    end
+  end
+
+  def if_specified_warn(map, field, warning) do
+    case Map.get(map, field, :undefined) do
+      :undefined -> :ok
+      _ ->
+        IO.puts warning
+    end
+  end
+
+  def type_error_message(subject, should_be) do
+    "#{subject} is not a #{should_be}"
+  end
+
+
+
 end

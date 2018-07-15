@@ -33,7 +33,7 @@ defmodule MDM.JmmsrParser do
   defp print_error({:error, %{reason: reason}}) do
     IO.puts "Error parsing for reason #{inspect(reason)}."
   end
-  defp print_error({:error, reason}) when is_atom(reason) do
+  defp print_error({:error, reason}) do
     print_error({:error, %{reason: reason}})
   end
 
