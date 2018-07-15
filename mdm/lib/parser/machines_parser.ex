@@ -2,8 +2,6 @@ defmodule MDM.JmmsrParser.MachinesParser do
 
   alias MDM.JmmsrParser.Utils
 
-  @supported_os ["debian", "linux"]
-
   def check(%{"machines" => machines}) when is_list(machines) do
     results = for m <- machines, do: {m, check_machine(m)}
     case Utils.take_first_error(results) do
@@ -42,7 +40,7 @@ defmodule MDM.JmmsrParser.MachinesParser do
   defp check_address(_), do: {:error, "address undefined"}
 
   defp check_os(%{"os" => os}) when is_bitstring(os) do
-    case Enum.member?(@supported_os, os) do
+    case Enum.member?(Utils.supported_oses(), os) do
       true -> :ok
       false -> {:error, "#{inspect(os)} not supported"}
     end

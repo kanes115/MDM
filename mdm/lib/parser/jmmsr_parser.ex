@@ -2,6 +2,7 @@ defmodule MDM.JmmsrParser do
 
   alias MDM.JmmsrParser.ConfigParser
   alias MDM.JmmsrParser.MachinesParser
+  alias MDM.JmmsrParser.ServicesParser
     
   # TODO recursively
   defp keys_to_atoms(json) do
@@ -16,7 +17,8 @@ defmodule MDM.JmmsrParser do
 
   defp check_correctness(json) do
     with :ok <- ConfigParser.check(json),
-         :ok <- MachinesParser.check(json)
+         :ok <- MachinesParser.check(json),
+         :ok <- ServicesParser.check(json)
     do
       :ok
     else

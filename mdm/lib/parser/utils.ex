@@ -1,5 +1,8 @@
 defmodule MDM.JmmsrParser.Utils do
 
+  ## Constants
+  def supported_oses(), do: ["linux", "debian"]
+
   def take_first_error([]), do: :ok
   def take_first_error([{_entry, :ok} | tail]), do: take_first_error(tail)
   def take_first_error([{_entry, {:error, _}} = error | _]), do: error
@@ -24,13 +27,36 @@ defmodule MDM.JmmsrParser.Utils do
     end
   end
 
-  def specified_int(map, field, error_subject) when is_map(map) do
+  def if_specified_int(map, field, error_subject) when is_map(map) do
     case Map.get(map, field, :undefined) do
       s when is_integer(s) -> :ok
-      :undefined -> {:error, "#{inspect(error_subject)} not specified"}
+      :undefined -> :ok
       _ -> {:error, type_error_message(error_subject, "integer")}
     end
   end
+
+
+  def specified_int(map, field, error_subject) when is_map(map) do
+    specified(&is_integer/1, "integer", map, field, error_subject)
+  end
+
+  def specified_string(map, field, error_subject) when is_map(map) do
+    specified(&is_bitstring/1, "string", map, field, error_subject)
+  end
+
+
+  def specified_list(map, field, error_subject) when is_map(map) do
+    specified(&is_list/1, "list", map, field, error_subject)
+  end
+
+  def specified_bool(map, field, error_subject) when is_map(map) do
+    specified(&is_boolean/1, "bool", map, field, error_subject)
+  end
+
+  def specified_path(map, field, error_subject) when is_map(map) do
+    specified(&is_path/1, "path", map, field, error_subject)
+  end
+
 
   def if_specified_warn(map, field, warning) do
     case Map.get(map, field, :undefined) do
@@ -45,5 +71,16 @@ defmodule MDM.JmmsrParser.Utils do
   end
 
 
+  defp specified(type_checker, type, map, field, error_subject) do
+    case Map.get(map, field, :undefined) do
+      :undefined -> {:error, "#{inspect(error_subject)} not specified"}
+      s -> case type_checker.(s) do
+        true -> :ok
+        false -> {:error, type_error_message(error_subject, type)}
+      end
+    end
+  end
+
+  defp is_path(s), do: is_bitstring(s) # TODO
 
 end
