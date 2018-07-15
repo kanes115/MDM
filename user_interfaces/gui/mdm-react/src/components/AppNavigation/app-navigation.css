@@ -1,13 +1,38 @@
 .mdm-nav {
+    position: absolute;
+    top: 104px;
+    bottom: 0;
+    left: 0;
     display: flex;
     flex-direction: column;
     background-color: #000;
-    height: calc(100% - 64px);
     width: 200px;
     padding: 20px;
     color: white;
 }
 
 .mdm-nav a {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    font-size: 24px;
+    text-decoration: none;
+    color: aliceblue;
+    padding: 8px 0;
+}
 
+.mdm-nav a:first-child {
+    padding-top: 0;
+}
+
+.mdm-nav a:last-child {
+    padding-bottom: 0;
+}
+
+.mdm-nav a.active {
+    color: lightcoral;
+}
+
+.mdm-nav a .nav-icon {
+    padding-right: 4px;
 }

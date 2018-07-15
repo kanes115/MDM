@@ -1,20 +1,20 @@
 import React from 'react';
 import {NavLink} from 'react-router-dom';
 
-import {MDMLink} from '../../components';
+import {AppNavLink} from './representation';
 
 import './app-navigation.css';
 
 const AppNavigation = () => (
     <nav className="mdm-nav">
-        <NavLink to="/model">
-            <MDMLink label="model"/>
+        <NavLink to="/model" activeClassName="active">
+            <AppNavLink icon="build" label="model"/>
         </NavLink>
         <NavLink to="/deploy">
-            <MDMLink label="deploy"/>
+            <AppNavLink icon="flight_takeoff" label="deploy"/>
         </NavLink>
         <NavLink to="/monitor">
-            <MDMLink label="monitor"/>
+            <AppNavLink icon="show_chart" label="monitor"/>
         </NavLink>
     </nav>
 );

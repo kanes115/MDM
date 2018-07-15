@@ -4,7 +4,7 @@ import './app-header.css';
 
 const AppHeader = () => (
     <header className="mdm-header">
-        <h1 className="title">Welcome to MDM</h1>
+        <h1 className="title">MDM</h1>
     </header>
 );
 

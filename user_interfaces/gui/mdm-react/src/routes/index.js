@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 
-import {AppHeader, AppNavigation} from '../components';
+import {AppContent, AppHeader, AppNavigation} from '../components';
 
 class App extends Component {
     render() {
@@ -9,6 +9,9 @@ class App extends Component {
             <div className="mdm">
                 <AppHeader/>
                 <AppNavigation/>
+                <AppContent>
+                    Welcome to MDM!
+                </AppContent>
             </div>
         );
     }
