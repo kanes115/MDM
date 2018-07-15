@@ -1,16 +1,17 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import './App.css';
 
+import {AppHeader, AppNavigation} from '../components';
+
 class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <h1 className="App-title">Welcome to MDM</h1>
-        </header>
-      </div>
-    );
-  }
+    render() {
+        return (
+            <div className="mdm">
+                <AppHeader/>
+                <AppNavigation/>
+            </div>
+        );
+    }
 }
 
 export default App;
