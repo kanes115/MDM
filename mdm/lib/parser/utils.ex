@@ -7,17 +7,35 @@ defmodule MDM.JmmsrParser.Utils do
   def take_first_error([{_entry, :ok} | tail]), do: take_first_error(tail)
   def take_first_error([{_entry, {:error, _}} = error | _]), do: error
 
-  # TODO probably can be more idiomatic
+  def check_uniqueness(list_of_maps, fields, error_reason) when is_list(fields) do
+    minimal_maps = 
+      Enum.map(list_of_maps, fn map ->
+        to_remove = Map.keys(map) -- fields
+        throw_keys_out(map, to_remove)
+      end)
+    do_check_uniqeness(minimal_maps, error_reason)
+  end
   def check_uniqueness(list_of_maps, field, error_reason) do
-    uniq_l = list_of_maps
-             |> Enum.map(fn %{^field => id} -> id end)
-             |> Enum.uniq
-             |> length
-    case length(list_of_maps) do
+    check_uniqueness(list_of_maps, [field], error_reason)
+  end
+
+  defp do_check_uniqeness(list, error_reason) do
+    uniq_l = list
+    |> Enum.uniq
+    |> length
+    case length(list) do
       ^uniq_l -> :ok
       _ -> {:error, error_reason}
     end
   end
+
+  defp throw_keys_out(map, keys) do
+    Enum.reduce(keys, map, fn f, acc ->
+      {_, new_acc} = Map.pop(acc, f)
+      new_acc
+    end)
+  end
+
 
   def if_specified_string(map, field, error_subject) when is_map(map) do
     case Map.get(map, field, :undefined) do

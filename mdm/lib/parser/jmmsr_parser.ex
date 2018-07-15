@@ -3,6 +3,7 @@ defmodule MDM.JmmsrParser do
   alias MDM.JmmsrParser.ConfigParser
   alias MDM.JmmsrParser.MachinesParser
   alias MDM.JmmsrParser.ServicesParser
+  alias MDM.JmmsrParser.ConnectionsParser
     
   # TODO recursively
   defp keys_to_atoms(json) do
@@ -16,9 +17,16 @@ defmodule MDM.JmmsrParser do
   end
 
   defp check_correctness(json) do
+    with :ok <- check_presence_and_types(json),
+         :ok <- check_relations(json), do: :ok
+    
+  end
+
+  defp check_presence_and_types(json) do
     with :ok <- ConfigParser.check(json),
          :ok <- MachinesParser.check(json),
-         :ok <- ServicesParser.check(json)
+         :ok <- ServicesParser.check(json),
+         :ok <- ConnectionsParser.check(json)
     do
       :ok
     else
@@ -26,6 +34,10 @@ defmodule MDM.JmmsrParser do
         print_error(error)
         :error
     end
+  end
+
+  defp check_relations(_json) do
+    :ok # TODO
   end
 
   # TODO use Lagger
