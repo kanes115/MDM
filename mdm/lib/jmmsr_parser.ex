@@ -9,6 +9,7 @@ defmodule MDM.JmmsrParser do
            :ok <- check_persist(conf),
            :ok <- check_pilot(conf), do: :ok
     end
+    def check_config(_), do: {:error, :config_not_specified}
 
     defp check_metrics(%{"metrics" => metrics}) when is_list(metrics) do
       case Enum.all?(metrics, fn e -> Enum.member?(@available_metrics, e) end) do
@@ -26,6 +27,7 @@ defmodule MDM.JmmsrParser do
       :ok
     end
     defp check_persist(%{"persist" => false}), do: :ok
+    defp check_persist(_), do: {:error, :persist_flag_not_set}
 
     defp check_pilot(%{"pilot_machine" => id}) when is_integer(id), do: :ok
     defp check_pilot(%{"pilot_machine" => _}), do: {:error, :machine_id_not_int}
@@ -37,12 +39,11 @@ defmodule MDM.JmmsrParser do
 
     @supported_os ["debian", "linux"]
 
-    # TODO Check that ids are unique
     def check_machines(%{"machines" => machines}) when is_list(machines) do
       results = for m <- machines, do: {m, check_machine(m)}
       case take_first_error(results) do
-        :ok -> :ok
-        {_machine, {:error, _} = error} -> error
+        :ok -> check_id_uniqueness(machines)
+        {machine, {:error, reason}} -> {:error, %{trouble_entry: machine, reason: reason}}
       end
     end
     def check_machines(%{"machines" => _}), do: {:error, :machines_not_a_list}
@@ -87,15 +88,26 @@ defmodule MDM.JmmsrParser do
     defp check_os(%{"os" => _}), do: {:error, :os_not_string}
     defp check_os(_), do: {:error, :os_undefined}
 
-    defp correct_ip_format?(_), do: true
+    defp correct_ip_format?(s), do: is_bitstring(s) # TODO
 
-    defp correct_domain_name_format(_), do: true
+    defp correct_domain_name_format(s), do: is_bitstring(s) #TODO
 
     defp take_first_error([]), do: :ok
     defp take_first_error([{_machine, :ok} | tail]), do: take_first_error(tail)
     defp take_first_error([{_machine, {:error, _}} = error | _]), do: error
-  end
 
+    # TODO probably can be more idiomatic
+    defp check_id_uniqueness(machines) do
+      uniq_l = machines
+      |> Enum.map(fn %{"id" => id} -> id end)
+      |> Enum.uniq
+      |> length
+      case length(machines) do
+        ^uniq_l -> :ok
+        _ -> {:error, :machine_id_duplication}
+      end
+    end
+  end
 
 
   # TODO recursively
@@ -110,8 +122,27 @@ defmodule MDM.JmmsrParser do
   end
 
   defp check_correctness(json) do
-    :ok = ConfigParser.check_config(json)
-    :ok = MachinesParser.check_machines(json)
+    with :ok <- ConfigParser.check_config(json),
+         :ok <- MachinesParser.check_machines(json)
+    do
+      :ok
+    else
+      error ->
+        print_error(error)
+        :error
+    end
   end
+
+  # TODO use Lagger
+  defp print_error({:error, %{reason: reason, trouble_entry: entry}}) do
+    IO.puts "Error parsing for reason #{inspect(reason)}. Entry: #{inspect(entry)}"
+  end
+  defp print_error({:error, %{reason: reason}}) do
+    IO.puts "Error parsing for reason #{inspect(reason)}."
+  end
+  defp print_error({:error, reason}) when is_atom(reason) do
+    print_error({:error, %{reason: reason}})
+  end
+
 
 end
