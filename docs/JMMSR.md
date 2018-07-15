@@ -1,5 +1,7 @@
 # JMMSR
 
+Each null value can be completely ommited.
+
 ## Schema
 ```
 {
