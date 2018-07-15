@@ -1,0 +1,11 @@
+.mdm-header {
+    background-color: #222;
+    color: white;
+    height: 64px;
+    padding: 20px;
+    text-align: center;
+}
+
+.mdm-header .title {
+    font-size: 1.5em;
+}
