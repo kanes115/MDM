@@ -1,12 +1,14 @@
 import React, {Component} from 'react';
+import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
+
+import {openForm} from '../../../../actions';
 
 import CreationButton from './representation';
 
 class CreationButtonWrapper extends Component {
     state = {
         active: false,
-        formActive: false,
     };
 
     toggleCreationPanel = () => {
@@ -16,23 +18,24 @@ class CreationButtonWrapper extends Component {
     };
 
     handleConnectionCreation = () => {
-        console.log('create connection')
+        this.props.openCreationForm('connection');
     };
 
     handleMachineCreation = () => {
-        console.log('create machine')
+        this.props.openCreationForm('machine');
     };
 
     handleServiceCreation = () => {
-        console.log('create service')
+        this.props.openCreationForm('service');
     };
 
     render() {
-        const {active, formActive} = this.state;
+        const {active} = this.state;
+        const {formOpen} = this.props;
 
         return (
             <CreationButton active={active}
-                            formActive={formActive}
+                            formActive={formOpen}
                             handleConnectionCreation={this.handleConnectionCreation}
                             handleMachineCreation={this.handleMachineCreation}
                             handleServiceCreation={this.handleServiceCreation}
@@ -42,7 +45,22 @@ class CreationButtonWrapper extends Component {
     }
 }
 
-CreationButtonWrapper.propTypes = {};
+function mapStateToProps({form: {formOpen}}) {
+    return {
+        formOpen,
+    };
+}
+
+function mapDispatchToProps(dispatch) {
+    return {
+        openCreationForm: (formType) => dispatch(openForm(formType)),
+    };
+}
+
+CreationButtonWrapper.propTypes = {
+    formOpen: PropTypes.bool.isRequired,
+    openCreationForm: PropTypes.func.isRequired,
+};
 CreationButtonWrapper.defaultProps = {};
 
-export default CreationButtonWrapper;
+export default connect(mapStateToProps, mapDispatchToProps)(CreationButtonWrapper);
