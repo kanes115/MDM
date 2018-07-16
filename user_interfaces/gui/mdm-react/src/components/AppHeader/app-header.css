@@ -13,3 +13,7 @@
 .mdm-header .title {
     font-size: 2em;
 }
+
+.mdm-header .title:hover {
+    cursor: pointer;
+}

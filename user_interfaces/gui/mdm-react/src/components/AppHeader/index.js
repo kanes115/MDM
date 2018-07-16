@@ -1,9 +1,11 @@
 import React from 'react';
+import {withRouter} from 'react-router-dom';
 
 import './app-header.css';
 
-const AppHeader = () => (
-    <header className="mdm-header">
+const AppHeader = ({history}) => (
+    <header className="mdm-header"
+            onClick={() => history.push('/')}>
         <h1 className="title">MDM</h1>
     </header>
 );
@@ -11,4 +13,4 @@ const AppHeader = () => (
 AppHeader.propTypes = {};
 AppHeader.defaultProps = {};
 
-export default AppHeader;
+export default withRouter(AppHeader);
