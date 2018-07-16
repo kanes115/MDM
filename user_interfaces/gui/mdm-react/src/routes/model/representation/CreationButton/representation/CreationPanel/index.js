@@ -10,7 +10,8 @@ const CreationPanel = ({
                            handleServiceCreation,
                        }) => (
     <div className="panel">
-        <div className="close-icon">
+        <div className="close-icon"
+             onClick={deactivate}>
             <i className="material-icons">close</i>
         </div>
         <ul>
