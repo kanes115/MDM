@@ -1,13 +1,13 @@
 .mdm-nav {
     position: absolute;
-    top: 104px;
+    top: 94px;
     bottom: 0;
     left: 0;
     display: flex;
     flex-direction: column;
     background-color: #000;
-    width: 200px;
-    padding: 20px;
+    width: 224px;
+    padding: 20px 8px 20px 8px;
     color: white;
 }
 
@@ -15,10 +15,11 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-    font-size: 24px;
+    font-size: 1.5rem;
     text-decoration: none;
     color: aliceblue;
-    padding: 8px 0;
+    padding: 4px 0;
+    border-bottom: 1px solid;
 }
 
 .mdm-nav a:first-child {
@@ -30,7 +31,7 @@
 }
 
 .mdm-nav a.active {
-    color: lightcoral;
+    color: #ffbf00;
 }
 
 .mdm-nav a .nav-icon {
