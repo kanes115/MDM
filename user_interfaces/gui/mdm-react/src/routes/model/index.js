@@ -1,15 +1,17 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
-class ModelPage extends Component {
+import ModelPage from './representation';
+
+class ModelPageWrapper extends Component {
     render() {
         return (
-            <div>Model</div>
+            <ModelPage/>
         );
     }
 }
 
-ModelPage.propTypes = {};
-ModelPage.defaultProps = {};
+ModelPageWrapper.propTypes = {};
+ModelPageWrapper.defaultProps = {};
 
-export default ModelPage;
+export default ModelPageWrapper;
