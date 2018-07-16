@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import {CloseIcon} from '../../../../../../components';
+
 import './creation-panel.css';
 
 const CreationPanel = ({
@@ -10,10 +12,7 @@ const CreationPanel = ({
                            handleServiceCreation,
                        }) => (
     <div className="panel">
-        <div className="close-icon"
-             onClick={deactivate}>
-            <i className="material-icons">close</i>
-        </div>
+        <CloseIcon onClose={deactivate}/>
         <ul>
             <li onClick={handleMachineCreation}><i className="material-icons">dns</i> Add machine</li>
             <li onClick={handleServiceCreation}><i className="material-icons">category</i> Add service</li>
