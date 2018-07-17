@@ -1,0 +1,8 @@
+.mdm-creation-form .mdm-form-selection-field {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+
+    margin-bottom: 8px;
+}

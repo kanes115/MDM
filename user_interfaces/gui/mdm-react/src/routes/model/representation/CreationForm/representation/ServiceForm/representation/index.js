@@ -1,75 +1,73 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
-import {Checkbox, Form, Option, Select, Text} from 'informed';
+import {Form} from 'informed';
+
+import {
+    CheckboxField,
+    FormHeader,
+    FormSection,
+    InputField,
+    SelectionField,
+} from '../../../../../../../components/FormElements';
+
+import './service-form.css';
 
 class ServiceForm extends Component {
     render() {
         return (
-            <div className="service-form">
-                <Form id="service-form">
-                    {({formState}) =>
-                        (<div>
-                            <label htmlFor="service-name">
-                                Service name
-                            </label>
-                            <Text field="name"
-                                  id="service-name"
-                            />
+            <Form id="service-form">
+                {({formState}) =>
+                    (<div className="service-form">
+                        <FormHeader title="New service"/>
+                        <FormSection title="Basic information">
+                            <InputField id="service-name"
+                                        field="name"
+                                        label="Service name"/>
+                            <InputField id="service-dir"
+                                        field="service_dir"
+                                        label="Service directory path"/>
+                            <InputField id="service-executable"
+                                        field="service_executable"
+                                        label="Service executable path"/>
+                            <CheckboxField id="service-containerized"
+                                           field="containerized"
+                                           label="Containerized"/>
+                        </FormSection>
 
-                            <label htmlFor="service-dir">
-                                Service dir
-                            </label>
-                            <Text field="service_dir"
-                                  id="service-dir"
-                            />
+                        <FormSection title="Service requirements">
+                            <SelectionField id="service-os"
+                                            field="requirements.os"
+                                            label="OS"
+                                            multiple
+                                            options={[
+                                                {
+                                                    optionLabel: 'Linux',
+                                                    optionValue: 'linux'
+                                                },
+                                                {
+                                                    optionLabel: 'Debian',
+                                                    optionValue: 'debian'
+                                                },
+                                            ]}/>
+                            <InputField id="service-ram"
+                                        field="requirements.RAM"
+                                        label="Required RAM"
+                                        type="number"/>
+                            <InputField id="service-hdd"
+                                        field="requirements.HDD"
+                                        label="Required disk space"
+                                        type="number"/>
+                        </FormSection>
 
-                            <label htmlFor="service-executable">
-                                Service executable
-                            </label>
-                            <Text field="service_executable"
-                                  id="service-executable"
-                            />
+                        <button type="submit">
+                            Create service
+                        </button>
 
-                            <label htmlFor="service-containerized">Containerized</label>
-                            <Checkbox field="containerized"
-                                      id="service-containerized"/>
-
-                            <label htmlFor="service-os">OS:</label>
-                            <Select field="requirements.os"
-                                    id="service-os"
-                                    multiple
-                            >
-                                <Option value="linux">Linux</Option>
-                                <Option value="debian">Debian</Option>
-                            </Select>
-
-                            <label htmlFor="service-ram">
-                                Required RAM
-                            </label>
-                            <Text field="requirements.RAM"
-                                  id="service-ram"
-                                  type="number"
-                            />
-
-                            <label htmlFor="service-hdd">
-                                Required disk space
-                            </label>
-                            <Text field="requirements.HDD"
-                                  id="service-hdd"
-                                  type="number"
-                            />
-
-                            <button type="submit">
-                                Create service
-                            </button>
-
-                            <div>
-                                {JSON.stringify(formState)}
-                            </div>
-                        </div>)
-                    }
-                </Form>
-            </div>
+                        <div>
+                            {JSON.stringify(formState)}
+                        </div>
+                    </div>)
+                }
+            </Form>
         );
     }
 }

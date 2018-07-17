@@ -1,5 +1,4 @@
 import React, {Component} from 'react';
-import PropTypes from 'prop-types';
 
 import CreationButton from './CreationButton';
 import CreationForm from './CreationForm';
