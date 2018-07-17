@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
 import CreationButton from './CreationButton';
+import CreationForm from './CreationForm';
 
 class ModelPage extends Component {
     render() {
@@ -9,6 +10,7 @@ class ModelPage extends Component {
             <div>
                 Model
                 <CreationButton/>
+                <CreationForm/>
             </div>
         );
     }
