@@ -9,7 +9,7 @@ const SelectionField = ({
                             field,
                             label,
                             multiple,
-    options,
+                            options,
                         }) => (
     <div className="mdm-form-selection-field">
         <label htmlFor={id}>{label}</label>
@@ -17,7 +17,8 @@ const SelectionField = ({
                 id={id}
                 multiple={multiple}>
             {options.map(({optionLabel, optionValue}) => (
-                <Option value={optionValue}>
+                <Option value={optionValue}
+                        key={optionValue}>
                     {optionLabel}
                 </Option>
             ))}
@@ -30,7 +31,12 @@ SelectionField.propTypes = {
     field: PropTypes.string.isRequired,
     label: PropTypes.string.isRequired,
     multiple: PropTypes.bool,
-    options: PropTypes.arrayOf(PropTypes.string).isRequired,
+    options: PropTypes.arrayOf(
+        PropTypes.shape({
+            optionLabel: PropTypes.string,
+            optionValue: PropTypes.string,
+        })
+    ).isRequired,
 };
 SelectionField.defaultProps = {
     multiple: false,
