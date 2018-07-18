@@ -1,10 +1,15 @@
+import _ from 'lodash';
 import * as actionTypes from '../actions';
 
+import {system} from '../utils/jmmsr/schema';
+
 const initialState = {
+    activeSystemId: '',
     form: {
         formOpen: false,
-        formType: null,
+        formType: '',
     },
+    systems: {},
 };
 
 const rootReducer = (state = initialState, action) => {
@@ -26,6 +31,18 @@ const rootReducer = (state = initialState, action) => {
                     formOpen: false,
                     formType: null,
                 },
+            };
+
+        case actionTypes.CREATE_NEW_SYSTEM:
+            const newSystems = {...state.systems};
+            const createdSystem = _.cloneDeep(system);
+            _.set(createdSystem, 'name', action.payload.systemId);
+            _.set(newSystems, action.payload.systemId, createdSystem);
+
+            return {
+                ...state,
+                activeSystemId: action.payload.systemId,
+                systems: newSystems,
             };
         default:
             return state;

@@ -16,3 +16,14 @@ export function closeForm() {
         type: CLOSE_FORM,
     };
 }
+
+export const CREATE_NEW_SYSTEM = 'CREATE_NEW_SYSTEM';
+
+export function createNewSystem(systemId) {
+    return {
+        type: CREATE_NEW_SYSTEM,
+        payload: {
+            systemId,
+        },
+    };
+}
