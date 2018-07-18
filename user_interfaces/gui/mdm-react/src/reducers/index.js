@@ -6,6 +6,10 @@ import {system} from '../utils/jmmsr/schema';
 const initialState = {
     activeSystemId: '',
     form: {
+        connectionForm: {
+            source: '',
+            target: '',
+        },
         formOpen: false,
         formType: '',
     },
@@ -65,6 +69,47 @@ const rootReducer = (state = initialState, action) => {
                         services: [
                             ...state.systems[state.activeSystemId].services,
                             _.cloneDeep(action.payload.service),
+                        ],
+                    },
+                },
+            };
+        case actionTypes.SELECT_CONNECTION_SOURCE:
+            return {
+                ...state,
+                form: {
+                    ...state.form,
+                    connectionForm: {
+                        ...state.form.connectionForm,
+                        source: action.payload.serviceName,
+                    },
+                },
+            };
+        case actionTypes.SELECT_CONNECTION_TARGET:
+            return {
+                ...state,
+                form: {
+                    ...state.form,
+                    connectionForm: {
+                        ...state.form.connectionForm,
+                        target: action.payload.serviceName,
+                    },
+                },
+            };
+        case actionTypes.CREATE_NEW_CONNECTION:
+            return {
+                ...state,
+                form: {
+                    ...state.form,
+                    formOpen: false,
+                    formType: '',
+                },
+                systems: {
+                    ...state.systems,
+                    [state.activeSystemId]: {
+                        ...state.systems[state.activeSystemId],
+                        connections: [
+                            ...state.systems[state.activeSystemId].connections,
+                            _.cloneDeep(action.payload.connection),
                         ],
                     },
                 },
