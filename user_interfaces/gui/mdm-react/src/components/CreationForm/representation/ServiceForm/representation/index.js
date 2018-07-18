@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {Form} from 'informed';
 
 import {
@@ -7,14 +8,17 @@ import {
     FormSection,
     InputField,
     SelectionField,
-} from '../../../../../../../components/FormElements';
+} from '../../../../FormElements/index';
 
 import './service-form.css';
 
 class ServiceForm extends Component {
     render() {
+        const {onSubmit, setFormAPI} = this.props;
+
         return (
-            <Form id="service-form">
+            <Form id="service-form"
+                  getApi={setFormAPI}>
                 {({formState}) =>
                     (<div className="service-form">
                         <FormHeader title="New service"/>
@@ -58,7 +62,12 @@ class ServiceForm extends Component {
                                         type="number"/>
                         </FormSection>
 
-                        <button type="submit">
+                        <button type="submit"
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    onSubmit();
+                                }}>
                             Create service
                         </button>
 
@@ -72,7 +81,10 @@ class ServiceForm extends Component {
     }
 }
 
-ServiceForm.propTypes = {};
+ServiceForm.propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+    setFormAPI: PropTypes.func.isRequired,
+};
 ServiceForm.defaultProps = {};
 
 export default ServiceForm;

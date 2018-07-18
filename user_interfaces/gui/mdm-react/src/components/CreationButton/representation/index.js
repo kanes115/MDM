@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import CreationIcon from './CreationIcon';
-import CreationPanel from './CreationPanel';
+import CreationIcon from './CreationIcon/index';
+import CreationPanel from './CreationPanel/index';
 
 import './creation-button.css';
 
@@ -12,7 +12,10 @@ const CreationButton = ({
                             handleConnectionCreation,
                             handleMachineCreation,
                             handleServiceCreation,
-                            toggleCreation
+                            handleSystemConfiguration,
+                            handleSystemCreation,
+                            isSystemActive,
+                            toggleCreation,
                         }) => (
     !formActive &&
     (<div className="mdm-creation-button">
@@ -21,6 +24,9 @@ const CreationButton = ({
                             handleConnectionCreation={handleConnectionCreation}
                             handleMachineCreation={handleMachineCreation}
                             handleServiceCreation={handleServiceCreation}
+                            handleSystemConfiguration={handleSystemConfiguration}
+                            handleSystemCreation={handleSystemCreation}
+                            isSystemActive={isSystemActive}
             />)
             :
             (<CreationIcon activate={toggleCreation}/>)
@@ -34,6 +40,9 @@ CreationButton.propTypes = {
     handleConnectionCreation: PropTypes.func.isRequired,
     handleMachineCreation: PropTypes.func.isRequired,
     handleServiceCreation: PropTypes.func.isRequired,
+    handleSystemConfiguration: PropTypes.func.isRequired,
+    handleSystemCreation: PropTypes.func.isRequired,
+    isSystemActive: PropTypes.bool.isRequired,
     toggleCreation: PropTypes.func.isRequired,
 };
 CreationButton.defaultProps = {};

@@ -2,19 +2,18 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
-import {closeForm} from '../../../../actions';
+import {closeForm} from '../../actions/index';
 
-import CreationForm from './representation';
+import CreationForm from './representation/index';
 
 class CreationFormWrapper extends Component {
     render() {
         const {formOpen, formType} = this.props;
 
         return (
-            formOpen && (
-                <CreationForm formType={formType}
-                              onClose={this.props.closeCreationForm}/>
-            )
+            <CreationForm formOpen={formOpen}
+                          formType={formType}
+                          onClose={this.props.closeCreationForm}/>
         );
     }
 }
@@ -39,10 +38,13 @@ CreationFormWrapper.propTypes = {
         'connection',
         'machine',
         'service',
+        'systemConfig',
+        'system',
+        '',
     ]),
 };
 CreationFormWrapper.defaultProps = {
-    formType: null,
+    formType: '',
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(CreationFormWrapper);

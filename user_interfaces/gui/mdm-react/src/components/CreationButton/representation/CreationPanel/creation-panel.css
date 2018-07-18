@@ -14,7 +14,15 @@
     padding-left: 16px;
 }
 
-.mdm-creation-button .panel ul li {
+.mdm-creation-button .panel ul li {  }
+
+.mdm-creation-button .panel ul li.disabled {
+    color: darkgray;
+}
+
+.mdm-creation-button .panel ul li.disabled:hover {
+    color: darkgray;
+    cursor: default;
 }
 
 .mdm-creation-button .panel ul li:hover {

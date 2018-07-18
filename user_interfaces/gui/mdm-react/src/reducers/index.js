@@ -29,7 +29,7 @@ const rootReducer = (state = initialState, action) => {
                 form: {
                     ...state.form,
                     formOpen: false,
-                    formType: null,
+                    formType: '',
                 },
             };
 
@@ -42,6 +42,11 @@ const rootReducer = (state = initialState, action) => {
             return {
                 ...state,
                 activeSystemId: action.payload.systemId,
+                form: {
+                    ...state.form,
+                    formOpen: false,
+                    formType: '',
+                },
                 systems: newSystems,
             };
         default:

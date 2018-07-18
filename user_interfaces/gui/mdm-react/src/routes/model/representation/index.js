@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 
-import CreationButton from './CreationButton';
-import CreationForm from './CreationForm';
+import {CreationButton, CreationForm} from '../../../components';
 
 class ModelPage extends Component {
     render() {

@@ -2,9 +2,9 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {openForm} from '../../../../actions';
+import {openForm} from '../../actions/index';
 
-import CreationButton from './representation';
+import CreationButton from './representation/index';
 
 class CreationButtonWrapper extends Component {
     state = {
@@ -29,9 +29,17 @@ class CreationButtonWrapper extends Component {
         this.props.openCreationForm('service');
     };
 
+    handleSystemConfiguration = () => {
+        this.props.openCreationForm('systemConfig');
+    };
+
+    handleSystemCreation = () => {
+        this.props.openCreationForm('system');
+    };
+
     render() {
         const {active} = this.state;
-        const {formOpen} = this.props;
+        const {formOpen, isSystemActive} = this.props;
 
         return (
             <CreationButton active={active}
@@ -39,15 +47,19 @@ class CreationButtonWrapper extends Component {
                             handleConnectionCreation={this.handleConnectionCreation}
                             handleMachineCreation={this.handleMachineCreation}
                             handleServiceCreation={this.handleServiceCreation}
+                            handleSystemConfiguration={this.handleSystemConfiguration}
+                            handleSystemCreation={this.handleSystemCreation}
+                            isSystemActive={isSystemActive}
                             toggleCreation={this.toggleCreationPanel}
             />
         );
     }
 }
 
-function mapStateToProps({form: {formOpen}}) {
+function mapStateToProps({activeSystemId, form: {formOpen}}) {
     return {
         formOpen,
+        isSystemActive: activeSystemId.length > 0,
     };
 }
 
@@ -59,6 +71,7 @@ function mapDispatchToProps(dispatch) {
 
 CreationButtonWrapper.propTypes = {
     formOpen: PropTypes.bool.isRequired,
+    isSystemActive: PropTypes.bool.isRequired,
     openCreationForm: PropTypes.func.isRequired,
 };
 CreationButtonWrapper.defaultProps = {};
