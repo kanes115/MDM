@@ -1,0 +1,23 @@
+.mdm-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    height: 400px;
+    width: 80%;
+    margin: 94px auto;
+
+    font-size: 1.2rem;
+
+    /*background-color: lightgray;*/
+    box-shadow: 6px 8px 12px #222;
+}
+
+.mdm-empty-state .icon {
+
+}
+
+.mdm-empty-state .message {
+    text-align: center;
+}
