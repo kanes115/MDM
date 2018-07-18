@@ -39,6 +39,22 @@ export function createNewService(service) {
     };
 }
 
+export const TOGGLE_SOURCE_SELECTION = 'TOGGLE_SOURCE_SELECTION';
+
+export function toggleSourceSelection() {
+    return {
+        type: TOGGLE_SOURCE_SELECTION,
+    };
+}
+
+export const TOGGLE_TARGET_SELECTION = 'TOGGLE_TARGET_SELECTION';
+
+export function toggleTargetSelection() {
+    return {
+        type: TOGGLE_TARGET_SELECTION,
+    };
+}
+
 export const SELECT_CONNECTION_SOURCE = 'SELECT_CONNECTION_SOURCE';
 
 export function selectConnectionSource(serviceName) {

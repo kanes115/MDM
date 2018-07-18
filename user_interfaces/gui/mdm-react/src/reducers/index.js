@@ -7,8 +7,10 @@ const initialState = {
     activeSystemId: '',
     form: {
         connectionForm: {
-            source: '',
-            target: '',
+            selectingSource: false,
+            selectingTarget: false,
+            service_from: '',
+            service_to: '',
         },
         formOpen: false,
         formType: '',
@@ -73,6 +75,28 @@ const rootReducer = (state = initialState, action) => {
                     },
                 },
             };
+        case actionTypes.TOGGLE_SOURCE_SELECTION:
+            return {
+                ...state,
+                form: {
+                    ...state.form,
+                    connectionForm: {
+                        ...state.form.connectionForm,
+                        selectingSource: !state.form.connectionForm.selectingSource,
+                    },
+                },
+            };
+        case actionTypes.TOGGLE_TARGET_SELECTION:
+            return {
+                ...state,
+                form: {
+                    ...state.form,
+                    connectionForm: {
+                        ...state.form.connectionForm,
+                        selectingTarget: !state.form.connectionForm.selectingTarget,
+                    },
+                },
+            };
         case actionTypes.SELECT_CONNECTION_SOURCE:
             return {
                 ...state,
@@ -80,7 +104,8 @@ const rootReducer = (state = initialState, action) => {
                     ...state.form,
                     connectionForm: {
                         ...state.form.connectionForm,
-                        source: action.payload.serviceName,
+                        selectingSource: false,
+                        service_from: action.payload.serviceName,
                     },
                 },
             };
@@ -91,7 +116,8 @@ const rootReducer = (state = initialState, action) => {
                     ...state.form,
                     connectionForm: {
                         ...state.form.connectionForm,
-                        target: action.payload.serviceName,
+                        selectingTarget: false,
+                        service_to: action.payload.serviceName,
                     },
                 },
             };
@@ -100,6 +126,12 @@ const rootReducer = (state = initialState, action) => {
                 ...state,
                 form: {
                     ...state.form,
+                    connectionForm: {
+                        selectingSource: false,
+                        selectingTarget: false,
+                        service_from: '',
+                        service_to: '',
+                    },
                     formOpen: false,
                     formType: '',
                 },

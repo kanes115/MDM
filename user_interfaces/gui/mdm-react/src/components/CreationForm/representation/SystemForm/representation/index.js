@@ -6,7 +6,7 @@ import {
     FormHeader,
     FormSection,
     InputField,
-} from '../../../../FormElements/index';
+} from '../../../../FormElements';
 
 import './system-form.css';
 
