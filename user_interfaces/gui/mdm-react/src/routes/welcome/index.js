@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import _ from 'lodash';
 
 import {openForm} from '../../actions';
-import {CreationForm, EmptyState} from '../../components';
+import {CreationButton, CreationForm, EmptyState} from '../../components';
 
 import './welcome.css';
 
@@ -32,6 +32,7 @@ class WelcomePage extends Component {
                         </div>
                     </EmptyState>)
                 }
+                <CreationButton/>
                 <CreationForm/>
             </div>
         );

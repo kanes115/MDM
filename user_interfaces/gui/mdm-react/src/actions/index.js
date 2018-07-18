@@ -27,3 +27,14 @@ export function createNewSystem(systemId) {
         },
     };
 }
+
+export const CREATE_NEW_SERVICE = 'CREATE_NEW_SERVICE';
+
+export function createNewService(service) {
+    return {
+        type: CREATE_NEW_SERVICE,
+        payload: {
+            service,
+        },
+    };
+}

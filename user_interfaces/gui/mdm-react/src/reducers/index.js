@@ -49,6 +49,26 @@ const rootReducer = (state = initialState, action) => {
                 },
                 systems: newSystems,
             };
+
+        case actionTypes.CREATE_NEW_SERVICE:
+            return {
+                ...state,
+                form: {
+                    ...state.form,
+                    formOpen: false,
+                    formType: '',
+                },
+                systems: {
+                    ...state.systems,
+                    [state.activeSystemId]: {
+                        ...state.systems[state.activeSystemId],
+                        services: [
+                            ...state.systems[state.activeSystemId].services,
+                            _.cloneDeep(action.payload.service),
+                        ],
+                    },
+                },
+            };
         default:
             return state;
     }

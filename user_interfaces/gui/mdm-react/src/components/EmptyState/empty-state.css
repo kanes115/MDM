@@ -20,3 +20,8 @@
 .mdm-empty-state .message {
     text-align: center;
 }
+
+.mdm-empty-state .message .action {
+    color: #ffbf00;
+    cursor: pointer;
+}

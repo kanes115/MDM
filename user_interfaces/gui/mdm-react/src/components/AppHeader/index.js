@@ -8,7 +8,6 @@ import './app-header.css';
 class AppHeader extends Component {
     render() {
         const {activeSystemId, history, isSystemActive} = this.props;
-        console.log(activeSystemId, isSystemActive)
 
         return (
             <header className="mdm-header"

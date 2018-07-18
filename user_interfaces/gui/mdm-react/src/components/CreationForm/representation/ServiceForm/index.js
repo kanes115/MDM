@@ -1,5 +1,8 @@
 import React, {Component} from 'react';
+import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
+
+import {createNewService} from '../../../../actions';
 
 import ServiceForm from './representation';
 
@@ -11,15 +14,13 @@ class ServiceFormWrapper extends Component {
     }
 
     setFormAPI = (formAPI) => {
-        console.log(formAPI)
         this.serviceCreationFormAPI = formAPI;
     };
 
     onSubmit = () => {
         const {values: service} = this.serviceCreationFormAPI.getState();
-        console.log(this.serviceCreationFormAPI.getState())
 
-
+        this.props.createService(service);
     };
 
     render() {
@@ -31,10 +32,14 @@ class ServiceFormWrapper extends Component {
 }
 
 function mapDispatchToProps(dispatch) {
-    return {};
+    return {
+        createService: (service) => dispatch(createNewService(service)),
+    };
 }
 
-ServiceFormWrapper.propTypes = {};
+ServiceFormWrapper.propTypes = {
+    createService: PropTypes.func.isRequired,
+};
 ServiceFormWrapper.defaultProps = {};
 
 export default connect(null, mapDispatchToProps)(ServiceFormWrapper);

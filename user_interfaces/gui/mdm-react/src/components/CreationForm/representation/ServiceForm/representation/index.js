@@ -70,10 +70,6 @@ class ServiceForm extends Component {
                                 }}>
                             Create service
                         </button>
-
-                        <div>
-                            {JSON.stringify(formState)}
-                        </div>
                     </div>)
                 }
             </Form>
