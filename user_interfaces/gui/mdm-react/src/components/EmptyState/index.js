@@ -15,7 +15,10 @@ const EmptyState = ({children, iconName}) => (
 );
 
 EmptyState.propTypes = {
-    children: PropTypes.element.isRequired,
+    children: PropTypes.oneOfType([
+        PropTypes.element,
+        PropTypes.arrayOf(PropTypes.element),
+    ]).isRequired,
     iconName: PropTypes.string.isRequired,
 };
 EmptyState.defaultProps = {};

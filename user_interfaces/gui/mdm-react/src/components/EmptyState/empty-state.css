@@ -6,11 +6,10 @@
 
     height: 400px;
     width: 80%;
-    margin: 94px auto;
+    margin: 0 auto;
 
     font-size: 1.2rem;
 
-    /*background-color: lightgray;*/
     box-shadow: 6px 8px 12px #222;
 }
 
