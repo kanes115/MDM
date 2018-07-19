@@ -1,6 +1,5 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
-import _ from 'lodash';
 import {Form} from 'informed';
 
 import {
@@ -8,6 +7,8 @@ import {
     FormSection,
     InputField,
 } from '../../../../FormElements';
+
+import ConnectionInput from './ConnectionInput';
 
 import './connection-form.css';
 
@@ -35,31 +36,12 @@ class ConnectionForm extends Component {
                                         field="port"
                                         label="Port"
                                         type="number"/>
-                            <div className="connection">
-                                <div className="connection-side source">
-                                    <div className="empty-connection-side"
-                                         onClick={toggleSource}>
-                                        {_.size(source) > 0 ?
-                                            (source.name)
-                                            :
-                                            (`${selectingSource ? "Choose source" : "Click to select source"}`)
-                                        }
-
-                                    </div>
-                                </div>
-                                <div className="connection-edge"/>
-                                <div className="connection-edge-tip"/>
-                                <div className="connection-side target">
-                                    <div className="empty-connection-side"
-                                         onClick={toggleTarget}>
-                                        {_.size(target) > 0 ?
-                                            (target.name)
-                                            :
-                                            (`${selectingTarget ? "Choose target" : "Click to select target"}`)
-                                        }
-                                    </div>
-                                </div>
-                            </div>
+                            <ConnectionInput selectingSource={selectingSource}
+                                             selectingTarget={selectingTarget}
+                                             source={source}
+                                             target={target}
+                                             toggleSource={toggleSource}
+                                             toggleTarget={toggleTarget}/>
                         </FormSection>
 
                         <button type="submit"
