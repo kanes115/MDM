@@ -87,3 +87,14 @@ export function createNewConnection(connection) {
         },
     };
 }
+
+export const CREATE_NEW_MACHINE = 'CREATE_NEW_MACHINE';
+
+export function createNewMachine(machine) {
+    return {
+        type: CREATE_NEW_MACHINE,
+        payload: {
+            machine,
+        },
+    };
+}

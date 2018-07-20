@@ -2,6 +2,7 @@ import _ from 'lodash';
 import * as actionTypes from '../actions';
 
 import {system} from '../utils/jmmsr/schema';
+import {CREATE_NEW_MACHINE} from "../actions/index";
 
 const initialState = {
     activeSystemId: '',
@@ -142,6 +143,25 @@ const rootReducer = (state = initialState, action) => {
                         connections: [
                             ...state.systems[state.activeSystemId].connections,
                             _.cloneDeep(action.payload.connection),
+                        ],
+                    },
+                },
+            };
+        case actionTypes.CREATE_NEW_MACHINE:
+            return {
+                ...state,
+                form: {
+                    ...state.form,
+                    formOpen: false,
+                    formType: '',
+                },
+                systems: {
+                    ...state.systems,
+                    [state.activeSystemId]: {
+                        ...state.systems[state.activeSystemId],
+                        machines: [
+                            ...state.systems[state.activeSystemId].machines,
+                            _.cloneDeep(action.payload.machine),
                         ],
                     },
                 },
