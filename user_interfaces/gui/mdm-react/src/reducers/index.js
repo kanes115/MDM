@@ -2,7 +2,6 @@ import _ from 'lodash';
 import * as actionTypes from '../actions';
 
 import {system} from '../utils/jmmsr/schema';
-import {CREATE_NEW_MACHINE} from "../actions/index";
 
 const initialState = {
     activeSystemId: '',
