@@ -1,3 +1,4 @@
+import AppGraph from './AppGraph';
 import AppHeader from './AppHeader';
 import AppNavigation from './AppNavigation';
 import AppRoutes from './AppRoutes';
@@ -8,6 +9,7 @@ import EmptyState from './EmptyState';
 import MDMLink from './Link';
 
 export {
+    AppGraph,
     AppHeader,
     AppNavigation,
     AppRoutes,

@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import './App.css';
 
-import {AppRoutes, AppHeader, AppNavigation} from '../components';
+import {AppGraph, AppHeader, AppNavigation, AppRoutes} from '../components';
 
 class App extends Component {
     render() {
@@ -9,6 +9,7 @@ class App extends Component {
             <div className="mdm">
                 <AppHeader/>
                 <AppNavigation/>
+                <AppGraph/>
                 <AppRoutes/>
             </div>
         );

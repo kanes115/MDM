@@ -15,6 +15,10 @@ const initialState = {
         formOpen: false,
         formType: '',
     },
+    graph: {
+        nodes: [],
+        edges: [],
+    },
     systems: {},
 };
 
@@ -63,6 +67,17 @@ const rootReducer = (state = initialState, action) => {
                     ...state.form,
                     formOpen: false,
                     formType: '',
+                },
+                graph: {
+                    ...state.graph,
+                    nodes: [
+                        ...state.graph.nodes,
+                        {
+                            id: action.payload.service.name,
+                            label: action.payload.service.name,
+                            color: '#ff0000',
+                        },
+                    ],
                 },
                 systems: {
                     ...state.systems,
@@ -134,6 +149,18 @@ const rootReducer = (state = initialState, action) => {
                     },
                     formOpen: false,
                     formType: '',
+                },
+                graph: {
+                    ...state.graph,
+                    edges: [
+                        ...state.graph.edges,
+                        {
+                            id: `${action.payload.connection.service_from}->${action.payload.connection.service_to}`,
+                            source: action.payload.connection.service_from,
+                            target: action.payload.connection.service_to,
+                            color: '#ff0000',
+                        },
+                    ],
                 },
                 systems: {
                     ...state.systems,
