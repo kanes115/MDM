@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 import _ from 'lodash';
 
-import {createNewSystem} from '../../../../actions';
+import {updateSystemConfig} from '../../../../actions';
 
 import SystemConfigForm from './representation';
 
@@ -19,7 +19,9 @@ class SystemConfigFormWrapper extends Component {
     };
 
     onSubmit = () => {
-        console.log(this.systemConfigFormAPI.getState())
+        const {values} = this.systemConfigFormAPI.getState();
+
+        this.props.updateConfig(values);
     };
 
     render() {
@@ -50,7 +52,7 @@ function mapStateToProps({activeSystemId, systems}) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        createSystem: (systemName) => dispatch(createNewSystem(systemName)),
+        updateConfig: (systemName) => dispatch(updateSystemConfig(systemName)),
     };
 }
 
@@ -64,7 +66,7 @@ SystemConfigFormWrapper.propTypes = {
         persist_machine: PropTypes.number,
         pilot_machine: PropTypes.number,
     }).isRequired,
-    createSystem: PropTypes.func.isRequired,
+    updateConfig: PropTypes.func.isRequired,
 };
 SystemConfigFormWrapper.defaultProps = {};
 

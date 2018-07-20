@@ -98,3 +98,14 @@ export function createNewMachine(machine) {
         },
     };
 }
+
+export const UPDATE_SYSTEM_CONFIG = 'UPDATE_SYSTEM_CONFIG';
+
+export function updateSystemConfig(config) {
+    return {
+        type: UPDATE_SYSTEM_CONFIG,
+        payload: {
+            config,
+        },
+    };
+}
