@@ -6,7 +6,7 @@ import ModelPage from '../../routes/model';
 import DeployPage from '../../routes/deploy';
 import MonitorPage from '../../routes/monitor';
 
-import './app-content.css';
+import './app-routes.css';
 
 class AppContent extends Component {
     render() {

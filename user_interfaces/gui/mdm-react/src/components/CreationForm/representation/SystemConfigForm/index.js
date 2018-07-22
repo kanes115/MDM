@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
+import _ from 'lodash';
 
-import {createNewSystem} from '../../../../actions';
+import {updateSystemConfig} from '../../../../actions';
 
 import SystemConfigForm from './representation';
 
@@ -10,34 +11,63 @@ class SystemConfigFormWrapper extends Component {
     constructor(props) {
         super(props);
 
-        this.systemCreationFormAPI = null;
+        this.systemConfigFormAPI = null;
     }
 
     setFormAPI = (formAPI) => {
-        this.systemCreationFormAPI = formAPI;
+        this.systemConfigFormAPI = formAPI;
     };
 
     onSubmit = () => {
-        console.log(this.systemCreationFormAPI.getState())
+        const {values} = this.systemConfigFormAPI.getState();
+
+        this.props.updateConfig(values);
     };
 
     render() {
+        const {
+            availableMachines,
+            config,
+        } = this.props;
+
         return (
-            <SystemConfigForm onSubmit={this.onSubmit}
+            <SystemConfigForm availableMachines={availableMachines}
+                              config={_.cloneDeep(config)}
+                              onSubmit={this.onSubmit}
                               setFormAPI={this.setFormAPI}/>
         );
     }
 }
 
+function mapStateToProps({activeSystemId, systems}) {
+    const activeSystem = systems[activeSystemId];
+    const availableMachines = [...activeSystem.machines];
+    const config = activeSystem.config;
+
+    return {
+        availableMachines,
+        config,
+    };
+}
+
 function mapDispatchToProps(dispatch) {
     return {
-        createSystem: (systemName) => dispatch(createNewSystem(systemName)),
+        updateConfig: (systemName) => dispatch(updateSystemConfig(systemName)),
     };
 }
 
 SystemConfigFormWrapper.propTypes = {
-    createSystem: PropTypes.func.isRequired,
+    availableMachines: PropTypes.arrayOf(PropTypes.object).isRequired,
+    config: PropTypes.shape({
+        metrics: PropTypes.arrayOf(PropTypes.oneOf([
+            'cpu', 'net', 'mem',
+        ])).isRequired,
+        persist: PropTypes.bool.isRequired,
+        persist_machine: PropTypes.number,
+        pilot_machine: PropTypes.number,
+    }).isRequired,
+    updateConfig: PropTypes.func.isRequired,
 };
 SystemConfigFormWrapper.defaultProps = {};
 
-export default connect(null, mapDispatchToProps)(SystemConfigFormWrapper);
+export default connect(mapStateToProps, mapDispatchToProps)(SystemConfigFormWrapper);

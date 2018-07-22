@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
+import ConnectionForm from './ConnectionForm';
+import MachineForm from './MachineForm';
 import ServiceForm from './ServiceForm';
 import SystemConfigForm from './SystemConfigForm';
 import SystemForm from './SystemForm';
@@ -13,9 +15,9 @@ class CreationForm extends Component {
     renderForm = (formType) => {
         switch (formType) {
             case 'connection':
-                return (<div>connection</div>);
+                return (<ConnectionForm/>);
             case 'machine':
-                return (<div>machine</div>);
+                return (<MachineForm/>);
             case 'service':
                 return <ServiceForm/>;
             case 'systemConfig':

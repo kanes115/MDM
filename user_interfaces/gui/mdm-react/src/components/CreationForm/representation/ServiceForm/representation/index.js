@@ -14,7 +14,7 @@ import './service-form.css';
 
 class ServiceForm extends Component {
     render() {
-        const {onSubmit, setFormAPI} = this.props;
+        const {availableMachineNames, onSubmit, setFormAPI} = this.props;
 
         return (
             <Form id="service-form"
@@ -38,6 +38,14 @@ class ServiceForm extends Component {
                         </FormSection>
 
                         <FormSection title="Service requirements">
+                            <SelectionField id="service-machines"
+                                            field="requirements.available_machines"
+                                            label="Available machines"
+                                            multiple
+                                            options={availableMachineNames.map(availableMachineName => ({
+                                                optionLabel: availableMachineName,
+                                                optionValue: availableMachineName,
+                                            }))}/>
                             <SelectionField id="service-os"
                                             field="requirements.os"
                                             label="OS"
@@ -78,6 +86,7 @@ class ServiceForm extends Component {
 }
 
 ServiceForm.propTypes = {
+    availableMachineNames: PropTypes.arrayOf(PropTypes.string),
     onSubmit: PropTypes.func.isRequired,
     setFormAPI: PropTypes.func.isRequired,
 };

@@ -24,11 +24,23 @@ class ServiceFormWrapper extends Component {
     };
 
     render() {
+        const {availableMachineNames} = this.props;
+
         return (
-            <ServiceForm onSubmit={this.onSubmit}
+            <ServiceForm availableMachineNames={availableMachineNames}
+                         onSubmit={this.onSubmit}
                          setFormAPI={this.setFormAPI}/>
         );
     }
+}
+
+function mapStateToProps({systems, activeSystemId}) {
+    const activeSystem = systems[activeSystemId];
+    const availableMachineNames = activeSystem.machines.map(machine => machine.name);
+
+    return {
+        availableMachineNames,
+    };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -38,8 +50,9 @@ function mapDispatchToProps(dispatch) {
 }
 
 ServiceFormWrapper.propTypes = {
+    availableMachineNames: PropTypes.arrayOf(PropTypes.string),
     createService: PropTypes.func.isRequired,
 };
 ServiceFormWrapper.defaultProps = {};
 
-export default connect(null, mapDispatchToProps)(ServiceFormWrapper);
+export default connect(mapStateToProps, mapDispatchToProps)(ServiceFormWrapper);
