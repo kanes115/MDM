@@ -173,6 +173,44 @@ const rootReducer = (state = initialState, action) => {
                     },
                 },
             };
+        case actionTypes.CREATE_NEW_MACHINE:
+            return {
+                ...state,
+                form: {
+                    ...state.form,
+                    formOpen: false,
+                    formType: '',
+                },
+                systems: {
+                    ...state.systems,
+                    [state.activeSystemId]: {
+                        ...state.systems[state.activeSystemId],
+                        machines: [
+                            ...state.systems[state.activeSystemId].machines,
+                            _.cloneDeep(action.payload.machine),
+                        ],
+                    },
+                },
+            };
+        case actionTypes.UPDATE_SYSTEM_CONFIG:
+            return {
+                ...state,
+                form: {
+                    ...state.form,
+                    formOpen: false,
+                    formType: '',
+                },
+                systems: {
+                    ...state.systems,
+                    [state.activeSystemId]: {
+                        ...state.systems[state.activeSystemId],
+                        config: {
+                            ...state.systems[state.activeSystemId].config,
+                            ...action.payload.config,
+                        },
+                    },
+                },
+            };
         default:
             return state;
     }

@@ -18,7 +18,7 @@ const SelectionField = ({
                 multiple={multiple}>
             {options.map(({optionLabel, optionValue}) => (
                 <Option value={optionValue}
-                        key={optionValue}>
+                        key={`${id}_${optionValue}`}>
                     {optionLabel}
                 </Option>
             ))}
