@@ -9,9 +9,7 @@ class App extends Component {
             <div className="mdm">
                 <AppHeader/>
                 <AppNavigation/>
-                <AppContent>
-                    Welcome to MDM!
-                </AppContent>
+                <AppContent/>
             </div>
         );
     }

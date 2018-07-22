@@ -3,13 +3,22 @@
     top: 0;
     left: 0;
     width: 200px;
-    background-color: #222;
+    background-color: #000;
     color: white;
     height: 64px;
-    padding: 20px;
+    padding: 10px 20px 20px 20px;
     text-align: center;
 }
 
 .mdm-header .title {
-    font-size: 1.5em;
+    font-size: 2em;
+    margin: 0;
+}
+
+.mdm-header .subtitle {
+    margin: 0;
+}
+
+.mdm-header .title:hover {
+    cursor: pointer;
 }

@@ -1,0 +1,16 @@
+.mdm-creation-button .prompt {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 64px;
+    height: 64px;
+    border-radius: 100%;
+    color: #ffbf00;
+    background: #222;
+    cursor: pointer;
+}

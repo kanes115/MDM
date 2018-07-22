@@ -1,0 +1,12 @@
+.mdm-creation-form .mdm-form-input-field {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+
+    margin-bottom: 8px;
+}
+
+.mdm-creation-form .mdm-form-input-field label {
+    font-size: 1rem;
+}

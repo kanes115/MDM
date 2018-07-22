@@ -1,0 +1,31 @@
+.mdm-creation-button .panel {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+
+    width: 240px;
+    color: aliceblue;
+    background: #222;
+    font-size: 1.5rem;
+}
+
+.mdm-creation-button .panel ul {
+    list-style-type: none;
+    padding-left: 16px;
+}
+
+.mdm-creation-button .panel ul li {  }
+
+.mdm-creation-button .panel ul li.disabled {
+    color: darkgray;
+}
+
+.mdm-creation-button .panel ul li.disabled:hover {
+    color: darkgray;
+    cursor: default;
+}
+
+.mdm-creation-button .panel ul li:hover {
+    color: #ffbf00;
+    cursor: pointer;
+}
