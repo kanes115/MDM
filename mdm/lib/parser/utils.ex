@@ -101,4 +101,66 @@ defmodule MDM.JmmsrParser.Utils do
 
   defp is_path(s), do: is_bitstring(s) # TODO
 
+  # =======================================================
+
+  def path(json, [field | fields]) do
+    case Map.get(json, field, :undefined) do
+      :undefined -> 
+        :not_found
+      values when is_list(values) ->
+        values 
+        |> Enum.map(fn v -> path(v, fields) end)
+      value ->
+        path(value, fields)
+    end
+  end
+  def path(value, []), do: value
+
+
+  def check_values(json, path, checker_fun, must_be_defined? \\ true) do
+        json
+        |> path(path)
+        |> wrap_in_list
+        |> flatten
+        |> check_not_found(must_be_defined?)
+        |> maybe_check_predicate(checker_fun)
+        |> maybe_return_error(path)
+  end
+
+
+  defp check_not_found(values, true) do
+    case Enum.any?(values, fn e -> e == :not_found end) do
+      true -> :not_found
+      false -> values
+    end
+  end
+  defp check_not_found(values, false), do: remove_not_founds(values)
+
+  defp remove_not_founds(values), do: values |> Enum.filter(fn e -> e != :not_found end)
+
+  defp maybe_check_predicate(:not_found, _), do: :not_found
+  defp maybe_check_predicate(values, pred) do
+    case Enum.all?(values, pred) do
+      true -> values
+      false -> :predicate
+    end
+  end
+
+  defp wrap_in_list(val) when is_list(val), do: val
+  defp wrap_in_list(val), do: [val]
+
+  defp maybe_return_error(reason, path) when reason == :not_found or
+                                             reason == :predicate do
+    {false, path, reason}
+  end
+  defp maybe_return_error(_, _), do: true
+
+
+  defp flatten(list, depth \\ -2), do: flatten(list, depth + 1, []) |> Enum.reverse
+  defp flatten(list, 0, acc), do: [list | acc]
+  defp flatten([h | t], depth, acc) when h == [], do: flatten(t, depth, acc)
+  defp flatten([h | t], depth, acc) when is_list(h), do: flatten(t, depth, flatten(h, depth - 1, acc))
+  defp flatten([h | t], depth, acc), do: flatten(t, depth, [h | acc])
+  defp flatten([], _, acc), do: acc
+
 end

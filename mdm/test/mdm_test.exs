@@ -5,4 +5,5 @@ defmodule MDMTest do
   test "greets the world" do
     assert MDM.hello() == :world
   end
+
 end
