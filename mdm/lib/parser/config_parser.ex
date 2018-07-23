@@ -6,7 +6,9 @@ defmodule MDM.JmmsrParser.ConfigParser do
   @available_metrics ["cpuUsage"] # TODO determine
 
   def check(json) do
-    with true <- Utils.check_values(json, ["config", "metrics"],
+    with true <- Utils.check_values(json, ["config"],
+                                    &is_map/1),
+         true <- Utils.check_values(json, ["config", "metrics"],
                                     &is_bitstring/1),
          true <- Utils.check_values(json, ["config", "metrics"],
                                     {&available_metric?/1, :unknown_metric}),

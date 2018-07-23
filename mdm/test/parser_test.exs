@@ -49,9 +49,14 @@ defmodule ParserTest do
 
   test "If there's unknown metric in config, metrics we give error" do
     {:error, path, reason} = JmmsrParser.from_file mdm_file("config_unknown_metric")
-    IO.inspect reason
     assert path == "config, metrics"
     assert reason == :unknown_metric
+  end
+
+  test "No config" do
+    {:error, path, reason} = JmmsrParser.from_file mdm_file("no_config")
+    assert path == "config"
+    assert reason == :not_found
   end
 
 
