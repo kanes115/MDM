@@ -4,6 +4,7 @@ defmodule MDM.JmmsrParser do
   alias MDM.JmmsrParser.MachinesParser
   alias MDM.JmmsrParser.ServicesParser
   alias MDM.JmmsrParser.ConnectionsParser
+  alias MDM.JmmsrParser.Utils
     
   # TODO recursively
   defp keys_to_atoms(json) do
@@ -19,7 +20,7 @@ defmodule MDM.JmmsrParser do
   defp check_correctness(json) do
     with :ok <- check_presence_and_types(json),
          :ok <- check_relations(json), do: :ok
-    
+
   end
 
   defp check_presence_and_types(json) do
@@ -31,14 +32,27 @@ defmodule MDM.JmmsrParser do
       :ok
     else
       error ->
-        print_error(error)
-        :error
+        transform_error(error)
     end
   end
 
   defp check_relations(_json) do
     :ok # TODO
   end
+
+  defp transform_error({false, path, reason}) do
+    {:error, human_readable_path(path), human_readable_reason(reason)}
+  end
+
+  defp human_readable_path(list) do
+    list
+    |> Enum.reduce("", fn e, "" -> e
+                          e, acc -> acc <> ", " <> e end)
+  end
+
+  defp human_readable_reason(:not_found), do: :not_found
+  defp human_readable_reason(:predicate), do: :type_mismatch
+  defp human_readable_reason(reason), do: reason
 
   # TODO use Lagger
   defp print_error({:error, %{reason: reason, trouble_entry: entry}}) do

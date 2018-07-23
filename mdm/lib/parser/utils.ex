@@ -117,7 +117,18 @@ defmodule MDM.JmmsrParser.Utils do
   def path(value, []), do: value
 
 
-  def check_values(json, path, checker_fun, must_be_defined? \\ true) do
+  def check_values(json, path, checker) do
+    check_values(json, path, checker, true)
+  end
+
+  def check_values(json, path, {checker_fun, return_reason}, must_be_defined?) do
+    case check_values(json, path, checker_fun, must_be_defined?) do
+      true -> true
+      {false, path, :predicate} -> {false, path, return_reason}
+      e -> e
+    end
+  end
+  def check_values(json, path, checker_fun, must_be_defined?) do
         json
         |> path(path)
         |> wrap_in_list
