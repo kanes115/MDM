@@ -132,28 +132,4 @@ defmodule ParserTest do
     assert true == Utils.check_values(json, path, &is_bitstring/1, false)
   end
 
-  test "Utils.check_values/2: returns true if path is defined" do
-    path = ["ala", "kot"]
-    json = %{"ala" => [
-                        %{"kot" => 44},
-                        %{"kot" => "a"}
-                      ]
-            }
-    assert true == Utils.check_values(json, path)
-  end
-
-  test "Utils.check_values/2: returns {false, path, reason = :not_found} 
-        if path is undefined" do
-    path = ["ala", "kot"]
-    json = %{"ala" => [
-                        %{"kotek" => %{"a" => "b"}},
-                        %{"kot" => "a"}
-                      ]
-            }
-    assert {false, path, :not_found} == Utils.check_values(json, path)
-  end
-
-
-
-
 end
