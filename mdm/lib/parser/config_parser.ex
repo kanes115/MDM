@@ -9,7 +9,7 @@ defmodule MDM.JmmsrParser.ConfigParser do
     with true <- Utils.check_values(json, ["config"],
                                     &is_map/1),
          true <- Utils.check_values(json, ["config", "metrics"],
-                                    &is_bitstring/1),
+                                    &Utils.list_of_strings?/1),
          true <- Utils.check_values(json, ["config", "metrics"],
                                     {&available_metric?/1, :unknown_metric}),
          true <- check_persist_machine(json),
@@ -20,7 +20,7 @@ defmodule MDM.JmmsrParser.ConfigParser do
   defp check_persist_machine(json) do
     persist_machine_path = ["config", "persist_machine"]
     persist_path = ["config", "persist"]
-    persist? = json |> Utils.path(persist_path)
+    {:value, persist?} = json |> Utils.path(persist_path)
     case {persist?, Utils.path(json, persist_machine_path)} do
       {false, :not_found} -> true
       {false, _} -> 
@@ -38,6 +38,10 @@ defmodule MDM.JmmsrParser.ConfigParser do
   end
 
 
-  defp available_metric?(metric), do: Enum.member?(@available_metrics, metric)
+  defp available_metric?(metrics) do
+    metrics
+    |> Enum.all?(fn m ->
+      Enum.member?(@available_metrics, m) end)
+  end
 
 end
