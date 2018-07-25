@@ -60,8 +60,43 @@ defmodule ParserTest do
   end
 
 
+  # Machines
+  
+  test "Type mismatch is detected when machines name is int" do
+    {:error, path, reason} = JmmsrParser.from_file mdm_file("machines_name_type")
+    assert path == "machines, name"
+    assert reason == :type_mismatch
+  end
 
+  test "Type mismatch is detected when machines id is bool" do
+    {:error, path, reason} = JmmsrParser.from_file mdm_file("machines_id_type")
+    assert path == "machines, id"
+    assert reason == :type_mismatch
+  end
 
+  test ":no_address is detected when neither IP nor domain is specified" do
+    {:error, path, reason} = JmmsrParser.from_file mdm_file("machines_no_address")
+    assert path == "machines"
+    assert reason == :no_address
+  end
+
+  test ":unknown_os is detected when os is not one of linux or debian" do
+    {:error, path, reason} = JmmsrParser.from_file mdm_file("machines_unknown_os")
+    assert path == "machines, os"
+    assert reason == :unknown_os
+  end
+
+  test ":two_addresses is detected when both IP and domain is specified" do
+    {:error, path, reason} = JmmsrParser.from_file mdm_file("machines_two_addresses")
+    assert path == "machines"
+    assert reason == :two_addresses
+  end
+
+  test ":not_found is detected when there is no machines" do
+    {:error, path, reason} = JmmsrParser.from_file mdm_file("machines_no_machines")
+    assert path == "machines"
+    assert reason == :not_found
+  end
 
   defp mdm_file(file), do: @mdm_dir <> "/" <> file <> ".mdm"
 
