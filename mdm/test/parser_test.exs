@@ -98,6 +98,54 @@ defmodule ParserTest do
       assert reason == :not_found
     end
 
-  defp mdm_file(file), do: @mdm_dir <> "/" <> file <> ".mdm"
+    defp mdm_file(file), do: @mdm_dir <> "/" <> file <> ".mdm"
+
+    # Services 
+    
+    test "Type mismatch is detected when service name is bool" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("service_name_type")
+      assert path == "services, name"
+      assert reason == :type_mismatch
+    end
+
+    test "Type mismatch is detected when containerized is string" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("service_containerized")
+      assert path == "services, containerized"
+      assert reason == :type_mismatch
+    end
+
+    test "Type mismatch is detected when requirements is list" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("service_requirements")
+      assert path == "services, requirements"
+      assert reason == :type_mismatch
+    end
+
+    test ":unknown_os is detected when requirements -> os is not one of known oses" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("service_unknown_os")
+      assert path == "services, requirements, os"
+      assert reason == :unknown_os
+    end
+
+    test ":type_mismatch is detected when requirements -> HDD is a string" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("service_requirements_hdd")
+      assert path == "services, requirements, HDD"
+      assert reason == :type_mismatch
+    end
+
+    test ":type_mismatch is detected when requirements -> available_machines is not a list of ints" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("service_available_machines_not_list")
+      {:error, ^path, ^reason} = JmmsrParser.from_file mdm_file("service_available_machines_list_strings")
+      assert path == "services, requirements, available_machines"
+      assert reason == :type_mismatch
+    end
+
+    test "No requirement is compulsory, the key can be ommited then" do
+      {:ok, _json} = JmmsrParser.from_file mdm_file("service_requirements_no_oses")
+      {:ok, _json} = JmmsrParser.from_file mdm_file("service_requirements_no_hdd")
+      {:ok, _json} = JmmsrParser.from_file mdm_file("service_requirements_empty")
+    end
+
+
+
 
 end

@@ -15,12 +15,12 @@
              "service_dir": "/some/path/to/other_directory",
              "service_executable": "/some/path/to/other_file",
              "containerized": false,
-             "requirements": {
+             "requirements": [{
                              "os": ["linux"],
                              "RAM": 453,
                              "HDD": 242,
                              "available_machines": [34]
-                           }
+                           }]
             }
           ],
 "machines": [

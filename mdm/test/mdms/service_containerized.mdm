@@ -14,7 +14,7 @@
             {"name": "client_http",
              "service_dir": "/some/path/to/other_directory",
              "service_executable": "/some/path/to/other_file",
-             "containerized": false,
+             "containerized": "false",
              "requirements": {
                              "os": ["linux"],
                              "RAM": 453,

@@ -11,7 +11,7 @@ defmodule MDM.JmmsrParser.MachinesParser do
                                     &is_integer/1),
          true <- check_address(json),
          true <- Utils.check_values(json, ["machines", "os"],
-                                    {&known_os?/1, :unknown_os}), do: :ok
+                                    {&Utils.known_os?/1, :unknown_os}), do: :ok
   end
 
   defp check_address(json) do
@@ -30,7 +30,7 @@ defmodule MDM.JmmsrParser.MachinesParser do
     ip_domains
     |> Enum.map(fn {ip, domain} -> {un_value(ip), un_value(domain)} end)
     |> Enum.map(&correct_address_pair?/1)
-    |> take_first_error
+    |> Utils.take_first_error
   end
 
   defp un_value(:not_found), do: :not_found
@@ -54,16 +54,10 @@ defmodule MDM.JmmsrParser.MachinesParser do
   defp check_addresses([{_ip, _domain} | _]), do: {:error, :two_addresses}
   defp check_addresses([]), do: :ok
 
-  defp known_os?(os), do: Enum.member?(Utils.supported_oses(), os)
-
   defp correct_ip_format?(s), do: is_bitstring(s) # TODO
 
   defp correct_domain_name_format(s), do: is_bitstring(s) #TODO
-
-  defp take_first_error([]), do: true
-  defp take_first_error([true | tail]), do: take_first_error(tail)
-  defp take_first_error([{false, path, reason} | tail]), do: {false, path, reason}
-  
+    
 end
 
 

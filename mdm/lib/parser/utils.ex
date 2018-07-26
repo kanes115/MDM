@@ -3,9 +3,7 @@ defmodule MDM.JmmsrParser.Utils do
   ## Constants
   def supported_oses(), do: ["linux", "debian"]
 
-  def take_first_error([]), do: :ok
-  def take_first_error([{_entry, :ok} | tail]), do: take_first_error(tail)
-  def take_first_error([{_entry, {:error, _}} = error | _]), do: error
+  def known_os?(os), do: Enum.member?(supported_oses(), os)
 
   def check_uniqueness(list_of_maps, fields, error_reason) when is_list(fields) do
     minimal_maps = 
@@ -99,7 +97,7 @@ defmodule MDM.JmmsrParser.Utils do
     end
   end
 
-  defp is_path(s), do: is_bitstring(s) # TODO
+  def is_path(s), do: is_bitstring(s) # TODO
 
   # =======================================================
   
@@ -207,9 +205,18 @@ defmodule MDM.JmmsrParser.Utils do
 
 
 
-  def list_of_strings?(v) when is_list(v) do
-    Enum.all?(v, fn e -> is_bitstring(e) end)
+  def list_of?(v, pred) when is_list(v) do
+    Enum.all?(v, fn e -> pred.(e) end)
   end
-  def list_of_strings?(_), do: false
+  def list_of?(_, _), do: false
+
+  def list_of_strings?(list), do: list_of?(list, &is_bitstring/1)
+
+  def list_of_ints?(list), do: list_of?(list, &is_integer/1)
+
+  def take_first_error([]), do: true
+  def take_first_error([true | tail]), do: take_first_error(tail)
+  def take_first_error([{false, path, reason} | tail]), do: {false, path, reason}
+
 
 end

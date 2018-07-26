@@ -19,7 +19,7 @@
                              "os": ["linux"],
                              "RAM": 453,
                              "HDD": 242,
-                             "available_machines": [34]
+                             "available_machines": ["34", "4"]
                            }
             }
           ],

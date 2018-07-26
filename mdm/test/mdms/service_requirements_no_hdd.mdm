@@ -7,7 +7,6 @@
              "requirements": {
                              "os": ["linux"],
                              "RAM": 453,
-                             "HDD": 242,
                              "available_machines": []
                            }
             },

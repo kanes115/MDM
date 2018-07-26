@@ -1,6 +1,6 @@
 {
 "services": [
-            {"name": "servier_http",
+            {"name": true,
              "service_dir": "/some/path/to/directory",
              "service_executable": "/some/path/to/file",
              "containerized": true,
