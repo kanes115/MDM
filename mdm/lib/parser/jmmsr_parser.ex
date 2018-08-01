@@ -26,8 +26,8 @@ defmodule MDM.JmmsrParser do
   defp check_presence_and_types(json) do
     with :ok <- ConfigParser.check(json),
          :ok <- MachinesParser.check(json),
-         :ok <- ServicesParser.check(json)
-         #:ok <- ConnectionsParser.check(json)
+         :ok <- ServicesParser.check(json),
+         :ok <- ConnectionsParser.check(json)
     do
       :ok
     else

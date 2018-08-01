@@ -145,6 +145,20 @@ defmodule ParserTest do
       {:ok, _json} = JmmsrParser.from_file mdm_file("service_requirements_empty")
     end
 
+    # Connection parser
+
+    test ":type_mismatch is detected when connections -> service_from is not a string" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("connection_service_from_int")
+      assert path == "connections, service_from"
+      assert reason == :type_mismatch
+    end
+
+    test ":type_mismatch is detected when connections -> port is bigger than 65000" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("connection_big_port")
+      assert path == "connections, port"
+      assert reason == :invalid_port
+    end
+
 
 
 
