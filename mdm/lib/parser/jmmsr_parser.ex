@@ -4,7 +4,7 @@ defmodule MDM.JmmsrParser do
   alias MDM.JmmsrParser.MachinesParser
   alias MDM.JmmsrParser.ServicesParser
   alias MDM.JmmsrParser.ConnectionsParser
-  alias MDM.JmmsrParser.Utils
+  alias MDM.JmmsrParser.LiveMetricsParser
     
   # TODO recursively
   defp keys_to_atoms(json) do
@@ -27,7 +27,8 @@ defmodule MDM.JmmsrParser do
     with :ok <- ConfigParser.check(json),
          :ok <- MachinesParser.check(json),
          :ok <- ServicesParser.check(json),
-         :ok <- ConnectionsParser.check(json)
+         :ok <- ConnectionsParser.check(json),
+         :ok <- LiveMetricsParser.check(json)
     do
       :ok
     else
@@ -53,17 +54,5 @@ defmodule MDM.JmmsrParser do
   defp human_readable_reason(:not_found), do: :not_found
   defp human_readable_reason(:predicate), do: :type_mismatch
   defp human_readable_reason(reason), do: reason
-
-  # TODO use Lagger
-  defp print_error({:error, %{reason: reason, trouble_entry: entry}}) do
-    IO.puts "Error parsing for reason #{inspect(reason)}. Entry: #{inspect(entry)}"
-  end
-  defp print_error({:error, %{reason: reason}}) do
-    IO.puts "Error parsing for reason #{inspect(reason)}."
-  end
-  defp print_error({:error, reason}) do
-    print_error({:error, %{reason: reason}})
-  end
-
 
 end

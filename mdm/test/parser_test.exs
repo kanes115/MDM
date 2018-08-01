@@ -2,7 +2,6 @@ defmodule ParserTest do
   use ExUnit.Case
   doctest MDM
   alias MDM.JmmsrParser
-  alias MDM.JmmsrParser.Utils
 
   @mdm_dir "./test/mdms"
 
@@ -160,6 +159,30 @@ defmodule ParserTest do
     end
 
 
+    # Live metrics parser
+    
+    test ":not_found is detected when live_metrics -> for_machine set to true but machine_id not set" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("live_metrics_for_machine")
+      assert path == "live_metrics, machine_id"
+      assert reason == :not_found
+    end
 
+    test ":not_found is detected when live_metrics -> for_machine set to false but service_name not set" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("live_metrics_for_machine2")
+      assert path == "live_metrics, service_name"
+      assert reason == :not_found
+    end
+
+    test ":should_not_be_specified with wrong key in path is detected when live_metrics -> [machine_id | service_name] are both set" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("live_metrics_for_machine3")
+      assert path == "live_metrics, machine_id"
+      assert reason == :should_not_be_specified
+    end
+
+    test ":type_mismatch is detected when live_metrics -> machine_id is not int" do
+      {:error, path, reason} = JmmsrParser.from_file mdm_file("live_metrics_for_machine4")
+      assert reason == :type_mismatch
+      assert path == "live_metrics, machine_id"
+    end
 
 end
