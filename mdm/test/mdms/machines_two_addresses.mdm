@@ -54,7 +54,6 @@
 "live_metrics": [
                 {"for_machine": false,
                  "service_name": "client_http",
-                 "machine_id": 33,
                  "metric": "cpu",
                  "value": 456,
                  "unit": "ms"
