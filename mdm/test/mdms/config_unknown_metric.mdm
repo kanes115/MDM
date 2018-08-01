@@ -51,12 +51,12 @@
           "pilot_machine": 34
         },
 "live_metrics": [
-                {"for_machine": "false",
+                {"for_machine": false,
                  "service_name": "client_http",
-                 "machine_id": "machine_id() | null",
-                 "metric": "metric_name()",
-                 "value": "number()",
-                 "unit": "unit()"
+                 "machine_id": 33,
+                 "metric": "cpu",
+                 "value": 456,
+                 "unit": "ms"
                 }
                 ]
 }
