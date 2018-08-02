@@ -19,7 +19,7 @@
                              "os": ["linux"],
                              "RAM": 453,
                              "HDD": 242,
-                             "available_machines": [34]
+                             "available_machines": [39]
                            }
             }
           ],
@@ -51,8 +51,8 @@
           "pilot_machine": 34
         },
 "live_metrics": [
-                {"for_machine": true,
-                 "machine_id": "33",
+                {"for_machine": false,
+                 "service_name": "client_http",
                  "metric": "cpu",
                  "value": 456,
                  "unit": "ms"

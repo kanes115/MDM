@@ -11,6 +11,16 @@
                              "available_machines": []
                            }
             },
+            {"name": "server_http",
+             "service_dir": "/somessss/path/to/directory",
+             "service_executable": "/sosaasame/path/to/file",
+             "containerized": false,
+             "requirements": {
+                             "RAM": 453,
+                             "HDD": 242,
+                             "available_machines": []
+                           }
+            },
             {"name": "client_http",
              "service_dir": "/some/path/to/other_directory",
              "service_executable": "/some/path/to/other_file",
@@ -51,8 +61,8 @@
           "pilot_machine": 34
         },
 "live_metrics": [
-                {"for_machine": true,
-                 "machine_id": "33",
+                {"for_machine": false,
+                 "service_name": "client_http",
                  "metric": "cpu",
                  "value": 456,
                  "unit": "ms"

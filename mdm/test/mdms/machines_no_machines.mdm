@@ -25,7 +25,7 @@
           ],
 "connections": [
                 {"service_from": "client_http",
-                 "service_to": "server_httpp",
+                 "service_to": "server_http",
                  "port": 80
                 },
                 {"service_from": "client_http",

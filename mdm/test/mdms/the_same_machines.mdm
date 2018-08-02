@@ -33,6 +33,11 @@
             "id": 33,
             "ip": "178.11.11.1",
             "os": "linux"
+           },
+            {"name": "PaC1",
+            "id": 34,
+            "domain": "www.someexampleofdomain.pl",
+            "os": "linux"
            }
           ],
 "connections": [
@@ -51,8 +56,8 @@
           "pilot_machine": 34
         },
 "live_metrics": [
-                {"for_machine": true,
-                 "machine_id": "33",
+                {"for_machine": false,
+                 "service_name": "client_http",
                  "metric": "cpu",
                  "value": 456,
                  "unit": "ms"
