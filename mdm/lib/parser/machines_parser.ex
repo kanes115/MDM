@@ -14,6 +14,16 @@ defmodule MDM.JmmsrParser.MachinesParser do
                                     {&Utils.known_os?/1, :unknown_os}), do: :ok
   end
 
+  def check_relations(json) do
+    res = Utils.path(json, ["machines"])
+          |> Utils.unpack
+          |> Utils.check_uniqueness(["id"])
+    case res do
+      :ok -> :ok
+      :error -> {false, ["machines"], :not_unique}
+    end
+  end
+
   defp check_address(json) do
     {:list, ips} = Utils.path(json, ["machines", "ip"])
     {:list, domains} = Utils.path(json, ["machines", "domain"])

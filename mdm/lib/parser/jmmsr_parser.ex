@@ -20,7 +20,6 @@ defmodule MDM.JmmsrParser do
   defp check_correctness(json) do
     with :ok <- check_presence_and_types(json),
          :ok <- check_relations(json), do: :ok
-
   end
 
   defp check_presence_and_types(json) do
@@ -37,8 +36,16 @@ defmodule MDM.JmmsrParser do
     end
   end
 
-  defp check_relations(_json) do
-    :ok # TODO
+  defp check_relations(json) do
+    with :ok <- ServicesParser.check_relations(json),
+         :ok <- MachinesParser.check_relations(json),
+         :ok <- ConnectionsParser.check_relations(json)
+    do
+      :ok
+    else
+      error ->
+        transform_error(error)
+    end
   end
 
   defp transform_error({false, path, reason}) do

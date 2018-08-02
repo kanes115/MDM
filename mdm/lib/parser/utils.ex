@@ -5,25 +5,25 @@ defmodule MDM.JmmsrParser.Utils do
 
   def known_os?(os), do: Enum.member?(supported_oses(), os)
 
-  def check_uniqueness(list_of_maps, fields, error_reason) when is_list(fields) do
+  def check_uniqueness(list_of_maps, fields) when is_list(fields) do
     minimal_maps = 
       Enum.map(list_of_maps, fn map ->
         to_remove = Map.keys(map) -- fields
         throw_keys_out(map, to_remove)
       end)
-    do_check_uniqeness(minimal_maps, error_reason)
+    do_check_uniqeness(minimal_maps)
   end
-  def check_uniqueness(list_of_maps, field, error_reason) do
-    check_uniqueness(list_of_maps, [field], error_reason)
+  def check_uniqueness(list_of_maps, field) do
+    check_uniqueness(list_of_maps, [field])
   end
 
-  defp do_check_uniqeness(list, error_reason) do
+  defp do_check_uniqeness(list) do
     uniq_l = list
     |> Enum.uniq
     |> length
     case length(list) do
       ^uniq_l -> :ok
-      _ -> {:error, error_reason}
+      _ -> :error
     end
   end
 
@@ -109,7 +109,13 @@ defmodule MDM.JmmsrParser.Utils do
       :not_found -> :not_found
     end
   end
-    
+
+  def unpack({:value, v}), do: v
+  def unpack({:list, v}), do: v
+  def unpack(list) when is_list(list) do
+    list
+    |> Enum.map(fn {:value, v} -> v end)
+  end
 
   defp do_path(json, [field]) do
     case Map.get(json, field, :not_found) do

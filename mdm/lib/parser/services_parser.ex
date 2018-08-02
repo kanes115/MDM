@@ -7,6 +7,7 @@ defmodule MDM.JmmsrParser.ServicesParser do
                   {"RAM", &is_integer/1},
                   {"available_machines", &Utils.list_of_ints?/1}] # TAke from Utils
 
+
   def check(json) do
     with true <- Utils.check_values(json, ["services", "name"],
                                     &is_bitstring/1),
@@ -19,6 +20,41 @@ defmodule MDM.JmmsrParser.ServicesParser do
   end
 
 
+  def check_relations(json) do
+    with true <- check_uniqueness(json),
+         true <- check_relations_with_machines(json), do: :ok
+  end
+
+
+  defp check_uniqueness(json) do
+    {:value, services} = Utils.path(json, ["services"])
+    case Utils.check_uniqueness(services, ["name"]) do
+      :ok -> true
+      :error -> {false, ["services"], :not_unique}
+    end
+  end
+
+
+  defp check_relations_with_machines(json) do
+    {:list, machines0} = Utils.path(json, ["machines", "id"])
+    machines = machines0 
+               |> Enum.filter(fn e -> e !== :not_found end)
+               |> Enum.map(fn {:value, v} -> v end)
+    case Utils.path(json, ["services", "requirements", "available_machines"]) do
+      {:list, available_machines} ->
+        available_machines
+        |> Enum.filter(fn e -> e !== :not_found end)
+        |> Enum.map(fn {:value, available_list} -> 
+          to_relations_result(Enum.all?(available_list, fn e -> Enum.member?(machines, e) end))
+        end)
+        |> Utils.take_first_error
+      _ -> true
+    end
+  end
+
+
+  defp to_relations_result(true), do: true
+  defp to_relations_result(false), do: {false, ["services"], :undefined_machine}
 
   defp list_of_known_os?(oses) when is_list(oses) do
     oses |> Enum.all?(&Utils.known_os?/1)
