@@ -2,13 +2,15 @@ defmodule MDM.JmmsrParser.ServicesParser do
 
   alias MDM.JmmsrParser.Utils
 
+  @behaviour MDM.JmmsrParser
+
   defp reqs, do: [{"os", {&list_of_known_os?/1, :unknown_os}},
                   {"HDD", &is_integer/1},
                   {"RAM", &is_integer/1},
                   {"available_machines", &Utils.list_of_ints?/1}] # TAke from Utils
 
 
-  def check(json) do
+  def check_typing(json) do
     with true <- Utils.check_values(json, ["services", "name"],
                                     &is_bitstring/1),
          true <- Utils.check_values(json, ["services", "containerized"],

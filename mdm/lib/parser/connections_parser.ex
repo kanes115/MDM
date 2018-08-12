@@ -2,7 +2,9 @@ defmodule MDM.JmmsrParser.ConnectionsParser do
 
   alias MDM.JmmsrParser.Utils
 
-  def check(json) do
+  @behaviour MDM.JmmsrParser
+
+  def check_typing(json) do
     with true <- Utils.check_values(json, ["connections"],
                                     &is_list/1),
          true <- Utils.check_values(json, ["connections", "service_from"],

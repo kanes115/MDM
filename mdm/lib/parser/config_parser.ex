@@ -3,9 +3,11 @@ defmodule MDM.JmmsrParser.ConfigParser do
   require Logger
   alias MDM.JmmsrParser.Utils
 
+  @behaviour MDM.JmmsrParser
+
   @available_metrics ["cpuUsage"] # TODO determine
 
-  def check(json) do
+  def check_typing(json) do
     with true <- Utils.check_values(json, ["config"],
                                     &is_map/1),
          true <- Utils.check_values(json, ["config", "metrics"],
@@ -16,6 +18,8 @@ defmodule MDM.JmmsrParser.ConfigParser do
          true <- Utils.check_values(json, ["config", "pilot_machine"],
                                     &is_integer/1), do: :ok
   end
+
+  def check_relations(_), do: :ok
 
   defp check_persist_machine(json) do
     persist_machine_path = ["config", "persist_machine"]

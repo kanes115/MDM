@@ -2,10 +2,12 @@ defmodule MDM.JmmsrParser.LiveMetricsParser do
 
   alias MDM.JmmsrParser.Utils
 
+  @behaviour MDM.JmmsrParser
+
   # TODO
   @metrics ["cpu", "mem", "net"]
 
-  def check(json) do
+  def check_typing(json) do
     with true <- Utils.check_values(json, ["live_metrics"],
                                     &is_list/1),
          true <- Utils.check_values(json, ["live_metrics", "for_machine"],

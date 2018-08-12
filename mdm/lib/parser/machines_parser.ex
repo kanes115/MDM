@@ -2,7 +2,9 @@ defmodule MDM.JmmsrParser.MachinesParser do
 
   alias MDM.JmmsrParser.Utils
 
-  def check(json) do
+  @behaviour MDM.JmmsrParser
+
+  def check_typing(json) do
     with true <- Utils.check_values(json, ["machines"],
                                     &is_list/1),
          true <- Utils.check_values(json, ["machines", "name"],
@@ -64,10 +66,6 @@ defmodule MDM.JmmsrParser.MachinesParser do
   defp check_addresses([{_ip, _domain} | _]), do: {:error, :two_addresses}
   defp check_addresses([]), do: :ok
 
-  defp correct_ip_format?(s), do: is_bitstring(s) # TODO
-
-  defp correct_domain_name_format(s), do: is_bitstring(s) #TODO
-    
 end
 
 

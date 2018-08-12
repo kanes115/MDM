@@ -5,12 +5,13 @@ defmodule MDM.JmmsrParser do
   alias MDM.JmmsrParser.ServicesParser
   alias MDM.JmmsrParser.ConnectionsParser
   alias MDM.JmmsrParser.LiveMetricsParser
-    
-  # TODO recursively
-  defp keys_to_atoms(json) do
-    for {key, val} <- json, into: %{}, do: {String.to_atom(key), val}
-  end
 
+  @type path :: [String.t]
+  @type error_desc :: atom
+
+  @callback check_typing(Map.t) :: :ok | {false, path, error_desc}
+  @callback check_relations(Map.t) :: :ok | {false, path, error_desc}
+    
   def from_file(path) do
     with {:ok, body} <- File.read(path),
          {:ok, json} <- Poison.decode(body),
@@ -23,11 +24,11 @@ defmodule MDM.JmmsrParser do
   end
 
   defp check_presence_and_types(json) do
-    with :ok <- ConfigParser.check(json),
-         :ok <- MachinesParser.check(json),
-         :ok <- ServicesParser.check(json),
-         :ok <- ConnectionsParser.check(json),
-         :ok <- LiveMetricsParser.check(json)
+    with :ok <- ConfigParser.check_typing(json),
+         :ok <- MachinesParser.check_typing(json),
+         :ok <- ServicesParser.check_typing(json),
+         :ok <- ConnectionsParser.check_typing(json),
+         :ok <- LiveMetricsParser.check_typing(json)
     do
       :ok
     else

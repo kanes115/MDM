@@ -3,7 +3,6 @@ defmodule ParserTest do
   doctest MDM
   alias MDM.JmmsrParser
 
-  @mdm_dir "./test/mdms"
   @tmp_file "/tmp/tmp_file.mdm"
   @not_existing_machine_id 429587493759
   @not_existing_service_name "some not exitsting service"
@@ -146,8 +145,6 @@ defmodule ParserTest do
       assert path == "machines"
       assert reason == :not_found
     end
-
-    defp mdm_file(file), do: @mdm_dir <> "/" <> file <> ".mdm"
 
     # Services 
     
