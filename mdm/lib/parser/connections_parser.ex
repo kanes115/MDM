@@ -47,6 +47,7 @@ defmodule MDM.JmmsrParser.ConnectionsParser do
     |> Utils.take_first_error
   end
 
+  # TODO change name of this function
   defp to_uniqueness_error(true), do: true
   defp to_uniqueness_error(false), do: {false, ["connections"], :undefined_service}
 

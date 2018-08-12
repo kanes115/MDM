@@ -39,7 +39,8 @@ defmodule MDM.JmmsrParser do
   defp check_relations(json) do
     with :ok <- ServicesParser.check_relations(json),
          :ok <- MachinesParser.check_relations(json),
-         :ok <- ConnectionsParser.check_relations(json)
+         :ok <- ConnectionsParser.check_relations(json),
+         :ok <- LiveMetricsParser.check_relations(json)
     do
       :ok
     else

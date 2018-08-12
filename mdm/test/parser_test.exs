@@ -5,6 +5,8 @@ defmodule ParserTest do
 
   @mdm_dir "./test/mdms"
   @tmp_file "/tmp/tmp_file.mdm"
+  @not_existing_machine_id 429587493759
+  @not_existing_service_name "some not exitsting service"
 
   # TODO clean tmp file
 
@@ -286,6 +288,15 @@ defmodule ParserTest do
       assert path == "live_metrics, machine_id"
     end
 
+    test ":unknown_metric is detected when live_metrics -> metric_name is not supported" do
+      correct_jmmsr()
+      |> update_first(["live_metrics"], ["metric"], "fancy metric")
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
+      assert {reason, path} == {:unknown_metric, "live_metrics, metric"}
+    end
+
+
     # Relations
 
     test ":not_uniqe is detected when there are two the same services" do
@@ -318,6 +329,53 @@ defmodule ParserTest do
       assert path == "machines"
     end
 
+    test ":not_uniqe is detected when there are two the same connections" do
+      correct_jmmsr()
+      |> add_to_list(["services"], service("some_service 1"))
+      |> add_to_list(["services"], service("some_service 2"))
+      |> add_to_list(["connections"], connection("some_service 1", "some_service 2"))
+      |> add_to_list(["connections"], connection("some_service 1", "some_service 2"))
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
+      assert {reason, path} == {:not_unique, "connections"}
+    end
+
+    test "Parsed correctly if there are two connetions connecting the same services but reversed" do
+      correct_jmmsr()
+      |> add_to_list(["services"], service("some_service 1"))
+      |> add_to_list(["services"], service("some_service 2"))
+      |> add_to_list(["connections"], connection("some_service 2", "some_service 1"))
+      |> add_to_list(["connections"], connection("some_service 1", "some_service 2"))
+      |> with_mdm
+      {:ok, jmmsr} = JmmsrParser.from_file @tmp_file
+      assert is_map(jmmsr)
+    end
+
+    test ":undefined_service is detected when there is a connection with service not being in services list" do
+      correct_jmmsr()
+      |> add_to_list(["services"], service("some_service 1"))
+      |> add_to_list(["connections"], connection(@not_existing_service_name, "some_service 1"))
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
+      assert {reason, path} == {:undefined_service, "connections"}
+    end
+
+    test ":undefined_service is detected when there is a live_metric with service not being in services list" do
+      correct_jmmsr()
+      |> add_to_list(["live_metrics"], live_metric({:service, @not_existing_service_name}, "mem", {34, "kb"}))
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
+      assert {reason, path} == {:undefined_service, "live_metrics"}
+    end
+
+    test ":undefined_machine is detected when there is a live_metric with machine not being in machines list" do
+      correct_jmmsr()
+      |> add_to_list(["live_metrics"], live_metric({:machine, @not_existing_machine_id}, "mem", {34, "kb"}))
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
+      assert {reason, path} == {:undefined_machine, "live_metrics"}
+    end
+
 
 
     ## HELPERS ######
@@ -347,13 +405,7 @@ defmodule ParserTest do
           connection("some_service1", "some_service2")
         ],
         "live_metrics" => [
-          %{
-            "for_machine" => false,
-            "metric" => "cpu",
-            "service_name" => "client_http",
-            "unit" => "ms",
-            "value" => 456
-          }
+          live_metric({:service, "client_http"}, "cpu", {456, "ms"})
         ],
         "machines" => [
           machine("PC1", 34, "linux", [{"domain", "www.someexampleofdomain.pl"}]),
@@ -367,6 +419,26 @@ defmodule ParserTest do
         ]
       }
     end
+
+    defp live_metric({:machine, machine_id}, metric_name, {val, unit}) do
+      %{
+        "for_machine" => true,
+        "metric" => metric_name,
+        "machine_id" => machine_id,
+        "unit" => unit,
+        "value" => val
+      }
+    end
+    defp live_metric({:service, service_name}, metric_name, {val, unit}) do
+      %{
+        "for_machine" => false,
+        "metric" => metric_name,
+        "service_name" => service_name,
+        "unit" => unit,
+        "value" => val
+      }
+    end
+
 
     defp connection(from, to, port \\ 80) do
         %{
