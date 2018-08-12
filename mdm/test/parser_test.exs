@@ -8,10 +8,6 @@ defmodule ParserTest do
 
   # TODO clean tmp file
 
-  test "greets the world" do
-    assert MDM.hello() == :world
-  end
-
   test "Correct jmmsr is parsed without error" do
     with_mdm(correct_jmmsr())
     {:ok, json} = JmmsrParser.from_file @tmp_file
@@ -88,8 +84,6 @@ defmodule ParserTest do
 
 
   # Machines
-  
-  
   
     test "Type mismatch is detected when machines name is int" do
       correct_jmmsr()
@@ -271,16 +265,23 @@ defmodule ParserTest do
       assert reason == :not_found
     end
 
-    # TODO change file
     test ":should_not_be_specified with wrong key in path is detected when live_metrics -> [machine_id | service_name] are both set" do
-      {:error, path, reason} = JmmsrParser.from_file mdm_file("live_metrics_for_machine3")
+      correct_jmmsr()
+      |> update_first(["live_metrics"], ["machine_id"], 34)
+      |> update_first(["live_metrics"], ["service_name"], "some_service1")
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
       assert path == "live_metrics, machine_id"
       assert reason == :should_not_be_specified
     end
 
-    # TODO change file
     test ":type_mismatch is detected when live_metrics -> machine_id is not int" do
-      {:error, path, reason} = JmmsrParser.from_file mdm_file("live_metrics_for_machine4")
+      correct_jmmsr()
+      |> update_first(["live_metrics"], ["service_name"], nil)
+      |> update_first(["live_metrics"], ["machine_id"], "34")
+      |> update_first(["live_metrics"], ["for_machine"], true)
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
       assert reason == :type_mismatch
       assert path == "live_metrics, machine_id"
     end
@@ -288,19 +289,31 @@ defmodule ParserTest do
     # Relations
 
     test ":not_uniqe is detected when there are two the same services" do
-      {:error, path, reason} = JmmsrParser.from_file mdm_file("the_same_services")
+      correct_jmmsr()
+      |> add_to_list(["services"], service("the_same"))
+      |> add_to_list(["services"], service("the_same"))
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
       assert reason == :not_unique
       assert path == "services"
     end
 
     test ":undefined_machine is detected when there is a machine specified that is not defined in 'machines' value" do
-      {:error, path, reason} = JmmsrParser.from_file mdm_file("undefined_machine_in_services")
+      undefined_machine_id = 398742895732984573294
+      correct_jmmsr()
+      |> add_to_list(["services"], service("the_same", [undefined_machine_id]))
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
       assert reason == :undefined_machine
       assert path == "services"
     end
 
     test ":not_uniqe is detected when there are two the same machines" do
-      {:error, path, reason} = JmmsrParser.from_file mdm_file("the_same_machines")
+      correct_jmmsr()
+      |> add_to_list(["machines"], machine("some machine", 180))
+      |> add_to_list(["machines"], machine("with different name only", 180))
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
       assert reason == :not_unique
       assert path == "machines"
     end
@@ -343,13 +356,8 @@ defmodule ParserTest do
           }
         ],
         "machines" => [
-          %{
-            "domain" => "www.someexampleofdomain.pl",
-            "id" => 34,
-            "name" => "PC1",
-            "os" => "linux"
-          },
-          %{"id" => 33, "ip" => "178.11.11.1", "name" => "PC2", "os" => "linux"}
+          machine("PC1", 34, "linux", [{"domain", "www.someexampleofdomain.pl"}]),
+          machine("PC2", 33, "linux", [{"ip", "178.11.11.1"}])
         ],
         "services" => [
           service("server_http"),
@@ -368,14 +376,29 @@ defmodule ParserTest do
           }
     end
 
-    defp service(name) do
+    defp machine(name, id, os \\ "linux", address \\ [{"ip", "192.168.1.1"}]) do
+        %{
+            "id" => id,
+            "name" => name,
+            "os" => os
+        }
+        |> add_address(address)
+    end
+
+    defp add_address(machine, addresses) do
+      Enum.reduce(addresses,
+                  machine,
+                  fn {k, v}, m -> Map.put(m, k, v) end)
+    end
+
+    defp service(name, available_machines \\ []) do
         %{
             "containerized" => true,
             "name" => name,
             "requirements" => %{
               "HDD" => 242,
               "RAM" => 453,
-              "available_machines" => [],
+              "available_machines" => available_machines,
               "os" => ["linux"]
             },
             "service_dir" => "/some/path/to/directory",
@@ -385,7 +408,7 @@ defmodule ParserTest do
 
     # TODO simplify
     defp update_first(jmmsr, list_path, update_path, nil) do
-      list = correct_jmmsr()
+      list = jmmsr
              |> pop_in(list_path)
              |> elem(0)
       element = list |> Enum.at(0)
@@ -399,7 +422,7 @@ defmodule ParserTest do
       |> put_in(list_path, list)
     end
     defp update_first(jmmsr, list_path, update_path, new_val) do
-      list = correct_jmmsr()
+      list = jmmsr
              |> pop_in(list_path)
              |> elem(0)
       element = list |> Enum.at(0)
@@ -411,6 +434,17 @@ defmodule ParserTest do
       jmmsr
       |> put_in(list_path, list)
     end
+
+    defp add_to_list(jmmsr, list_path, element) do
+      list = jmmsr
+             |> pop_in(list_path)
+             |> elem(0)
+      new_list = [element | list]
+
+      jmmsr
+      |> put_in(list_path, new_list)
+    end
+
 
 
 
