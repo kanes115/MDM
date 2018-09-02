@@ -2,6 +2,8 @@ defmodule MDM.WSCommunicator do
   use GenServer
 
   alias Socket.Web
+  alias MDM.Command.Request
+  alias MDM.Command.Response
 
   ## API
 
@@ -15,7 +17,7 @@ defmodule MDM.WSCommunicator do
     {:ok, state}
   end
 
-  def send_answer(%Command.Response{} = resp) do
+  def send_answer(%Response{} = resp) do
     GenServer.call(__MODULE__, {:send_answer, resp})
   end
 
@@ -40,7 +42,7 @@ defmodule MDM.WSCommunicator do
   end
 
   def handle_call({:send_answer, answer}, _from, %{client: client} = state) do
-    case Command.Response.to_json(answer) do
+    case Response.to_json(answer) do
       :error ->
         client |> send_json(%{"code" => 500, "msg" => "error"})
         throw(:unexpected_error_when_parsing)
@@ -58,7 +60,7 @@ defmodule MDM.WSCommunicator do
 
   defp map_to_command({:text, text}) do
     with {:ok, res} <- Poison.decode(text),
-         %Command.Request{} = command <- Command.Request.from_json(res)
+         %Request{} = command <- Request.from_json(res)
     do
       command
     else

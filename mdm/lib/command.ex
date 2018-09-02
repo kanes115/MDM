@@ -1,4 +1,4 @@
-defmodule Command do
+defmodule MDM.Command do
 
   defmodule Request do
     defstruct [:id, :command_name, :body]
@@ -15,11 +15,14 @@ defmodule Command do
   end
 
   defmodule Response do
+
+    alias MDM.Command.Request
+
     @type msg :: :ok | :error
     defstruct [:id, :msg, :body]
 
-    @spec new_answer(%Command.Request{}, msg(), term()) :: %__MODULE__{}
-    def new_answer(%Command.Request{id: id}, msg, body) do
+    @spec new_answer(%Request{}, msg(), term()) :: %__MODULE__{}
+    def new_answer(%Request{id: id}, msg, body) do
       %__MODULE__{id: id, msg: msg, body: body}
     end
 
