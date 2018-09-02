@@ -1,4 +1,4 @@
-defmodule WSCommunicator do
+defmodule MDM.WSCommunicator do
   use GenServer
 
   alias Socket.Web
