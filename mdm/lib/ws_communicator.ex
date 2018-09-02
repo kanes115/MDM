@@ -7,21 +7,24 @@ defmodule MDM.WSCommunicator do
 
   ## API
 
+  @spec start_link(pid()) ::
+  {:ok, pid()} | :ignore | {:error, {:already_started, pid()} | term()}
   def start_link(subscriber) do
     GenServer.start_link(__MODULE__, %{subscriber: subscriber, client: :no_client},
                          name: __MODULE__)
   end
 
-  def init(state) do
-    GenServer.cast(self(), :wait_for_conn)
-    {:ok, state}
-  end
-
+  @spec send_answer(Response.t) :: :ok | :error
   def send_answer(%Response{} = resp) do
     GenServer.call(__MODULE__, {:send_answer, resp})
   end
 
   ## GenServer callbacks
+
+  def init(state) do
+    GenServer.cast(self(), :wait_for_conn)
+    {:ok, state}
+  end
 
   def handle_cast(:wait_for_conn, state) do
     server = Web.listen! 8080
@@ -45,11 +48,11 @@ defmodule MDM.WSCommunicator do
     case Response.to_json(answer) do
       :error ->
         client |> send_json(%{"code" => 500, "msg" => "error"})
-        throw(:unexpected_error_when_parsing)
+        {:reply, :error, state}
       resp ->
         client |> send_json(resp)
+        {:reply, :ok, state}
     end
-    {:reply, :ok, state}
   end
 
   defp spawn_receiver_fun(forward_dest, client) do
