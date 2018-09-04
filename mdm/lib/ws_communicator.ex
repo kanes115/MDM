@@ -22,17 +22,22 @@ defmodule MDM.WSCommunicator do
   ## GenServer callbacks
 
   def init(state) do
+    server = Web.listen! 8080
     GenServer.cast(self(), :wait_for_conn)
-    {:ok, state}
+    {:ok, Map.put(state, :server, server)}
   end
 
-  def handle_cast(:wait_for_conn, state) do
-    server = Web.listen! 8080
+  def handle_cast(:wait_for_conn, %{server: server} = state) do
     client = server |> Web.accept!
     client |> Web.accept! # we always accept for now
     me = self()
     spawn_link(fn -> spawn_receiver_fun(me, client) end)
     {:noreply, %{state | client: client}}
+  end
+  def handle_cast(:close, state) do
+    Web.close(state.client)
+    GenServer.cast(self(), :wait_for_conn)
+    {:noreply, %{state | client: :no_client}}
   end
   def handle_cast({:handle_msg, msg}, %{client: client, subscriber: sub} = state) do
     case map_to_command(msg) do
@@ -56,9 +61,13 @@ defmodule MDM.WSCommunicator do
   end
 
   defp spawn_receiver_fun(forward_dest, client) do
-    msg = client |> Socket.Web.recv!
-    GenServer.cast(forward_dest, {:handle_msg, msg})
-    spawn_receiver_fun(forward_dest, client)
+    case client |> Socket.Web.recv do
+      {:ok, :close} ->
+        GenServer.cast(forward_dest, :close)
+      {:ok, msg} ->
+        GenServer.cast(forward_dest, {:handle_msg, msg})
+        spawn_receiver_fun(forward_dest, client)
+    end
   end
 
   defp map_to_command({:text, text}) do
@@ -67,7 +76,7 @@ defmodule MDM.WSCommunicator do
     do
       command
     else
-      :error -> :error
+      _ -> :error
     end
 
   end
