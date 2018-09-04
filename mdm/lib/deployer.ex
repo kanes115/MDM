@@ -19,7 +19,7 @@ defmodule MDM.Deployer do
         IO.puts "got: #{inspect(e)}"
         IO.puts "replying..."
         e
-        |> MDM.Command.Response.new_answer("echoing", %{})
+        |> MDM.Command.Response.new_answer("echoing", 200, %{})
         |> WSCommunicator.send_answer
     end
     GenServer.cast(__MODULE__, :wait)
