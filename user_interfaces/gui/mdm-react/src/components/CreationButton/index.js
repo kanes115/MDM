@@ -1,12 +1,14 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
+import { deploySystem } from '../../providers/websocket';
+
 import { openForm } from '../../actions';
+import { initializeWebSocketChannel } from '../../actions/websocketActions';
 
 import CreationButton from './representation';
-import { initalizeWebSocketChannel } from '../../actions/websocketActions';
-import { deploySystem } from '../../providers/websocket';
+
 
 class CreationButtonWrapper extends Component {
     state = {
@@ -79,7 +81,7 @@ function mapStateToProps({activeSystemId, form: {formOpen}, systems}) {
 function mapDispatchToProps(dispatch) {
     return {
         openCreationForm: (formType) => dispatch(openForm(formType)),
-        initializeChannel: () => dispatch(initalizeWebSocketChannel()),
+        initializeChannel: () => dispatch(initializeWebSocketChannel()),
     };
 }
 

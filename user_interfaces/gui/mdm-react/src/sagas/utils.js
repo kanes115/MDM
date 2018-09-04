@@ -1,4 +1,4 @@
-import {WEBSOCKET_MESSAGE_RECEIVED} from "../actions/websocketActions";
+import { WEB_SOCKET_MESSAGE_RECEIVED } from '../actions/websocketActions';
 
 export function onSocketOpen(emit) {
     return function () {
@@ -14,7 +14,7 @@ export function onSocketMessage(emit) {
 
 export function mapMessageToAction(message) {
     return {
-        type: WEBSOCKET_MESSAGE_RECEIVED,
+        type: WEB_SOCKET_MESSAGE_RECEIVED,
         payload: message,
     };
 }
