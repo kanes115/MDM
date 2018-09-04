@@ -14,6 +14,7 @@ defmodule MDM.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {MDM.MDMApp, []},
       extra_applications: [:logger]
     ]
   end
@@ -21,7 +22,8 @@ defmodule MDM.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:socket, "~> 0.3"}
     ]
   end
 end
