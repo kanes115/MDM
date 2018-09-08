@@ -18,7 +18,7 @@ defmodule MDM.JmmsrParser do
          :ok <- check_correctness(json), do: {:ok, json}
   end
 
-  defp check_correctness(json) do
+  def check_correctness(json) do
     with :ok <- check_presence_and_types(json),
          :ok <- check_relations(json), do: :ok
   end
