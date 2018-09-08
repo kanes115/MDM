@@ -11,9 +11,9 @@ defmodule MDM.Command do
   """
 
   defmodule Request do
-    defstruct [:id, :command_name, :body]
+    defstruct [:command_name, :body]
 
-    @type t :: %Request{id: identifier(), command_name: atom(), body: map()}
+    @type t :: %Request{command_name: atom(), body: map()}
 
     @spec from_json(%{"command_name": String.t, "body": map()}) :: t
     def from_json(%{"command_name" => command, "body" => body}) do
@@ -25,7 +25,7 @@ defmodule MDM.Command do
     def from_json(_), do: :error
 
     defp new_req(command_name, body) do
-      %__MODULE__{id: make_ref(), command_name: command_name, body: body}
+      %__MODULE__{command_name: command_name, body: body}
     end
 
     # Mybe this should be in Deployer?
@@ -39,22 +39,39 @@ defmodule MDM.Command do
     alias MDM.Command.Request
 
     @type msg :: :ok | :error
-    @type t :: %Response{id: identifier(), msg: msg(), body: map()}
-    defstruct [:id, :msg, :code, :body]
+    @type t :: %Response{msg: msg(), body: map()}
+    defstruct [:command_name, :msg, :code, :body]
 
     @spec new_answer(Request.t, integer(), msg(), term()) :: t
-    def new_answer(%Request{id: id}, msg, code, body) do
-      %__MODULE__{id: id, msg: msg, code: code, body: body}
+    def new_answer(%Request{command_name: command_name}, msg, code, body) do
+      %__MODULE__{command_name: command_name, msg: msg, code: code, body: body}
+    end
+
+    def error_response(req, code), do: error_response(req, code, %{})
+    def error_response(nil, code, body) do
+      %__MODULE__{code: code, msg: "error", body: body}
+    end
+    def error_response(%Request{command_name: command_name}, code, body) do
+      %__MODULE__{command_name: command_name, code: code, msg: "error", body: body}
+    end
+
+    # For situations where request was malformed
+    def response_command_malformed(body \\ %{}) do
+      error_response(nil, 400, body)
+    end
+
+    def response_internal_error(body \\ %{}) do
+      error_response(nil, 500, body)
     end
 
     @spec to_json(t) :: map()
-    def to_json(%__MODULE__{msg: msg, body: body, code: code}) do
+    def to_json(%__MODULE__{command_name: nil, msg: msg, body: body, code: code}) do
       %{msg: msg, code: code, body: body}
     end
-
-    def error_response(code, body \\ %{}) do
-      %{"code" => code, "msg" => "error", "body" => body}
+    def to_json(%__MODULE__{command_name: command_name, msg: msg, body: body, code: code}) do
+      %{command_name: command_name, msg: msg, code: code, body: body}
     end
+
 
   end
 

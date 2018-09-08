@@ -2,6 +2,8 @@ defmodule MDM.Deployer do
   use GenServer
 
   alias MDM.WSCommunicator
+  alias MDM.Command
+  alias MDM.JmmsrParser
 
   def start_link() do
     res = GenServer.start_link(__MODULE__, :state, name: __MODULE__)
@@ -15,12 +17,23 @@ defmodule MDM.Deployer do
 
   def handle_cast(:wait, _) do
     receive do
-      e ->
-        IO.puts "got: #{inspect(e)}"
-        IO.puts "replying..."
-        e
-        |> MDM.Command.Response.new_answer("echoing", 200, %{})
-        |> WSCommunicator.send_answer
+      %Command.Request{command_name: :deploy, body: jmmsr} = req ->
+        case JmmsrParser.check_correctness(jmmsr) do
+          :ok ->
+            # TODO
+            # For now we only answer OK back
+            #
+            # We will maybe sending in body back some diff of jmmsr with machines info.
+            # TODO we have to establish some common protocol for DIFFs.
+            req
+            |> Command.Response.new_answer("ok", 200, %{})
+            |> WSCommunicator.send_answer
+            :ok
+          {:error, path, reason} ->
+            req
+            |> Command.Response.error_response(400, %{"path" => path, "reason" => reason})
+            |> WSCommunicator.send_answer
+        end
     end
     GenServer.cast(__MODULE__, :wait)
     {:noreply, :state}

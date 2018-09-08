@@ -46,8 +46,9 @@ defmodule MDM.WSCommunicator do
   end
   def handle_cast({:handle_msg, msg}, %{client: client, subscriber: sub} = state) do
     case map_to_command(msg) do
-      :error ->
-        send_json(client, Response.error_response(400))
+      {:error, reason} ->
+        resp = Response.response_command_malformed(%{reason: inspect(reason)})
+        send_json(client, resp |> Response.to_json)
       command ->
         send sub, command
     end
@@ -56,10 +57,12 @@ defmodule MDM.WSCommunicator do
 
   def handle_call({:send_answer, answer}, _from, %{client: client} = state) do
     case Response.to_json(answer) do
-      :error ->
+      {:error, reason} ->
         # Should not happen
         Logger.warn("Trying to send to client malformed json. Sending error instead")
-        client |> send_json(Response.error_response(500))
+        resp = %{reason: "Server tried to send malformed answer: #{inspect(reason)}"}
+               |> Response.response_internal_error()
+        client |> send_json(resp |> Response.to_json)
         {:reply, :error, state}
       resp ->
         client |> send_json(resp)
@@ -83,7 +86,7 @@ defmodule MDM.WSCommunicator do
     do
       command
     else
-      _ -> :error
+      reason -> {:error, reason}
     end
 
   end
