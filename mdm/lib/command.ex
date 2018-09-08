@@ -1,5 +1,15 @@
 defmodule MDM.Command do
 
+  @moduledoc """
+  This module holds structs that are an abstraction level over messages
+  that go through WS. For now we've got Request (that client app issues)
+  and Respones to that requests. We are planning on adding something that
+  informs about update of metric or connection with target machines.
+  This module's purpose is to diffrentiate between differen messages
+  and to provide structured metadata.
+
+  """
+
   defmodule Request do
     defstruct [:id, :command_name, :body]
 
