@@ -11,6 +11,8 @@ defmodule MDM.JmmsrParser.MachinesParser do
                                     &is_bitstring/1),
          true <- Utils.check_values(json, ["machines", "id"],
                                     &is_integer/1),
+         true <- Utils.check_values(json, ["machines", "ssh_host"],
+                                    &is_bitstring/1),
          true <- check_address(json),
          true <- Utils.check_values(json, ["machines", "os"],
                                     {&Utils.known_os?/1, :unknown_os}), do: :ok

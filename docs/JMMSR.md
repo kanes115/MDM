@@ -23,6 +23,7 @@ machines: [
             id: machine_id(),
             ip: ip() | null,  // in case of round robin DNS - random ip will be taken
             domain: domain_name() | null,
+            ssh_host: string(),
             os: os()
            }
           ],
