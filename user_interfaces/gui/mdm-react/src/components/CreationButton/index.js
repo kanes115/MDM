@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import { deploySystem } from '../../providers/websocket';
 
 import { openForm } from '../../actions';
-import { initializeWebSocketChannel } from '../../actions/websocketActions';
 
 import CreationButton from './representation';
 
@@ -42,9 +41,8 @@ class CreationButtonWrapper extends Component {
     };
 
     handleSystemDeployment = () => {
-        const { activeSystem, initializeChannel } = this.props;
+        const { activeSystem } = this.props;
 
-        initializeChannel();
         deploySystem(activeSystem);
     };
 
@@ -81,14 +79,12 @@ function mapStateToProps({activeSystemId, form: {formOpen}, systems}) {
 function mapDispatchToProps(dispatch) {
     return {
         openCreationForm: (formType) => dispatch(openForm(formType)),
-        initializeChannel: () => dispatch(initializeWebSocketChannel()),
     };
 }
 
 CreationButtonWrapper.propTypes = {
     activeSystem: PropTypes.shape({}),
     formOpen: PropTypes.bool.isRequired,
-    initializeChannel: PropTypes.func.isRequired,
     isSystemActive: PropTypes.bool.isRequired,
     openCreationForm: PropTypes.func.isRequired,
 };
