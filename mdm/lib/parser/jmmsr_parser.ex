@@ -12,6 +12,8 @@ defmodule MDM.JmmsrParser do
   @callback check_typing(Map.t) :: :ok | {false, path, error_desc}
   @callback check_relations(Map.t) :: :ok | {false, path, error_desc}
 
+  @jmmsr_elements [MDM.Machine]
+
   def from_file(path) do
     with {:ok, body} <- File.read(path),
          {:ok, json} <- Poison.decode(body),
@@ -19,8 +21,11 @@ defmodule MDM.JmmsrParser do
   end
 
   def to_internal_repr(json) do
-    json
-    |> keys_to_atoms
+    jmmsr0 = json
+        |> keys_to_atoms
+    @jmmsr_elements
+    |> Enum.reduce(jmmsr0, fn converter, jmmsr ->
+      MDM.JmmsrElement.convert(converter, jmmsr) end)
   end
 
   def check_correctness(json) do
