@@ -50,7 +50,7 @@ defmodule MDM.WSCommunicator do
         resp = Response.response_command_malformed(%{reason: inspect(reason)})
         send_json(client, resp |> Response.to_json)
       command ->
-        send sub, command
+        GenServer.cast(sub, command)
     end
     {:noreply, state}
   end

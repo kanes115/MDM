@@ -4,41 +4,58 @@ defmodule MDM.Deployer do
   alias MDM.WSCommunicator
   alias MDM.Command
   alias MDM.JmmsrParser
+  alias MDM.InfoGatherer
 
   def start_link() do
-    res = GenServer.start_link(__MODULE__, :state, name: __MODULE__)
-    GenServer.cast(__MODULE__, :wait)
-    res
+    GenServer.start_link(__MODULE__, :state, name: __MODULE__)
   end
 
   def init(_) do
     {:ok, :state}
   end
 
-  def handle_cast(:wait, _) do
-    receive do
-      %Command.Request{command_name: :deploy, body: jmmsr0} = req ->
-        case JmmsrParser.check_correctness(jmmsr0) do
-          :ok ->
-            jmmsr = jmmsr0 |> JmmsrParser.to_internal_repr
-            machines = jmmsr[:machines]
-            # We will maybe sending in body back some diff of jmmsr with machines info.
-            # TODO we have to establish some common protocol for DIFFs.
-            #
-            # TODO
-            # For now we only answer OK back
-            req
-            |> Command.Response.new_answer("ok", 200, %{})
-            |> WSCommunicator.send_answer
-            :ok
-          {:error, path, reason} ->
-            req
-            |> Command.Response.error_response(400, %{"path" => path, "reason" => reason})
-            |> WSCommunicator.send_answer
-        end
+
+  # We will maybe sending in body back some diff of jmmsr with machines info.
+  # TODO we have to establish some common protocol for DIFFs.
+  def handle_cast(%Command.Request{command_name: :deploy, body: jmmsr0} = req, state) do
+    with :ok <- JmmsrParser.check_correctness(jmmsr0),
+         {:ok, _} <- start_gatherer(jmmsr0)
+    do
+      connect_info(req)
+    else
+      {:error, {%{fault_nodes: nodes}, _}} ->
+        req
+        |> Command.Response.error_response(500, %{"reason" => "Can't connect to nodes",
+          "fault_nodes" => inspect(nodes)})
+        |> WSCommunicator.send_answer
+      {:error, path, reason} ->
+        req
+        |> Command.Response.error_response(400, %{"path" => path, "reason" => reason})
+        |> WSCommunicator.send_answer
     end
-    GenServer.cast(__MODULE__, :wait)
-    {:noreply, :state}
+    {:noreply, state}
+  end
+
+
+  def handle_info(msg, state) do
+    IO.inspect msg
+    {:noreply, state}
+  end
+
+  defp start_gatherer(jmmsr0) do
+    jmmsr = jmmsr0 |> JmmsrParser.to_internal_repr
+    machines = jmmsr[MDM.Machine.key]
+    Supervisor.start_child(MDM.MDMApp, %{
+      id: InfoGatherer,
+      start: {InfoGatherer, :start_link, [machines]}
+    })
+  end
+
+  defp connect_info(req) do
+    req
+    |> Command.Response.new_answer("WIP deployed", 200, %{"TODO" =>
+      "here probably diff of jmmsr with info about machines"})
+    |> WSCommunicator.send_answer
   end
 
 end
