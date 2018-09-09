@@ -5,7 +5,7 @@ defmodule MDM.MDMApp do
   alias MDM.Deployer
 
   def start(_type, _args) do
-    Supervisor.start_link(children(), strategy: :one_for_one)
+    Supervisor.start_link(children(), strategy: :one_for_one, name: __MODULE__)
   end
 
 
