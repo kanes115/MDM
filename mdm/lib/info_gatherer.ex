@@ -5,7 +5,7 @@ defmodule MDM.InfoGatherer do
 
   def start_link(machines) do
     GenServer.start_link(__MODULE__,
-                         %{machines: machines, nodes_reported: []}, name: {:global, __MODULE__})
+                         %{machines: machines, nodes_reported: []}, name: __MODULE__)
   end
 
   def collect_data, do: GenServer.call(__MODULE__, :collect_data)
@@ -28,6 +28,15 @@ defmodule MDM.InfoGatherer do
     Logger.info("Waiting for information on machines from minions...")
     new_machines = update_machine_with_info(from_node, machines, info)
     {:noreply, %{machines: new_machines, nodes_reported: [from_node, reported]}}
+  end
+
+  def handle_call(:collect_data, _from, %{machines: machines} = state) do
+    nodes = machines
+                |> Enum.map(&MDM.Machine.address/1)
+                |> Enum.map(&node_name/1)
+    data = :rpc.multicall(nodes, MDMMinion.InfoGatherer, :get_info, [])
+           |> IO.inspect
+    {:reply, {:ok, data}, state}
   end
 
   ## Helpers

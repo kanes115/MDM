@@ -51,10 +51,12 @@ defmodule MDM.Deployer do
     })
   end
 
-  defp connect_info(req) do
+  defp connect_info(req) do 
+    data = InfoGatherer.collect_data
+           |> IO.inspect
     req
     |> Command.Response.new_answer("WIP deployed", 200, %{"TODO" =>
-      "here probably diff of jmmsr with info about machines"})
+      inspect(data)})
     |> WSCommunicator.send_answer
   end
 
