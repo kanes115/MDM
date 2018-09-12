@@ -1,10 +1,13 @@
-import React, {Component} from 'react';
-import {connect} from 'react-redux';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {openForm} from '../../actions/index';
+import { deploySystem } from '../../providers/websocket';
 
-import CreationButton from './representation/index';
+import { openForm } from '../../actions';
+
+import CreationButton from './representation';
+
 
 class CreationButtonWrapper extends Component {
     state = {
@@ -37,6 +40,12 @@ class CreationButtonWrapper extends Component {
         this.props.openCreationForm('system');
     };
 
+    handleSystemDeployment = () => {
+        const { activeSystem } = this.props;
+
+        deploySystem(activeSystem);
+    };
+
     render() {
         const {active} = this.state;
         const {formOpen, isSystemActive} = this.props;
@@ -49,6 +58,7 @@ class CreationButtonWrapper extends Component {
                             handleServiceCreation={this.handleServiceCreation}
                             handleSystemConfiguration={this.handleSystemConfiguration}
                             handleSystemCreation={this.handleSystemCreation}
+                            handleSystemDeployment={this.handleSystemDeployment}
                             isSystemActive={isSystemActive}
                             toggleCreation={this.toggleCreationPanel}
             />
@@ -56,8 +66,11 @@ class CreationButtonWrapper extends Component {
     }
 }
 
-function mapStateToProps({activeSystemId, form: {formOpen}}) {
+function mapStateToProps({activeSystemId, form: {formOpen}, systems}) {
+    const activeSystem = systems[activeSystemId];
+
     return {
+        activeSystem,
         formOpen,
         isSystemActive: activeSystemId.length > 0,
     };
@@ -70,6 +83,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 CreationButtonWrapper.propTypes = {
+    activeSystem: PropTypes.shape({}),
     formOpen: PropTypes.bool.isRequired,
     isSystemActive: PropTypes.bool.isRequired,
     openCreationForm: PropTypes.func.isRequired,

@@ -23,7 +23,8 @@ defmodule MDM.MixProject do
   defp deps do
     [
       {:poison, "~> 3.1"},
-      {:socket, "~> 0.3"}
+      {:socket, "~> 0.3"},
+      {:distillery, "~> 1.5"}
     ]
   end
 end

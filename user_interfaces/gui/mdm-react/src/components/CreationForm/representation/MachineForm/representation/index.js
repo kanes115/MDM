@@ -47,6 +47,9 @@ class MachineForm extends Component {
                             <InputField id="machine-ip"
                                         field="ip"
                                         label="IP Address"/>
+                            <InputField id="ssh-host"
+                                        field="ssh_host"
+                                        label="SSH host name"/>
                         </FormSection>
 
                         <button type="submit"

@@ -16,6 +16,23 @@ const SelectionField = ({
         <Select field={field}
                 id={id}
                 multiple={multiple}>
+            {multiple
+                ? (
+                    <Option
+                        disabled
+                        value=""
+                    >
+                        Select one or more
+                    </Option>
+                )
+                : (
+                    <Option
+                        disabled
+                        value=""
+                    >
+                        Select one
+                    </Option>
+                )}
             {options.map(({optionLabel, optionValue}) => (
                 <Option value={optionValue}
                         key={`${id}_${optionValue}`}>

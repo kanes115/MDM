@@ -69,7 +69,7 @@ defmodule MDM.WSCommunicator do
 
   defp spawn_receiver_fun(forward_dest, client) do
     case client |> Socket.Web.recv do
-      {:ok, :close} ->
+      e when e == {:ok, :close} or e == {:ok, {:close, :going_away, ""}} ->
         GenServer.cast(forward_dest, :close)
       {:ok, msg} ->
         GenServer.cast(forward_dest, {:handle_msg, msg})

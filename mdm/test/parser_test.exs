@@ -146,6 +146,15 @@ defmodule ParserTest do
       assert reason == :not_found
     end
 
+    test ":not_found is detected when there is no ssh_host" do
+      correct_jmmsr()
+      |> update_first(["machines"], ["ssh_host"], nil)
+      |> with_mdm
+      {:error, path, reason} = JmmsrParser.from_file @tmp_file
+      assert path == "machines, ssh_host"
+      assert reason == :not_found
+    end
+
     # Services 
     
     test "Type mismatch is detected when service name is bool" do
@@ -445,13 +454,14 @@ defmodule ParserTest do
           }
     end
 
-    defp machine(name, id, os \\ "linux", address \\ [{"ip", "192.168.1.1"}]) do
+    defp machine(name, id, os \\ "linux", address \\ [{"ip", "192.168.1.1"}], ssh_host \\ "some_host_from_ssh_config") do
         %{
             "id" => id,
             "name" => name,
             "os" => os
         }
         |> add_address(address)
+        |> Map.put("ssh_host", ssh_host)
     end
 
     defp add_address(machine, addresses) do
