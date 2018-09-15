@@ -1,0 +1,28 @@
+{"command_name": "collect_data", "body": {
+"services": [
+            
+          ],
+"machines": [
+           {"id": 38,
+            "name": "ala",
+            "domain": "minion1",
+            "ssh_host": "LocalVM",
+            "os": "linux"
+           },
+            {"id": 39,
+            "name": "agi komp",
+            "domain": "minion2",
+            "ssh_host": "unknown",
+            "os": "linux"
+           }
+          ],
+"connections": [
+             ],
+"config": {"metrics": ["cpuUsage"],
+          "persist": true,
+          "persist_machine": 34,
+          "pilot_machine": 34
+        },
+"live_metrics": []
+}
+}

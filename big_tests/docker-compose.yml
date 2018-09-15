@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  pilot:
+    build:
+      context: ../mdm
+      args:
+        - DOMAIN=pilot
+    ports:
+      - "4000:8080"
+
+  minion1:
+    build:
+      context: ../mdmminion
+      args:
+          - DOMAIN=minion1
+  minion2:
+      build:
+        context: ../mdmminion
+        args:
+            - DOMAIN=minion2
