@@ -3,40 +3,37 @@ defmodule MDM.InfoGatherer do
 
   require Logger
 
-  def start_link(machines) do
+  def start_link do
     GenServer.start_link(__MODULE__,
-                         %{machines: machines, nodes_reported: []}, name: __MODULE__)
+                         %{machines: [], data: :not_collected}, name: __MODULE__)
   end
 
   def collect_data, do: GenServer.call(__MODULE__, :collect_data)
 
+  def set_machines(machines), do: GenServer.call(__MODULE__, {:set_machines, machines})
+
   ## GenServer callbacks
 
-  def init(%{machines: machines} = state) do
+  def init(state), do: {:ok, state}
+
+  def handle_call({:set_machines, machines}, _from, state) do
     Logger.info("Connecting to minions on: #{machines |> Enum.map(&MDM.Machine.address/1) |> inspect}")
     addresses = machines |> Enum.map(&MDM.Machine.address/1)
     case connect_to_minions_nodes(addresses) do
       true ->
-        {:ok, state}
+        {:reply, :ok, %{state | machines: machines}}
       fault_nodes ->
-        {:stop, %{fault_nodes: fault_nodes}}
+        {:reply, {:error, %{fault_nodes: fault_nodes}}, state}
     end
   end
-
-  def handle_cast({:info, from_node, info},
-                  %{machines: machines, nodes_reported: reported}) do
-    Logger.info("Waiting for information on machines from minions...")
-    new_machines = update_machine_with_info(from_node, machines, info)
-    {:noreply, %{machines: new_machines, nodes_reported: [from_node, reported]}}
-  end
-
-  def handle_call(:collect_data, _from, %{machines: machines} = state) do
+  def handle_call(:collect_data, _from, %{machines: machines} = state) when is_list(machines) do
     nodes = machines
                 |> Enum.map(&MDM.Machine.address/1)
                 |> Enum.map(&node_name/1)
-    data = :rpc.multicall(nodes, MDMMinion.InfoGatherer, :get_info, [])
-           |> IO.inspect
-    {:reply, {:ok, data}, state}
+    results = for node_name <- nodes,
+      do: GenServer.call({MDMMinion.InfoGatherer, node_name}, :get_info)
+    results |> IO.inspect
+    {:reply, {:ok, results}, state}
   end
 
   ## Helpers

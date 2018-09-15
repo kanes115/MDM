@@ -19,7 +19,8 @@ defmodule MDM.Deployer do
   # TODO we have to establish some common protocol for DIFFs.
   def handle_cast(%Command.Request{command_name: :deploy, body: jmmsr0} = req, state) do
     with :ok <- JmmsrParser.check_correctness(jmmsr0),
-         {:ok, _} <- start_gatherer(jmmsr0)
+         jmmsr <- JmmsrParser.to_internal_repr(jmmsr0),
+         :ok <- connect_to_machines(jmmsr)
     do
       connect_info(req)
     else
@@ -42,13 +43,9 @@ defmodule MDM.Deployer do
     {:noreply, state}
   end
 
-  defp start_gatherer(jmmsr0) do
-    jmmsr = jmmsr0 |> JmmsrParser.to_internal_repr
-    machines = jmmsr[MDM.Machine.key]
-    Supervisor.start_child(MDM.MDMApp, %{
-      id: InfoGatherer,
-      start: {InfoGatherer, :start_link, [machines]}
-    })
+  defp connect_to_machines(jmmsr) do
+    jmmsr[MDM.Machine.key]
+    |> InfoGatherer.set_machines
   end
 
   defp connect_info(req) do 

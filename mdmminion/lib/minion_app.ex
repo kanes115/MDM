@@ -1,7 +1,7 @@
 defmodule MDMMinion.MDMMinionApp do
   use Application
 
-  alias MDMMinion.Minion
+  alias MDMMinion.InfoGatherer
 
   def start(_type, _args) do
     Supervisor.start_link(children(), strategy: :one_for_one)
@@ -11,8 +11,8 @@ defmodule MDMMinion.MDMMinionApp do
   defp children do
     [
       %{
-        id: Minion,
-        start: {Minion, :start_link, []}
+        id: InfoGatherer,
+        start: {InfoGatherer, :start_link, []}
       }
     ]
   end
