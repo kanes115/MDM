@@ -30,6 +30,7 @@ defmodule MDM.Command do
 
     # Mybe this should be in Deployer?
     defp to_command_name("deploy"), do: :deploy
+    defp to_command_name("collect_data"), do: :collect_data
     defp to_command_name(_), do: :error
 
   end

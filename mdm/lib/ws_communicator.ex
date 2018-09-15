@@ -21,6 +21,7 @@ defmodule MDM.WSCommunicator do
 
   @spec send_answer(Response.t) :: :ok | :error
   def send_answer(%Response{} = resp) do
+    Logger.info("Answering: #{inspect(resp)}")
     GenServer.call(__MODULE__, {:send_answer, resp})
   end
 
@@ -35,6 +36,7 @@ defmodule MDM.WSCommunicator do
   def handle_cast(:wait_for_conn, %{server: server} = state) do
     client = server |> Web.accept!
     client |> Web.accept! # we always accept for now
+    Logger.info("Got connection...")
     me = self()
     spawn_link(fn -> spawn_receiver_fun(me, client) end)
     {:noreply, %{state | client: client}}
@@ -73,8 +75,10 @@ defmodule MDM.WSCommunicator do
   defp spawn_receiver_fun(forward_dest, client) do
     case client |> Socket.Web.recv do
       e when e == {:ok, :close} or e == {:ok, {:close, :going_away, ""}} ->
+        Logger.info("Closed connection...")
         GenServer.cast(forward_dest, :close)
       {:ok, msg} ->
+        Logger.info("Got message...")
         GenServer.cast(forward_dest, {:handle_msg, msg})
         spawn_receiver_fun(forward_dest, client)
     end

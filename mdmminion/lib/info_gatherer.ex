@@ -1,6 +1,8 @@
 defmodule MDMMinion.InfoGatherer do
   use GenServer
 
+  require Logger
+
   def start_link(), do: GenServer.start_link(__MODULE__, :ignored, name: __MODULE__)
 
   def init(_), do: {:ok, :ignored}
@@ -11,6 +13,7 @@ defmodule MDMMinion.InfoGatherer do
   end
 
   def collect_data() do
+    Logger.info("Collecting info...")
     %{
       cpu: "test"
     }
