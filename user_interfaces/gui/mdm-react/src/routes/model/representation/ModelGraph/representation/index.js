@@ -8927,7 +8927,8 @@ class ModelGraph extends Component {
         nodeToShowDetails = nodeToShowDetails || (this.state.highlightedObject && this.state.highlightedObject.type === 'node' ? this.state.highlightedObject : undefined);
         const connectionToShowDetails = this.state.highlightedObject && this.state.highlightedObject.type === 'connection' ? this.state.highlightedObject : undefined;
 
-        const { trafficData } = this.props;
+        const { definitions, trafficData } = this.props;
+        console.log(definitions)
 
         return (
             <div className="vizceral-container">
@@ -8940,6 +8941,7 @@ class ModelGraph extends Component {
                         left: '240px',
                     }}>
                         <Vizceral traffic={trafficData}
+                                  definitions={definitions}
                                   view={this.state.currentView}
                                   showLabels={this.state.displayOptions.showLabels}
                                   filters={this.state.filters}

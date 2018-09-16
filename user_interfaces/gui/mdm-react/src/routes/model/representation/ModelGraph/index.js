@@ -6,10 +6,11 @@ import ModelGraph from './representation';
 
 class ModelGraphWrapper extends Component {
     render() {
-        const { trafficData } = this.props;
+        const { definitions, trafficData } = this.props;
 
         return (
             <ModelGraph
+                definitions={definitions}
                 trafficData={trafficData}
             />
         );
@@ -28,12 +29,16 @@ ModelGraphWrapper.propTypes = {
 ModelGraphWrapper.defaultProps = {};
 
 function mapStateToProps({
-                             jmmsr,
-                             graph: { trafficData } }) {
-    console.log(trafficData);
-    console.log(jmmsr)
+    jmmsr,
+    graph: {
+        definitions,
+        trafficData,
+    }
+}) {
+    console.log(definitions, trafficData);
 
     return {
+        definitions,
         trafficData,
     };
 }

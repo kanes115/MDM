@@ -14,9 +14,34 @@ const initialState = {
             connections: [],
             class: 'normal',
             metadata: {},
+            data: {
+                connected: 1,
+                deployed: 1,
+            },
+        },
+        {
+            renderer: 'region',
+            name: 'Unassigned',
+            nodes: [],
+            connections: [],
+            class: 'normal',
+            metadata: {},
+            data: {
+                connected: 0,
+                deployed: 0,
+            },
         }
     ],
-    connections: [],
+    connections: [
+        {
+            source: 'INTERNET',
+            target: 'Unassigned',
+            metrics: {},
+            notices: [],
+            class: 'normal',
+            updated: Date.now(),
+        }
+    ],
 };
 
 const trafficData = (state = initialState, action) => {
@@ -36,12 +61,13 @@ const trafficData = (state = initialState, action) => {
                 name: _.get(newMachine, 'name'),
                 nodes: [],
                 connections: [],
-                class: 'warning',
+                class: 'danger',
                 metadata: {},
                 updated: Date.now(),
-                // detailedNode: _.cloneDeep(
-                //     vizceralUtils.detailedNode.getDefaultDetailedNode()
-                // ),
+                data: {
+                    connected: 0,
+                    deployed: 0,
+                },
             });
             newConnections.push({
                 source: 'INTERNET',
