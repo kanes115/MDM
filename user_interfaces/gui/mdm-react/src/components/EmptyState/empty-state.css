@@ -10,7 +10,8 @@
 
     font-size: 1.2rem;
 
-    box-shadow: 6px 8px 12px #222;
+    background-color: gray;
+    box-shadow: 6px 8px 12px #111111;
 }
 
 .mdm-empty-state .icon {

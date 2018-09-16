@@ -4,8 +4,8 @@ import jmmsr from './jmmsr';
 import graph from './graph';
 
 const rootReducer = combineReducers({
-    graph,
-    jmmsr,
+  graph,
+  jmmsr,
 });
 
 export default rootReducer;

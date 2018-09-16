@@ -1,17 +1,17 @@
 import React from 'react';
 
 class Stepper extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
     };
   }
 
-  stepChanged (index) {
+  stepChanged(index) {
     this.props.changeCallback(index);
   }
 
-  render () {
+  render() {
     return (
       <ol className="stepper">
         {
@@ -22,8 +22,7 @@ class Stepper extends React.Component {
             let stepName = step.name ? step.name.trim() : undefined;
             stepName = stepName || '&nbsp;';
             return (
-              <li key={index} className={className} data-step=" " onClick={() => this.stepChanged(index)} dangerouslySetInnerHTML={{ __html: stepName }}>
-              </li>
+              <li key={index} className={className} data-step=" " onClick={() => this.stepChanged(index)} dangerouslySetInnerHTML={{ __html: stepName }} />
             );
           })
         }

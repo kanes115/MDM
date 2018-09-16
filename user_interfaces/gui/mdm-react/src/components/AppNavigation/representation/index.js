@@ -1,5 +1,5 @@
-import AppNavLink from './AppNavLink';
+import AppNavLink from './AppNavLink/index';
 
 export {
-    AppNavLink,
-}
+  AppNavLink,
+};

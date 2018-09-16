@@ -7,13 +7,13 @@ import { webSocketSaga } from '../../sagas';
 
 const sagaMiddleware = createSagaMiddleware();
 const middleware = [
-    thunk,
-    sagaMiddleware,
+  thunk,
+  sagaMiddleware,
 ];
 
 const store = createStore(
-    rootReducer,
-    applyMiddleware(...middleware),
+  rootReducer,
+  applyMiddleware(...middleware),
 );
 sagaMiddleware.run(webSocketSaga);
 

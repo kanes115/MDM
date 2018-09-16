@@ -7,34 +7,35 @@ import Notices from './notices';
 import './detailsPanel.css';
 
 class DetailsPanelConnection extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props);
     this.state = {
       connection: props.connection,
-      region: props.region
+      region: props.region,
     };
   }
 
-  componentWillReceiveProps (nextProps) {
+  componentWillReceiveProps(nextProps) {
     const newState = {
       region: nextProps.region,
-      connection: nextProps.connection
+      connection: nextProps.connection,
     };
 
     this.setState(newState);
   }
 
-  render () {
+  render() {
     const { connection } = this.state;
     const notices = (connection && connection.notices) || [];
 
     return (
       <div className="details-panel">
         <div className="subsection">
-          <div className="details-panel-title">{connection.getName()}
+          <div className="details-panel-title">
+            {connection.getName()}
           </div>
           <div className="details-panel-close" onClick={this.props.closeCallback}>
-            <span className="glyphicon glyphicon-remove" aria-hidden="true"></span>
+            <span className="glyphicon glyphicon-remove" aria-hidden="true" />
           </div>
         </div>
         <Notices notices={notices} />
@@ -52,7 +53,7 @@ class DetailsPanelConnection extends React.Component {
 
 DetailsPanelConnection.defaultProps = {
   nodeClicked: () => {},
-  region: ''
+  region: '',
 };
 
 export default DetailsPanelConnection;

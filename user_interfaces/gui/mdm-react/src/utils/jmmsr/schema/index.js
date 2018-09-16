@@ -5,9 +5,9 @@ import service from './service';
 import system from './system';
 
 export {
-    connection,
-    machine,
-    metrics,
-    service,
-    system,
+  connection,
+  machine,
+  metrics,
+  service,
+  system,
 };
