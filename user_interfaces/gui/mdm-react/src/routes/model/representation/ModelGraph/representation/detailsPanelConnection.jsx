@@ -1,7 +1,5 @@
 /* eslint no-restricted-syntax: 0 */
 
-'use strict';
-
 import React from 'react';
 
 import Notices from './notices';
