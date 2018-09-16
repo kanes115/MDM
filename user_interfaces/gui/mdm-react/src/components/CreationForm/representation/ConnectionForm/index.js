@@ -60,7 +60,7 @@ class ConnectionFormWrapper extends Component {
     }
 }
 
-function mapStateToProps({activeSystemId, form: {connectionForm}, systems}) {
+function mapStateToProps({ jmmsr: { activeSystemId, form: { connectionForm }, systems } }) {
     const {selectingSource, selectingTarget, service_from, service_to} = connectionForm;
     const activeSystemServices = systems[activeSystemId].services;
     let source = {};

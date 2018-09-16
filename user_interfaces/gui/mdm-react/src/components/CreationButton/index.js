@@ -66,7 +66,7 @@ class CreationButtonWrapper extends Component {
     }
 }
 
-function mapStateToProps({activeSystemId, form: {formOpen}, systems}) {
+function mapStateToProps({ jmmsr: { activeSystemId, form: { formOpen }, systems } }) {
     const activeSystem = systems[activeSystemId];
 
     return {

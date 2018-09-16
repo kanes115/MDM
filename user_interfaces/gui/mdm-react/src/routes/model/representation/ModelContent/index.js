@@ -6,6 +6,8 @@ import {selectConnectionSource, selectConnectionTarget} from '../../../../action
 
 import {EmptyState} from '../../../../components';
 
+import ModelGraph from '../ModelGraph';
+
 class ModelContent extends Component {
     selectService = (service) => {
         return () => {
@@ -32,6 +34,7 @@ class ModelContent extends Component {
                 </EmptyState>)
                 :
                 (<div>
+                    <ModelGraph/>
                     {connections.map((connection, index) => (
                         <div key={`connection_${index}`}>
                             {JSON.stringify(connection)}
@@ -54,7 +57,7 @@ class ModelContent extends Component {
 }
 
 function mapStateToProps(state) {
-    const {activeSystemId, form, systems} = state;
+    const { jmmsr: { activeSystemId, form, systems } } = state;
     const activeSystem = systems[activeSystemId];
     const isModelEmpty = activeSystem.connections.length === 0 &&
         activeSystem.machines.length === 0 &&

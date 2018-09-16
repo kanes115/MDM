@@ -25,7 +25,7 @@ class AppHeader extends Component {
     }
 }
 
-function mapStateToProps({activeSystemId}) {
+function mapStateToProps({ jmmsr: { activeSystemId } }) {
     const isSystemActive = activeSystemId.length > 0;
 
     return {

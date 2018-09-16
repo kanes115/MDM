@@ -18,7 +18,7 @@ class CreationFormWrapper extends Component {
     }
 }
 
-function mapStateToProps({form: {formOpen, formType}}) {
+function mapStateToProps({ jmmsr: { form: { formOpen, formType } } }) {
     return {
         formOpen,
         formType,

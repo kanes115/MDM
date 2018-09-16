@@ -18,7 +18,7 @@ class ModelPageWrapper extends Component {
     }
 }
 
-function mapStateToProps({activeSystemId}) {
+function mapStateToProps({ jmmsr: { activeSystemId } }) {
     return {
         isSystemActive: activeSystemId.length > 0,
     };

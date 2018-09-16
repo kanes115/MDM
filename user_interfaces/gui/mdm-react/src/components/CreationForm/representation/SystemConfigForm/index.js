@@ -39,7 +39,7 @@ class SystemConfigFormWrapper extends Component {
     }
 }
 
-function mapStateToProps({activeSystemId, systems}) {
+function mapStateToProps({ jmmsr: { activeSystemId, systems } }) {
     const activeSystem = systems[activeSystemId];
     const availableMachines = [...activeSystem.machines];
     const config = activeSystem.config;

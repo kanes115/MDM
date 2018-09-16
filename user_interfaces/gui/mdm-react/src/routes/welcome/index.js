@@ -39,7 +39,7 @@ class WelcomePage extends Component {
     }
 }
 
-function mapStateToProps({systems}) {
+function mapStateToProps({ jmmsr: { systems } }) {
     const hasSystems = _.size(systems) > 0;
 
     return {

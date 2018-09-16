@@ -34,7 +34,7 @@ class ServiceFormWrapper extends Component {
     }
 }
 
-function mapStateToProps({systems, activeSystemId}) {
+function mapStateToProps({ jmmsr: { systems, activeSystemId } }) {
     const activeSystem = systems[activeSystemId];
     const availableMachineNames = activeSystem.machines.map(machine => machine.name);
 
