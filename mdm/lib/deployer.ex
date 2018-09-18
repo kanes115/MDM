@@ -37,21 +37,14 @@ defmodule MDM.Deployer do
          :ok <- connect_to_machines(jmmsr),
          {:ok, data} <- collect_data()
     do
-      req
-      |> Command.Response.new_answer("WIP collected", 200, %{"collected_data" => inspect(data)})
-      |> WSCommunicator.send_answer
+      req |> answer("WIP collected", 200, %{"collected_data" => inspect(data)})
     else
       {:error, %{fault_nodes: nodes}} ->
       Logger.error("Could not connect to nodes: #{inspect(nodes)}")
-        req
-        |> Command.Response.error_response(500, %{"reason" => "Can't connect to nodes",
-          "fault_nodes" => inspect(nodes)})
-        |> WSCommunicator.send_answer
+        req |> error_answer(500, %{"reason" => "Can't connect to nodes", "fault_nodes" => inspect(nodes)})
         {:noreply, %{state | state: :waiting_for_reqest}}
       {:error, path, reason} ->
-        req
-        |> Command.Response.error_response(400, %{"path" => path, "reason" => reason})
-        |> WSCommunicator.send_answer
+        req |> error_answer(400, %{"path" => path, "reason" => reason})
         {:noreply, %{state | state: :waiting_for_reqest}}
     end
     {:noreply, %{state | state: :collected_data}}
@@ -59,9 +52,7 @@ defmodule MDM.Deployer do
   def handle_cast(%Command.Request{command_name: :deploy, body: _jmmsr0} = req, %__MODULE__{state: fsm} = state)
   when fsm == :collected_data do
     #TODO
-    req
-    |> Command.Response.error_response(501, %{"reason" => "feature not implemented"})
-    |> WSCommunicator.send_answer
+    req |> error_answer(501, %{"reason" => "feature not implemented"})
     {:noreply, state}
   end
   def handle_cast(_, state), do: {:noreply, state}
@@ -85,6 +76,20 @@ defmodule MDM.Deployer do
     data = InfoGatherer.collect_data
            |> IO.inspect
     {:ok, data}
+  end
+
+  # TODO maybe use calls and don't send replies directly here
+  # but in WSCommunicator?
+  defp answer(req, msg, code, body) do
+      req
+      |> Command.Response.new_answer(msg, code, body)
+      |> WSCommunicator.send_answer
+  end
+
+  defp error_answer(req, code, body) do
+    req
+    |> Command.Response.error_response(code, body)
+    |> WSCommunicator.send_answer
   end
 
 end
