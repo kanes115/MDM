@@ -14,7 +14,7 @@ defmodule MDM.MDMApp do
     [
       %{
         id: WSCommunicator,
-        start: {WSCommunicator, :start_link, [Deployer]}
+        start: {WSCommunicator, :start_link, [{:call, Deployer}]}
       },
       %{
         id: Deployer,

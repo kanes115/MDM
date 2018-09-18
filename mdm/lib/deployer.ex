@@ -20,7 +20,6 @@ defmodule MDM.Deployer do
   # Test API
   def get_state, do: GenServer.call(__MODULE__, :get_state)
 
-  def handle_call(:get_state, _from, %{state: fsm} = state), do: {:reply, fsm, state}
 
   def init(state) do
     {:ok, state}
@@ -29,7 +28,7 @@ defmodule MDM.Deployer do
 
   # We will maybe sending in body back some diff of jmmsr with machines info.
   # TODO we have to establish some common protocol for DIFFs.
-  def handle_cast(%Command.Request{command_name: :collect_data, body: jmmsr0} = req, %__MODULE__{state: fsm} = state) 
+  def handle_call(%Command.Request{command_name: :collect_data, body: jmmsr0} = req, _, %__MODULE__{state: fsm} = state) 
   when fsm == :waiting_for_reqest or fsm == :collected_data do
     Logger.info("Got request to collect target machines info...")
     with :ok <- JmmsrParser.check_correctness(jmmsr0),
@@ -37,25 +36,26 @@ defmodule MDM.Deployer do
          :ok <- connect_to_machines(jmmsr),
          {:ok, data} <- collect_data()
     do
-      req |> answer("WIP collected", 200, %{"collected_data" => inspect(data)})
+      resp = req |> answer("WIP collected", 200, %{"collected_data" => inspect(data)})
+      {:reply, resp, %{state | state: :collected_data}}
     else
       {:error, %{fault_nodes: nodes}} ->
       Logger.error("Could not connect to nodes: #{inspect(nodes)}")
-        req |> error_answer(500, %{"reason" => "Can't connect to nodes", "fault_nodes" => inspect(nodes)})
-        {:noreply, %{state | state: :waiting_for_reqest}}
+        resp = req |> error_answer(500, %{"reason" => "Can't connect to nodes", "fault_nodes" => inspect(nodes)})
+        {:reply, resp, %{state | state: :waiting_for_reqest}}
       {:error, path, reason} ->
-        req |> error_answer(400, %{"path" => path, "reason" => reason})
-        {:noreply, %{state | state: :waiting_for_reqest}}
+        resp = req |> error_answer(400, %{"path" => path, "reason" => reason})
+        {:reply, resp, %{state | state: :waiting_for_reqest}}
     end
-    {:noreply, %{state | state: :collected_data}}
   end
-  def handle_cast(%Command.Request{command_name: :deploy, body: _jmmsr0} = req, %__MODULE__{state: fsm} = state)
+  def handle_call(%Command.Request{command_name: :deploy, body: _jmmsr0} = req, _, %__MODULE__{state: fsm} = state)
   when fsm == :collected_data do
     #TODO
-    req |> error_answer(501, %{"reason" => "feature not implemented"})
-    {:noreply, state}
+    resp = req |> error_answer(501, %{"reason" => "feature not implemented"})
+    {:reply, resp, state}
   end
-  def handle_cast(_, state), do: {:noreply, state}
+  def handle_call(:get_state, _from, %{state: fsm} = state), do: {:reply, fsm, state}
+  def handle_call(_, _, state), do: {:reply, :ok, state}
 
 
   def handle_info({:nodedown, _}, state) do
@@ -81,15 +81,12 @@ defmodule MDM.Deployer do
   # TODO maybe use calls and don't send replies directly here
   # but in WSCommunicator?
   defp answer(req, msg, code, body) do
-      req
-      |> Command.Response.new_answer(msg, code, body)
-      |> WSCommunicator.send_answer
+      req |> Command.Response.new_answer(msg, code, body)
   end
 
   defp error_answer(req, code, body) do
     req
     |> Command.Response.error_response(code, body)
-    |> WSCommunicator.send_answer
   end
 
 end
