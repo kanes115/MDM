@@ -4,23 +4,36 @@
   "private": true,
   "dependencies": {
     "classnames": "^2.2.6",
-    "informed": "^1.10.4",
-    "lodash": "^4.17.10",
+    "informed": "^1.10.5",
+    "lodash": "^4.17.11",
     "prop-types": "^15.6.2",
-    "react": "^16.4.2",
-    "react-dom": "^16.4.2",
+    "query-string": "^6.1.0",
+    "react": "^16.5.1",
+    "react-bootstrap": "^0.32.4",
+    "react-dom": "^16.5.1",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
     "react-scripts": "^1.1.5",
     "react-sigma": "^1.2.30",
+    "react-virtualized": "^9.20.1",
     "redux": "^4.0.0",
     "redux-saga": "^0.16.0",
-    "redux-thunk": "^2.3.0"
+    "redux-thunk": "^2.3.0",
+    "vizceral-react": "^4.6.5"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "lint": "./node_modules/.bin/eslint src",
+    "lint-fixup": "./node_modules/.bin/eslint src --ext .js,.jsx --fix"
+  },
+  "devDependencies": {
+    "eslint": "^5.6.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-jsx-a11y": "^6.1.1",
+    "eslint-plugin-react": "^7.11.1"
   }
 }

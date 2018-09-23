@@ -1,5 +1,5 @@
 export default {
-    service_from: '',
-    service_to: '',
-    port: -1,
-}
+  service_from: '',
+  service_to: '',
+  port: -1,
+};

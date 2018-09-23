@@ -1,0 +1,12 @@
+.mdm-model-header {
+    display: flex;
+    flex-direction: row;
+
+    height: 32px;
+    background-color: #111111;
+    color: #fffff;
+}
+
+.mdm-model-header .mdm-breadcrumbs {
+    color: #ffffff;
+}

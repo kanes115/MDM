@@ -1,13 +1,13 @@
-import CheckboxField from './CheckboxField';
-import FormHeader from './FormHeader';
-import FormSection from './FormSection';
-import InputField from './InputField';
-import SelectionField from './SelectionField';
+import CheckboxField from './CheckboxField/index';
+import FormHeader from './FormHeader/index';
+import FormSection from './FormSection/index';
+import InputField from './InputField/index';
+import SelectionField from './SelectionField/index';
 
 export {
-    CheckboxField,
-    FormHeader,
-    FormSection,
-    InputField,
-    SelectionField,
-}
+  CheckboxField,
+  FormHeader,
+  FormSection,
+  InputField,
+  SelectionField,
+};
