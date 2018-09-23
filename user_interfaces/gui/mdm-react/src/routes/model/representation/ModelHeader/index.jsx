@@ -9,14 +9,15 @@ import './model-header.css';
 
 class ModelHeader extends Component {
   render() {
-    const { goBack, view } = this.props;
-    const path = _.join(view.currentView, ' / ');
+    const { activeSystemName, goBack, view } = this.props;
+    const path = _.join([activeSystemName, ...view.currentView], ' / ');
 
     return (
       <div className="mdm-model-header">
         <i
           className="material-icons"
           onClick={goBack}
+          role="button"
         >
           arrow_back_ios
         </i>
@@ -30,15 +31,18 @@ class ModelHeader extends Component {
 }
 
 ModelHeader.propTypes = {
+  activeSystemName: PropTypes.string.isRequired,
   goBack: PropTypes.func.isRequired,
   view: PropTypes.shape().isRequired,
 };
 ModelHeader.defaultProps = {};
 
-function mapStateToProps({ graph: { view } }) {
-  // console.log('! view', view)
+function mapStateToProps({ jmmsr, graph: { view } }) {
+  const { activeSystemId, systems } = jmmsr;
+  const activeSystemName = _.get(systems, `${activeSystemId}.name`, '');
 
   return {
+    activeSystemName,
     view,
   };
 }

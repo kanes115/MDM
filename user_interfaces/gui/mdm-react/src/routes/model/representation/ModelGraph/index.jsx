@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import {
-  setView,
+  setView as setViewAction,
 } from '../../../../actions/graph/view';
 
 import ModelGraph from './representation';
@@ -59,7 +59,7 @@ function mapStateToProps({
 
 function mapDispatchToProps(dispatch) {
   return {
-    setView: newView => dispatch(setView(newView)),
+    setView: newView => dispatch(setViewAction(newView)),
   };
 }
 

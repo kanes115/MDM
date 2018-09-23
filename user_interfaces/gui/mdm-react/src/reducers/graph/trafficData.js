@@ -9,6 +9,7 @@ const initialState = {
   nodes: [
     {
       renderer: 'region',
+      maxVolume: 100000,
       name: 'INTERNET',
       nodes: [],
       connections: [],
@@ -21,6 +22,7 @@ const initialState = {
     },
     {
       renderer: 'region',
+      maxVolume: 100000,
       name: 'Services',
       nodes: [
         {
@@ -48,6 +50,7 @@ const initialState = {
       updated: Date.now(),
     },
   ],
+  updated: Date.now(),
 };
 
 const trafficData = (state = initialState, action) => {
@@ -70,6 +73,8 @@ const trafficData = (state = initialState, action) => {
             nodes: [],
             name: 'INTERNET',
             renderer: 'focusedChild',
+            maxVolume: 100000,
+            updated: Date.now(),
           },
         ],
         connections: [],
@@ -95,6 +100,40 @@ const trafficData = (state = initialState, action) => {
         updated: Date.now(),
         nodes: newNodes,
         connections: newConnections,
+      };
+    }
+    case actionTypes.CREATE_NEW_SERVICE: {
+      const newService = _.get(action, 'payload.service', {});
+      const servicesNode = { ...state.nodes[1] };
+      const services = [...servicesNode.nodes];
+      const connections = [...servicesNode.connections];
+
+      services.push({
+        nodes: [],
+        name: _.get(newService, 'name'),
+        renderer: 'focusedChild',
+        maxVolume: 100000,
+        updated: Date.now(),
+      });
+      connections.push({
+        source: 'INTERNET',
+        target: _.get(newService, 'name'),
+        metrics: {},
+        notices: [],
+        class: 'normal',
+        updated: Date.now(),
+      });
+
+      servicesNode.nodes = services;
+      servicesNode.connections = connections;
+      servicesNode.updated = Date.now();
+      const nodes = [...state.nodes];
+      nodes[1] = servicesNode;
+
+      return {
+        ...state,
+        nodes,
+        updated: Date.now(),
       };
     }
     default:
