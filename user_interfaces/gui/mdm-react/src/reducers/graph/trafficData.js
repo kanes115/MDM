@@ -136,6 +136,34 @@ const trafficData = (state = initialState, action) => {
         updated: Date.now(),
       };
     }
+    case actionTypes.CREATE_NEW_CONNECTION: {
+      const newConnection = _.get(action, 'payload.connection', {});
+      const servicesNode = { ...state.nodes[1] };
+      const connections = [...servicesNode.connections];
+
+      connections.push({
+        source: _.get(newConnection, 'service_from'),
+        target: _.get(newConnection, 'service_to'),
+        metrics: {},
+        notices: [],
+        class: 'normal',
+        data: {
+          port: _.get(newConnection, 'port'),
+        },
+        updated: Date.now(),
+      });
+
+      servicesNode.connections = connections;
+      servicesNode.updated = Date.now();
+      const nodes = [...state.nodes];
+      nodes[1] = servicesNode;
+
+      return {
+        ...state,
+        nodes,
+        updated: Date.now(),
+      };
+    }
     default:
       return state;
   }

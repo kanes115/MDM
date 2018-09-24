@@ -49,7 +49,6 @@ function mapStateToProps({
     view,
   },
 }) {
-
   return {
     definitions,
     trafficData,

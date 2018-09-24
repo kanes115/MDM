@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
-import ConnectionForm from './ConnectionForm/index';
+// import ConnectionForm from './ConnectionForm/index';
+import ConnectionForm from './NewConnectionForm/index';
 import MachineForm from './MachineForm/index';
 import ServiceForm from './ServiceForm/index';
 import SystemConfigForm from './SystemConfigForm/index';
