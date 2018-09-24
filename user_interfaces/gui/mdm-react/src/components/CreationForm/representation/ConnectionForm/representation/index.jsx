@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'informed';
 
@@ -6,77 +6,68 @@ import {
   FormHeader,
   FormSection,
   InputField,
+  SelectionField,
 } from '../../../../FormElements';
 
-import ConnectionInput from './ConnectionInput/index';
+const ConnectionForm = ({
+  onSubmit,
+  serviceNames,
+  setFormAPI,
+}) => (
+  <Form
+    id="service-form"
+    getApi={setFormAPI}
+  >
+    {() => (
+      <div className="service-form">
+        <FormHeader title="New connection" />
+        <FormSection title="Connection details">
+          <InputField
+            id="connection-port"
+            field="port"
+            label="Port"
+            type="number"
+          />
+          <SelectionField
+            id="connection-from"
+            field="service_from"
+            label="Connection from service"
+            options={serviceNames.map(availableMachineName => ({
+              optionLabel: availableMachineName,
+              optionValue: availableMachineName,
+            }))}
+          />
+          <SelectionField
+            id="connection-to"
+            field="service_to"
+            label="Connection to service"
+            options={serviceNames.map(availableMachineName => ({
+              optionLabel: availableMachineName,
+              optionValue: availableMachineName,
+            }))}
+          />
+        </FormSection>
 
-import './connection-form.css';
-
-class ConnectionForm extends Component {
-  render() {
-    const {
-      onSubmit,
-      selectingSource,
-      selectingTarget,
-      setFormAPI,
-      source,
-      target,
-      toggleSource,
-      toggleTarget,
-    } = this.props;
-
-    return (
-      <Form
-        id="connection-form"
-        getApi={setFormAPI}
-      >
-        {({ formState }) => (
-          <div className="connection-form">
-            <FormHeader title="New connection" />
-            <FormSection title="Connection details">
-              <InputField
-                id="connection-port"
-                field="port"
-                label="Port"
-                type="number"
-              />
-              <ConnectionInput
-                selectingSource={selectingSource}
-                selectingTarget={selectingTarget}
-                source={source}
-                target={target}
-                toggleSource={toggleSource}
-                toggleTarget={toggleTarget}
-              />
-            </FormSection>
-
-            <button
-              type="submit"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onSubmit();
-              }}
-            >
-                            Create connection
-            </button>
-          </div>
-        )
-                }
-      </Form>
-    );
-  }
-}
+        <button
+          type="submit"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            onSubmit();
+          }}
+        >
+          Create connection
+        </button>
+      </div>
+    )
+    }
+  </Form>
+);
 
 ConnectionForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-  selectingSource: PropTypes.bool.isRequired,
-  selectingTarget: PropTypes.bool.isRequired,
   setFormAPI: PropTypes.func.isRequired,
-  source: PropTypes.object.isRequired,
-  target: PropTypes.object.isRequired,
-  toggleSource: PropTypes.func.isRequired,
-  toggleTarget: PropTypes.func.isRequired,
+  serviceNames: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 ConnectionForm.defaultProps = {};
 

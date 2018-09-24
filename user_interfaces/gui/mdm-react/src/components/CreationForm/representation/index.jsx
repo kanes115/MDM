@@ -1,14 +1,13 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-// import ConnectionForm from './ConnectionForm/index';
-import ConnectionForm from './NewConnectionForm/index';
-import MachineForm from './MachineForm/index';
-import ServiceForm from './ServiceForm/index';
-import SystemConfigForm from './SystemConfigForm/index';
-import SystemForm from './SystemForm/index';
+import ConnectionForm from './ConnectionForm';
+import MachineForm from './MachineForm';
+import ServiceForm from './ServiceForm';
+import SystemConfigForm from './SystemConfigForm';
+import SystemForm from './SystemForm';
 
-import {CloseIcon} from '../../index';
+import { CloseIcon } from '../..';
 
 import './creation-form.css';
 

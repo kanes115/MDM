@@ -6,12 +6,6 @@ import { system } from '../utils/jmmsr/schema';
 const initialState = {
   activeSystemId: '',
   form: {
-    connectionForm: {
-      selectingSource: false,
-      selectingTarget: false,
-      service_from: '',
-      service_to: '',
-    },
     formOpen: false,
     formType: '',
   },
@@ -75,63 +69,11 @@ const jmmsr = (state = initialState, action) => {
           },
         },
       };
-    case actionTypes.TOGGLE_SOURCE_SELECTION:
-      return {
-        ...state,
-        form: {
-          ...state.form,
-          connectionForm: {
-            ...state.form.connectionForm,
-            selectingSource: !state.form.connectionForm.selectingSource,
-          },
-        },
-      };
-    case actionTypes.TOGGLE_TARGET_SELECTION:
-      return {
-        ...state,
-        form: {
-          ...state.form,
-          connectionForm: {
-            ...state.form.connectionForm,
-            selectingTarget: !state.form.connectionForm.selectingTarget,
-          },
-        },
-      };
-    case actionTypes.SELECT_CONNECTION_SOURCE:
-      return {
-        ...state,
-        form: {
-          ...state.form,
-          connectionForm: {
-            ...state.form.connectionForm,
-            selectingSource: false,
-            service_from: action.payload.serviceName,
-          },
-        },
-      };
-    case actionTypes.SELECT_CONNECTION_TARGET:
-      return {
-        ...state,
-        form: {
-          ...state.form,
-          connectionForm: {
-            ...state.form.connectionForm,
-            selectingTarget: false,
-            service_to: action.payload.serviceName,
-          },
-        },
-      };
     case actionTypes.CREATE_NEW_CONNECTION:
       return {
         ...state,
         form: {
           ...state.form,
-          connectionForm: {
-            selectingSource: false,
-            selectingTarget: false,
-            service_from: '',
-            service_to: '',
-          },
           formOpen: false,
           formType: '',
         },

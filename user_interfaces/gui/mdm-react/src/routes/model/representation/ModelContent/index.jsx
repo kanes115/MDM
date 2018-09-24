@@ -2,11 +2,6 @@ import React, {Component} from 'react';
 import {connect} from 'react-redux';
 import PropTypes from 'prop-types';
 
-import {
-  selectConnectionSource,
-  selectConnectionTarget,
-} from '../../../../actions';
-
 import ModelEmpty from '../ModelEmpty';
 import ModelGraph from '../ModelGraph';
 import ModelHeader from '../ModelHeader';
@@ -56,27 +51,17 @@ class ModelContent extends Component {
 }
 
 function mapStateToProps(state) {
-    const { jmmsr: { activeSystemId, form, systems } } = state;
+    const { jmmsr: { activeSystemId, systems } } = state;
     const activeSystem = systems[activeSystemId];
     const isModelEmpty = activeSystem.connections.length === 0 &&
         activeSystem.machines.length === 0 &&
         activeSystem.services.length === 0;
-    const {connectionForm: {selectingSource, selectingTarget}} = form;
 
     return {
         connections: activeSystem.connections,
         isModelEmpty,
         machines: activeSystem.machines,
-        selectingSource,
-        selectingTarget,
         services: activeSystem.services,
-    };
-}
-
-function mapDispatchToProps(dispatch) {
-    return {
-        selectSource: (serviceName) => dispatch(selectConnectionSource(serviceName)),
-        selectTarget: (serviceName) => dispatch(selectConnectionTarget(serviceName)),
     };
 }
 
@@ -84,12 +69,8 @@ ModelContent.propTypes = {
     connections: PropTypes.arrayOf(PropTypes.object).isRequired,
     isModelEmpty: PropTypes.bool.isRequired,
     machines: PropTypes.arrayOf(PropTypes.object).isRequired,
-    selectingSource: PropTypes.bool.isRequired,
-    selectingTarget: PropTypes.bool.isRequired,
-    selectSource: PropTypes.func.isRequired,
-    selectTarget: PropTypes.func.isRequired,
     services: PropTypes.arrayOf(PropTypes.object).isRequired,
 };
 ModelContent.defaultProps = {};
 
-export default connect(mapStateToProps, mapDispatchToProps)(ModelContent);
+export default connect(mapStateToProps)(ModelContent);
