@@ -31,8 +31,7 @@ defmodule MDM.Deployer do
   def handle_call(%Command.Request{command_name: :collect_data, body: jmmsr0} = req, _, %__MODULE__{state: fsm} = state) 
   when fsm == :waiting_for_reqest or fsm == :collected_data do
     Logger.info("Got request to collect target machines info...")
-    with :ok <- JmmsrParser.check_correctness(jmmsr0),
-         jmmsr <- JmmsrParser.to_internal_repr(jmmsr0),
+    with {:ok, jmmsr} <- JmmsrParser.to_internal_repr(jmmsr0),
          :ok <- connect_to_machines(jmmsr),
          {:ok, data} <- collect_data()
     do

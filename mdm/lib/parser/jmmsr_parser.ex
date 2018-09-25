@@ -21,14 +21,19 @@ defmodule MDM.JmmsrParser do
   end
 
   def to_internal_repr(json) do
-    jmmsr0 = json
-        |> keys_to_atoms
-    @jmmsr_elements
-    |> Enum.reduce(jmmsr0, fn converter, jmmsr ->
-      MDM.JmmsrElement.convert(converter, jmmsr) end)
+    case check_correctness(json) do
+      :ok ->
+        jmmsr0 = json
+                 |> keys_to_atoms
+        res = @jmmsr_elements
+              |> Enum.reduce(jmmsr0, fn converter, jmmsr ->
+                         MDM.JmmsrElement.convert(converter, jmmsr) end)
+        {:ok, res}
+      error -> error
+    end
   end
 
-  def check_correctness(json) do
+  defp check_correctness(json) do
     with :ok <- check_presence_and_types(json),
          :ok <- check_relations(json), do: :ok
   end
