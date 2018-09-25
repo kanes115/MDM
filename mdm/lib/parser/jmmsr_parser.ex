@@ -11,11 +11,26 @@ defmodule MDM.JmmsrParser do
 
   @callback check_typing(Map.t) :: :ok | {false, path, error_desc}
   @callback check_relations(Map.t) :: :ok | {false, path, error_desc}
-    
+
+  @jmmsr_elements [MDM.Machine]
+
   def from_file(path) do
     with {:ok, body} <- File.read(path),
          {:ok, json} <- Poison.decode(body),
          :ok <- check_correctness(json), do: {:ok, json}
+  end
+
+  def to_internal_repr(json) do
+    case check_correctness(json) do
+      :ok ->
+        jmmsr0 = json
+                 |> keys_to_atoms
+        res = @jmmsr_elements
+              |> Enum.reduce(jmmsr0, fn converter, jmmsr ->
+                         MDM.JmmsrElement.convert(converter, jmmsr) end)
+        {:ok, res}
+      error -> error
+    end
   end
 
   defp check_correctness(json) do
@@ -63,5 +78,15 @@ defmodule MDM.JmmsrParser do
   defp human_readable_reason(:not_found), do: :not_found
   defp human_readable_reason(:predicate), do: :type_mismatch
   defp human_readable_reason(reason), do: reason
+
+
+  defp keys_to_atoms(string_key_map) when is_map(string_key_map) do
+    for {key, val} <- string_key_map, into: %{}, do: {String.to_atom(key), keys_to_atoms(val)}
+    end
+  defp keys_to_atoms(string_key_map) when is_list(string_key_map) do
+    string_key_map
+    |> Enum.map(&keys_to_atoms/1)
+  end
+  defp keys_to_atoms(value), do: value
 
 end

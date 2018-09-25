@@ -3,9 +3,10 @@ defmodule MDM.MDMApp do
 
   alias MDM.WSCommunicator
   alias MDM.Deployer
+  alias MDM.InfoGatherer
 
   def start(_type, _args) do
-    Supervisor.start_link(children(), strategy: :one_for_one)
+    Supervisor.start_link(children(), strategy: :one_for_one, name: __MODULE__)
   end
 
 
@@ -13,11 +14,15 @@ defmodule MDM.MDMApp do
     [
       %{
         id: WSCommunicator,
-        start: {WSCommunicator, :start_link, [Deployer]}
+        start: {WSCommunicator, :start_link, [{:call, Deployer}]}
       },
       %{
         id: Deployer,
         start: {Deployer, :start_link, []}
+      },
+      %{
+        id: InfoGatherer,
+        start: {InfoGatherer, :start_link, []}
       }
     ]
   end

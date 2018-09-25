@@ -11,7 +11,9 @@ defmodule MDM.JmmsrParser.ServicesParser do
 
 
   def check_typing(json) do
-    with true <- Utils.check_values(json, ["services", "name"],
+    with true <- Utils.check_values(json, ["services"],
+                                    &is_list/1),
+         true <- Utils.check_values(json, ["services", "name"],
                                     &is_bitstring/1),
          true <- Utils.check_values(json, ["services", "containerized"],
                                    &is_boolean/1),
