@@ -15,7 +15,7 @@ class ModelHeader extends Component {
     return (
       <div className="mdm-model-header">
         <i
-          className="material-icons"
+          className="back material-icons"
           onClick={goBack}
           role="button"
         >

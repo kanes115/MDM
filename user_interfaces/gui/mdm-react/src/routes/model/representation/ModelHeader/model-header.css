@@ -9,6 +9,10 @@
     color: #ffffff;
 }
 
+.mdm-model-header .back {
+    cursor: pointer;
+}
+
 .mdm-model-header .mdm-breadcrumbs {
     color: #ffffff;
 }

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import { deploySystem } from '../../providers/websocket';
+import deploySystem from '../../providers/websocket';
 
 import { openForm } from '../../actions';
 

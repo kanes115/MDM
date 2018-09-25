@@ -2,10 +2,10 @@ import { socket } from './init';
 
 export default class WebSocketMessageDispatcher {
   constructor() {
-    this.__socket = socket;
+    this.socket = socket;
   }
 
   sendMessage(message) {
-    this.__socket.send(message);
+    this.socket.send(message);
   }
 }
