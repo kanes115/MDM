@@ -10,10 +10,11 @@ defmodule MDM.Machine do
     ip: String.t,
     domain: String.t,
     ssh_host: String.t,
-    os: os()
+    os: os(),
+    resources: map()
   }
 
-  defstruct [:name, :id, :ip, :domain, :ssh_host, :os]
+  defstruct [:name, :id, :ip, :domain, :ssh_host, :os, :resources]
 
   ## JmmsrElement callbacks
 
@@ -31,5 +32,16 @@ defmodule MDM.Machine do
 
   def address(%__MODULE__{ip: ip, domain: nil}), do: ip
   def address(%__MODULE__{ip: nil, domain: domain}), do: domain
+
+  def add_resources(machine, resources), do: %{machine | resources: resources}
+
+  def find_machine_by_address(machines, address) do
+    case machines |> Enum.filter(fn machine -> of_address?(machine, address) end) do
+      [] -> :not_found
+      [machine] -> machine
+    end
+  end
+
+  defp of_address?(machine, addr), do: addr== address(machine)
 
 end

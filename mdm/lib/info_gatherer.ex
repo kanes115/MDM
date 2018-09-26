@@ -36,13 +36,25 @@ defmodule MDM.InfoGatherer do
     Logger.info("Trying to collect data from machines: #{inspect(machines)}...")
     Logger.info("Trying to collect data from minions: #{inspect(nodes)}...")
     results = for node_name <- nodes,
-      do: GenServer.call({MDMMinion.InfoGatherer, node_name}, :get_info)
-    {:reply, {:ok, results}, state}
+      do: {node_name, GenServer.call({MDMMinion.InfoGatherer, node_name}, :get_info)}
+    resp = map_node_results_to_machines(results, machines)
+    {:reply, {:ok, resp}, state}
   end
   def handle_call({:subscribe_to_events, pid}, _from, state) do
     {:reply, :ok, %{state | subscriber: pid}}
   end
 
+  defp map_node_results_to_machines(results, machines) do
+    results
+    |> Enum.map(fn {node_name, res} -> {node_name_to_address(node_name), res} end)
+    |> Enum.map(fn {addr, res} -> {MDM.Machine.find_machine_by_address(machines, addr), res} end)
+    |> Enum.map(fn {machine, res} -> fill_machines_resources(machine, res) end)
+  end
+
+  defp fill_machines_resources(machine, {:ok, resources}) do
+    MDM.Machine.add_resources(machine, resources)
+  end
+  defp fill_machines_resources(machine, _), do: {:error, machine}
 
   def handle_info({:nodedown, minion}, state) do
     send state.subscriber, {:nodedown, minion}
@@ -74,5 +86,10 @@ defmodule MDM.InfoGatherer do
   defp node_name(address) do
     "minion@#{address}" |> String.to_atom
   end
+
+  defp node_name_to_address(node_name) when is_atom(node_name) do
+    node_name |> to_string |> node_name_to_address
+  end
+  defp node_name_to_address("minion@" <> address), do: address
 
 end
