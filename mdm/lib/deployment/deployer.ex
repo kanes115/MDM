@@ -31,10 +31,12 @@ defmodule MDM.Deployer do
   def handle_call(%Command.Request{command_name: :collect_data, body: jmmsr0} = req, _, %__MODULE__{state: fsm} = state) 
   when fsm == :waiting_for_reqest or fsm == :collected_data do
     Logger.info("Got request to collect target machines info...")
-    with {:ok, jmmsr} <- JmmsrParser.to_internal_repr(jmmsr0),
+    with {:ok, jmmsr} <- MDM.Jmmsr.new(jmmsr0),
          :ok <- connect_to_machines(jmmsr),
          {:ok, data} <- InfoGatherer.collect_data()
     do
+      Logger.info("parsed JMMSR:")
+      IO.inspect(jmmsr)
       parsed_data = Enum.map(data, &parse_collecting_result/1)
       resp = req |> answer("collected", 200, %{"collected_data" => parsed_data})
       {:reply, resp, %{state | state: :collected_data, jmmsr: jmmsr}}
@@ -72,12 +74,11 @@ defmodule MDM.Deployer do
 
   defp connect_to_machines(jmmsr) do
     InfoGatherer.subscribe_to_events(self())
-    jmmsr[MDM.Machine.key]
+    jmmsr
+    |> MDM.Jmmsr.get_machines
     |> InfoGatherer.set_machines
   end
 
-  # TODO maybe use calls and don't send replies directly here
-  # but in WSCommunicator?
   defp answer(req, msg, code, body) do
       req |> Command.Response.new_answer(msg, code, body)
   end
