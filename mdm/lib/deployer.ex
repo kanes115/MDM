@@ -11,7 +11,7 @@ defmodule MDM.Deployer do
   @type state() :: :waiting_for_reqest | :collected_data | :deployed
   @type t :: %__MODULE__{state: state()}
 
-  defstruct [:state]
+  defstruct [:state, :jmmsr]
 
   def start_link() do
     GenServer.start_link(__MODULE__, %__MODULE__{state: :waiting_for_reqest}, name: __MODULE__)
@@ -33,11 +33,11 @@ defmodule MDM.Deployer do
     Logger.info("Got request to collect target machines info...")
     with {:ok, jmmsr} <- JmmsrParser.to_internal_repr(jmmsr0),
          :ok <- connect_to_machines(jmmsr),
-         {:ok, data} <- collect_data()
+         {:ok, data} <- InfoGatherer.collect_data()
     do
       parsed_data = Enum.map(data, &parse_collecting_result/1)
       resp = req |> answer("collected", 200, %{"collected_data" => parsed_data})
-      {:reply, resp, %{state | state: :collected_data}}
+      {:reply, resp, %{state | state: :collected_data, jmmsr: jmmsr}}
     else
       {:error, %{fault_nodes: nodes}} ->
       Logger.error("Could not connect to nodes: #{inspect(nodes)}")
@@ -48,9 +48,10 @@ defmodule MDM.Deployer do
         {:reply, resp, %{state | state: :waiting_for_reqest}}
     end
   end
-  def handle_call(%Command.Request{command_name: :deploy, body: _jmmsr0} = req, _, %__MODULE__{state: fsm} = state)
+  def handle_call(%Command.Request{command_name: :deploy} = req, _, %__MODULE__{state: fsm, jmmsr: jmmsr} = state)
   when fsm == :collected_data do
     #TODO
+    
     resp = req |> error_answer(501, %{"reason" => "feature not implemented"})
     {:reply, resp, state}
   end
@@ -73,10 +74,6 @@ defmodule MDM.Deployer do
     InfoGatherer.subscribe_to_events(self())
     jmmsr[MDM.Machine.key]
     |> InfoGatherer.set_machines
-  end
-
-  defp collect_data do 
-    InfoGatherer.collect_data
   end
 
   # TODO maybe use calls and don't send replies directly here
