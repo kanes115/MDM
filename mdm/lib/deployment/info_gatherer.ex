@@ -33,7 +33,6 @@ defmodule MDM.InfoGatherer do
     nodes = machines
                 |> Enum.map(&MDM.Machine.address/1)
                 |> Enum.map(&node_name/1)
-    Logger.info("Trying to collect data from machines: #{inspect(machines)}...")
     Logger.info("Trying to collect data from minions: #{inspect(nodes)}...")
     results = for node_name <- nodes,
       do: {node_name, GenServer.call({MDMMinion.InfoGatherer, node_name}, :get_info)}

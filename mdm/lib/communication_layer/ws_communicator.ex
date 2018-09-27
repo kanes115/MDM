@@ -23,7 +23,6 @@ defmodule MDM.WSCommunicator do
 
   @spec send_answer(Response.t) :: :ok | :error
   def send_answer(%Response{} = resp) do
-    Logger.info("Answering: #{inspect(resp)}")
     GenServer.call(__MODULE__, {:send_answer, resp})
   end
 
@@ -61,10 +60,7 @@ defmodule MDM.WSCommunicator do
 
   defp handle_request(_, sub, :cast, command), do: GenServer.cast(sub, command)
   defp handle_request(client, sub, :call, command) do
-    IO.puts "Checking here... sub: #{inspect(sub)}, command: #{inspect(command)}"
     resp = GenServer.call(sub, command)
-           |> IO.inspect
-    IO.puts "Checking here...2"
     do_send_answer(client, resp)
   end
 
@@ -78,7 +74,6 @@ defmodule MDM.WSCommunicator do
         Logger.info("Closed connection...")
         GenServer.cast(forward_dest, :close)
       {:ok, msg} ->
-        Logger.info("Got message...")
         GenServer.cast(forward_dest, {:handle_msg, msg})
         spawn_receiver_fun(forward_dest, client)
     end
