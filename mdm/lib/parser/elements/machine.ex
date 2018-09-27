@@ -2,30 +2,29 @@ defmodule MDM.Machine do
 
   @behaviour MDM.JmmsrElement
 
-  @type os :: :debian | :linux
-  @type unit() :: :kb | :mhz
-  @type single_resource() :: {float(), unit()}
-  @type resources :: %{cpu: single_resource(),
-                       mem: single_resource()}
+  alias MDM.CommonTypes, as: Types
 
-  @type machine :: %__MODULE__{
+  @type resources :: %{cpu: Types.single_resource(),
+                       mem: Types.single_resource()}
+
+  @type t :: %__MODULE__{
     name: String.t,
     id: integer(),
     ip: String.t,
     domain: String.t,
     ssh_host: String.t,
-    os: os(),
-    resources: resources()
+    os: Types.os(),
+    resources: Types.resources()
   }
 
   defstruct [:name, :id, :ip, :domain, :ssh_host, :os, :resources]
 
   ## JmmsrElement callbacks
 
-  @spec from_map(map()) :: machine()
+  @spec from_map(map()) :: t()
   def from_map(map), do: struct(__MODULE__, map)
 
-  @spec to_map(machine()) :: map()
+  @spec to_map(t()) :: map()
   def to_map(machine) do
     machine
     |> Map.from_struct
