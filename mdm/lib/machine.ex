@@ -3,6 +3,10 @@ defmodule MDM.Machine do
   @behaviour MDM.JmmsrElement
 
   @type os :: :debian | :linux
+  @type unit() :: :kb | :mhz
+  @type single_resource() :: {float(), unit()}
+  @type resources :: %{cpu: single_resource(),
+                       mem: single_resource()}
 
   @type machine :: %__MODULE__{
     name: String.t,
@@ -11,7 +15,7 @@ defmodule MDM.Machine do
     domain: String.t,
     ssh_host: String.t,
     os: os(),
-    resources: map()
+    resources: resources()
   }
 
   defstruct [:name, :id, :ip, :domain, :ssh_host, :os, :resources]
@@ -22,7 +26,11 @@ defmodule MDM.Machine do
   def from_map(map), do: struct(__MODULE__, map)
 
   @spec to_map(machine()) :: map()
-  def to_map(machine), do: Map.from_struct(machine)
+  def to_map(machine) do
+    machine
+    |> Map.from_struct
+    |> convert_resources
+  end
 
   def key, do: :machines
   def list?, do: true
@@ -43,5 +51,13 @@ defmodule MDM.Machine do
   end
 
   defp of_address?(machine, addr), do: addr== address(machine)
+
+  defp convert_resources(%{resources: nil} = map), do: map
+  defp convert_resources(%{resources: res} = map) do
+    new_res = res
+              |> Enum.map(fn {k, {val, unit}} -> {k, %{val: val, unit: unit}} end)
+              |> Enum.into(%{})
+    %{map | resources: new_res}
+  end
 
 end

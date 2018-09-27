@@ -5,7 +5,12 @@ defmodule MDMMinion.InfoGatherer do
 
   require Logger
 
-  @callback machine_cpu_max :: integer()
+  @type unit :: :kb | :mhz
+  @type single_resource :: {float(), unit()}
+  @type gatherer_backend :: atom()
+
+  @callback machine_cpu_max :: single_resource()
+  @callback machine_mem_max :: single_resource()
 
   def start_link(), do: GenServer.start_link(__MODULE__, :ignored, name: __MODULE__)
 
@@ -19,9 +24,12 @@ defmodule MDMMinion.InfoGatherer do
     {:reply, {:ok, data}, :ignored}
   end
 
+  @spec collect_data(gatherer_backend()) :: %{cpu: single_resource(),
+                                              mem: single_resource()}
   def collect_data(backend) do
     %{
-      cpu: backend.machine_cpu_max
+      cpu: backend.machine_cpu_max,
+      mem: backend.machine_mem_max
     }
   end
 

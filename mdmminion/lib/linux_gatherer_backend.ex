@@ -8,7 +8,17 @@ defmodule MDMMinion.LinuxGathererBackend do
                     |> to_string
                     |> strip_newline
                     |> Float.parse
-    res_int
+    {res_int, :mhz}
+  end
+
+  def machine_mem_max do
+    cmd = :"awk -v \"awkmult=1\" '/MemTotal/{print $2*awkmult}' /proc/meminfo"
+    res = :os.cmd(cmd)
+    {res_int, ""} = res
+                    |> to_string
+                    |> strip_newline
+                    |> Float.parse
+    {res_int, :kb}
   end
 
 
