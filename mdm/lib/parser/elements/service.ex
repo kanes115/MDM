@@ -31,5 +31,9 @@ defmodule MDM.Service do
   def key, do: :services
   def list?, do: true
 
+  ## API
+  
+  def get_available_machines(%__MODULE__{requirements: %{available_machines: a}}), do: a
+
 
 end

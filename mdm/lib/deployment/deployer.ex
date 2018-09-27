@@ -53,7 +53,10 @@ defmodule MDM.Deployer do
   def handle_call(%Command.Request{command_name: :deploy} = req, _, %__MODULE__{state: fsm, jmmsr: jmmsr} = state)
   when fsm == :collected_data do
     #TODO
-    
+    res = MDM.DeployDecider.decide(jmmsr)
+    IO.puts "======= decision ========="
+    IO.inspect res
+    IO.puts "=========================="
     resp = req |> error_answer(501, %{"reason" => "feature not implemented"})
     {:reply, resp, state}
   end

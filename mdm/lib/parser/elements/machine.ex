@@ -49,6 +49,13 @@ defmodule MDM.Machine do
     end
   end
 
+  def find_machine_by_id(machines, id) do
+    case machines |> Enum.filter(fn %__MODULE__{id: this_id} -> this_id == id end) do
+      [] -> :not_found
+      [machine] -> machine
+    end
+  end
+
   defp of_address?(machine, addr), do: addr== address(machine)
 
   defp convert_resources(%{resources: nil} = map), do: map

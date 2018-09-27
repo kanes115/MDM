@@ -16,6 +16,8 @@ defmodule MDM.Jmmsr do
   end
 
   def get_machines(%__MODULE__{machines: m}), do: m
+
+  def get_services(%__MODULE__{services: s}), do: s
   
   
   defp jmmsr_elements, do: [MDM.Machine, MDM.Service]
