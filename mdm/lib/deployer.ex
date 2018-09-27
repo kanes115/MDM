@@ -35,7 +35,8 @@ defmodule MDM.Deployer do
          :ok <- connect_to_machines(jmmsr),
          {:ok, data} <- collect_data()
     do
-      resp = req |> answer("WIP collected", 200, %{"collected_data" => inspect(data)})
+      parsed_data = Enum.map(data, &parse_collecting_result/1)
+      resp = req |> answer("collected", 200, %{"collected_data" => parsed_data})
       {:reply, resp, %{state | state: :collected_data}}
     else
       {:error, %{fault_nodes: nodes}} ->
@@ -65,6 +66,9 @@ defmodule MDM.Deployer do
     {:noreply, state}
   end
 
+  defp parse_collecting_result({:error, machine}), do: %{"machine" => machine, "ok?" => false}
+  defp parse_collecting_result(machine), do: %{"machine" => MDM.Machine.to_map(machine), "ok?" => true}
+
   defp connect_to_machines(jmmsr) do
     InfoGatherer.subscribe_to_events(self())
     jmmsr[MDM.Machine.key]
@@ -72,9 +76,7 @@ defmodule MDM.Deployer do
   end
 
   defp collect_data do 
-    data = InfoGatherer.collect_data
-           |> IO.inspect
-    {:ok, data}
+    InfoGatherer.collect_data
   end
 
   # TODO maybe use calls and don't send replies directly here
