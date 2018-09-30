@@ -1,7 +1,8 @@
 FROM elixir:latest
 
 RUN mkdir /app
-COPY ./ /app
+COPY ./mdm/ /app
+ADD ./big_tests/examples/ /examples/
 WORKDIR /app
 
 RUN mix local.hex --force

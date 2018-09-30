@@ -3,15 +3,14 @@ defmodule MDM.Deployer do
 
   require Logger
 
-  alias MDM.WSCommunicator
-  alias MDM.Command
-  alias MDM.JmmsrParser
+  alias MDM.Command.Request
+  alias MDM.Command.Response
   alias MDM.InfoGatherer
 
   @type state() :: :waiting_for_reqest | :collected_data | :deployed
   @type t :: %__MODULE__{state: state()}
 
-  defstruct [:state]
+  defstruct [:state, :jmmsr]
 
   def start_link() do
     GenServer.start_link(__MODULE__, %__MODULE__{state: :waiting_for_reqest}, name: __MODULE__)
@@ -28,16 +27,18 @@ defmodule MDM.Deployer do
 
   # We will maybe sending in body back some diff of jmmsr with machines info.
   # TODO we have to establish some common protocol for DIFFs.
-  def handle_call(%Command.Request{command_name: :collect_data, body: jmmsr0} = req, _, %__MODULE__{state: fsm} = state) 
+  def handle_call(%Request{command_name: :collect_data, body: jmmsr0} = req, _, %__MODULE__{state: fsm} = state) 
   when fsm == :waiting_for_reqest or fsm == :collected_data do
     Logger.info("Got request to collect target machines info...")
-    with {:ok, jmmsr} <- JmmsrParser.to_internal_repr(jmmsr0),
+    with {:ok, jmmsr} <- MDM.Jmmsr.new(jmmsr0),
          :ok <- connect_to_machines(jmmsr),
-         {:ok, data} <- collect_data()
+         {:ok, data} <- InfoGatherer.collect_data()
     do
+      Logger.info("parsed JMMSR:")
+      IO.inspect(jmmsr)
       parsed_data = Enum.map(data, &parse_collecting_result/1)
       resp = req |> answer("collected", 200, %{"collected_data" => parsed_data})
-      {:reply, resp, %{state | state: :collected_data}}
+      {:reply, resp, %{state | state: :collected_data, jmmsr: jmmsr}}
     else
       {:error, %{fault_nodes: nodes}} ->
       Logger.error("Could not connect to nodes: #{inspect(nodes)}")
@@ -48,11 +49,23 @@ defmodule MDM.Deployer do
         {:reply, resp, %{state | state: :waiting_for_reqest}}
     end
   end
-  def handle_call(%Command.Request{command_name: :deploy, body: _jmmsr0} = req, _, %__MODULE__{state: fsm} = state)
+  def handle_call(%Request{command_name: :deploy} = req, _, %__MODULE__{state: fsm, jmmsr: jmmsr} = state)
   when fsm == :collected_data do
-    #TODO
-    resp = req |> error_answer(501, %{"reason" => "feature not implemented"})
-    {:reply, resp, state}
+    with {:ok, decision} <- MDM.DeployDecider.decide(jmmsr),
+         :ok <- MDM.ServiceUploader.upload_services(decision),
+         :ok <- MDM.ServiceUploader.run_services()
+    do
+      resp = req |> answer("deployed", 200, %{})
+      {:reply, resp, state}
+    else
+      error ->
+        Logger.error("Error when deploying:")
+        IO.inspect error
+        # TODO create a general error form for multi node errors
+        # and parse it to json in one place
+        resp = req |> error_answer(500, %{"reason" => inspect(error)})
+        {:reply, resp, state}
+    end
   end
   def handle_call(:get_state, _from, %{state: fsm} = state), do: {:reply, fsm, state}
   def handle_call(_, _, state), do: {:reply, :ok, state}
@@ -71,23 +84,18 @@ defmodule MDM.Deployer do
 
   defp connect_to_machines(jmmsr) do
     InfoGatherer.subscribe_to_events(self())
-    jmmsr[MDM.Machine.key]
+    jmmsr
+    |> MDM.Jmmsr.get_machines
     |> InfoGatherer.set_machines
   end
 
-  defp collect_data do 
-    InfoGatherer.collect_data
-  end
-
-  # TODO maybe use calls and don't send replies directly here
-  # but in WSCommunicator?
   defp answer(req, msg, code, body) do
-      req |> Command.Response.new_answer(msg, code, body)
+      req |> Response.new_answer(msg, code, body)
   end
 
   defp error_answer(req, code, body) do
     req
-    |> Command.Response.error_response(code, body)
+    |> Response.error_response(code, body)
   end
 
 end

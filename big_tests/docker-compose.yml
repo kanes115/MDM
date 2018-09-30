@@ -1,9 +1,13 @@
+# Contexts are not ./mdm or ./mdmminion because
+# we have to copy example files to pilot from big_tests
+# dir
 version: '3'
 
 services:
   pilot:
     build:
-      context: ../mdm
+      context: ..
+      dockerfile: ./big_tests/Dockerfile.pilot
       args:
         - DOMAIN=pilot
     ports:
@@ -11,11 +15,13 @@ services:
 
   minion1:
     build:
-      context: ../mdmminion
+      dockerfile: ./big_tests/Dockerfile.minion
+      context: ..
       args:
           - DOMAIN=minion1
   minion2:
       build:
-        context: ../mdmminion
+        dockerfile: ./big_tests/Dockerfile.minion
+        context: ..
         args:
             - DOMAIN=minion2
