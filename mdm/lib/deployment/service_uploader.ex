@@ -74,8 +74,12 @@ defmodule MDM.ServiceUploader do
   defp run_service(machine, service) do
     dest_node = Machine.node_name(machine)
     service_name = Service.get_name(service)
-    GenServer.call({MDMMinion.Deployer, dest_node},
-                   {:run_service, service_name})
+    service_start_script_path = Service.get_service_executable(service)
+    case GenServer.call({MDMMinion.Deployer, dest_node},
+                        {:run_service, service_name, service_start_script_path}) do
+                          :ok -> {:ok, machine}
+      err -> err
+                        end
   end
 
   defp upload_service(machine, service) do
@@ -95,7 +99,8 @@ defmodule MDM.ServiceUploader do
     suffix = service
              |> Service.get_name
     with {:ok, filenames0} <- File.ls(path),
-         filenames <- filenames0 |> Enum.map(&Path.join(path, &1)) |> IO.inspect,
+         filenames <- filenames0,# |> Enum.map(&Path.join(path, &1)),
+         _ <- File.cd(path),
          tmp_file = tmp_file_path(suffix),
          :ok <- :erl_tar.create(tmp_file,
                                  Enum.map(filenames, &to_charlist/1)),

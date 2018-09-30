@@ -40,5 +40,7 @@ defmodule MDM.Service do
   
   def get_service_path(%__MODULE__{service_dir: d}), do: d
 
+  def get_service_executable(%__MODULE__{service_executable: d}), do: d
+
 
 end

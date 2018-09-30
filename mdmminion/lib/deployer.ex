@@ -24,18 +24,24 @@ defmodule MDMMinion.Deployer do
 
   def handle_call({:save_file, file, service_name}, _from, %{backend: b} = s) do
     case b.save_file(file, service_name) do
-      {:ok, _bytes_copied} ->
-        {:reply, :ok, update_services_here(s, service_name, file)}
+      {:ok, file_path} ->
+        {:reply, :ok, update_services_here(s, service_name, file_path)}
       {:error, reason} ->
         {:reply, {:error, reason}, s}
     end
   end
-  def handle_call(:run_service, _from, %{backend: b} = s) do
+  def handle_call({:run_service, name, start_script_path}, _from, %{backend: b} = s) do
+    service_file = get_service_file(s, name)
+    prepared_dir = b.prepare_service_files(service_file, name)
+    b.run_service(prepared_dir, start_script_path)
+    {:reply, :ok, s}
   end
 
-  defp update_services_here(%{services_here: sh0}, s_name, file) do
-    Map.put(sh0, s_name, file)
-  end
+  defp update_services_here(%{services_here: sh0} = state, s_name, file),
+  do: %{state | services_here: Map.put(sh0, s_name, file)}
+
+  defp get_service_file(%{services_here: sh}, s_name),
+  do: sh[s_name]
 
   defp get_backend do
     case :os.type do
