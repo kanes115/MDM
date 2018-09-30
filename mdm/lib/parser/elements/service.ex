@@ -33,7 +33,12 @@ defmodule MDM.Service do
 
   ## API
   
-  def get_available_machines(%__MODULE__{requirements: %{available_machines: a}}), do: a
+  def get_available_machines(%__MODULE__{requirements: %{available_machines: a}}),
+  do: a
+
+  def get_name(%__MODULE__{name: n}), do: n
+  
+  def get_service_path(%__MODULE__{service_dir: d}), do: d
 
 
 end

@@ -3,9 +3,8 @@ defmodule MDM.Deployer do
 
   require Logger
 
-  alias MDM.WSCommunicator
-  alias MDM.Command
-  alias MDM.JmmsrParser
+  alias MDM.Command.Request
+  alias MDM.Command.Response
   alias MDM.InfoGatherer
 
   @type state() :: :waiting_for_reqest | :collected_data | :deployed
@@ -28,7 +27,7 @@ defmodule MDM.Deployer do
 
   # We will maybe sending in body back some diff of jmmsr with machines info.
   # TODO we have to establish some common protocol for DIFFs.
-  def handle_call(%Command.Request{command_name: :collect_data, body: jmmsr0} = req, _, %__MODULE__{state: fsm} = state) 
+  def handle_call(%Request{command_name: :collect_data, body: jmmsr0} = req, _, %__MODULE__{state: fsm} = state) 
   when fsm == :waiting_for_reqest or fsm == :collected_data do
     Logger.info("Got request to collect target machines info...")
     with {:ok, jmmsr} <- MDM.Jmmsr.new(jmmsr0),
@@ -50,15 +49,22 @@ defmodule MDM.Deployer do
         {:reply, resp, %{state | state: :waiting_for_reqest}}
     end
   end
-  def handle_call(%Command.Request{command_name: :deploy} = req, _, %__MODULE__{state: fsm, jmmsr: jmmsr} = state)
+  def handle_call(%Request{command_name: :deploy} = req, _, %__MODULE__{state: fsm, jmmsr: jmmsr} = state)
   when fsm == :collected_data do
-    #TODO
-    res = MDM.DeployDecider.decide(jmmsr)
-    IO.puts "======= decision ========="
-    IO.inspect res
-    IO.puts "=========================="
-    resp = req |> error_answer(501, %{"reason" => "feature not implemented"})
-    {:reply, resp, state}
+    with {:ok, decision} <- MDM.DeployDecider.decide(jmmsr),
+         :ok <- MDM.ServiceUploader.upload_services(decision)
+    do
+      resp = req |> answer("deployed", 200, %{})
+      {:reply, resp, state}
+    else
+      error ->
+        Logger.error("Error when deploying:")
+        IO.inspect error
+        # TODO create a general error form for multi node errors
+        # and parse it to json in one place
+        resp = req |> error_answer(500, %{"reason" => inspect(error)})
+        {:reply, resp, state}
+    end
   end
   def handle_call(:get_state, _from, %{state: fsm} = state), do: {:reply, fsm, state}
   def handle_call(_, _, state), do: {:reply, :ok, state}
@@ -83,12 +89,12 @@ defmodule MDM.Deployer do
   end
 
   defp answer(req, msg, code, body) do
-      req |> Command.Response.new_answer(msg, code, body)
+      req |> Response.new_answer(msg, code, body)
   end
 
   defp error_answer(req, code, body) do
     req
-    |> Command.Response.error_response(code, body)
+    |> Response.error_response(code, body)
   end
 
 end

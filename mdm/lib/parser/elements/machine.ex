@@ -40,6 +40,10 @@ defmodule MDM.Machine do
   def address(%__MODULE__{ip: ip, domain: nil}), do: ip
   def address(%__MODULE__{ip: nil, domain: domain}), do: domain
 
+  def node_name(machine) do
+    "minion@#{address(machine)}" |> String.to_atom
+  end
+
   def add_resources(machine, resources), do: %{machine | resources: resources}
 
   def find_machine_by_address(machines, address) do

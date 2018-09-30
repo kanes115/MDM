@@ -8,8 +8,9 @@ defmodule MDM.DeployDeciderSimple do
   def decide(jmmsr) do
     machines = Jmmsr.get_machines(jmmsr)
     services = Jmmsr.get_services(jmmsr)
-    services
+    res = services
     |> Enum.map(fn s -> {s, get_machine(machines, s)} end)
+    {:ok, res}
   end
 
   defp get_machine(machines, service) do
