@@ -5,7 +5,7 @@ import _ from 'lodash';
 
 import {updateSystemConfig} from '../../../../actions';
 
-import SystemConfigForm from './representation/index';
+import SystemConfigForm from './representation';
 
 class SystemConfigFormWrapper extends Component {
     constructor(props) {
@@ -20,6 +20,8 @@ class SystemConfigFormWrapper extends Component {
 
     onSubmit = () => {
         const {values} = this.systemConfigFormAPI.getState();
+        values.persist_machine = Number.parseInt(values.persist_machine, 10);
+        values.pilot_machine = Number.parseInt(values.pilot_machine, 10);
 
         this.props.updateConfig(values);
     };

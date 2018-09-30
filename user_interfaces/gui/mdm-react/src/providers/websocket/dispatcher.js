@@ -6,6 +6,7 @@ export default class WebSocketMessageDispatcher {
   }
 
   sendMessage(message) {
+    console.log('sent', message)
     this.socket.send(message);
   }
 }

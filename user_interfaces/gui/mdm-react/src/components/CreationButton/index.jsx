@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import deploySystem from '../../providers/websocket';
+import collectSystemData from '../../providers/websocket';
 
 import { openForm } from '../../actions';
 
@@ -40,10 +40,10 @@ class CreationButtonWrapper extends Component {
         this.props.openCreationForm('system');
     };
 
-    handleSystemDeployment = () => {
+    handleSystemDataCollection = () => {
         const { activeSystem } = this.props;
 
-        deploySystem(activeSystem);
+        collectSystemData(activeSystem);
     };
 
     render() {
@@ -58,7 +58,7 @@ class CreationButtonWrapper extends Component {
                             handleServiceCreation={this.handleServiceCreation}
                             handleSystemConfiguration={this.handleSystemConfiguration}
                             handleSystemCreation={this.handleSystemCreation}
-                            handleSystemDeployment={this.handleSystemDeployment}
+                            handleSystemDataCollection={this.handleSystemDataCollection}
                             isSystemActive={isSystemActive}
                             toggleCreation={this.toggleCreationPanel}
             />

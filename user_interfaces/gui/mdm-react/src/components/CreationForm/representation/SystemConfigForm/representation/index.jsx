@@ -63,7 +63,7 @@ class SystemConfigForm extends Component {
                 label="Persistence machine"
                 options={availableMachines.map(availableMachine => ({
                   optionLabel: availableMachine.name,
-                  optionValue: availableMachine.name,
+                  optionValue: availableMachine.id,
                 }))}
               />
               <SelectionField
@@ -72,7 +72,7 @@ class SystemConfigForm extends Component {
                 label="Pilot machine"
                 options={availableMachines.map(availableMachine => ({
                   optionLabel: availableMachine.name,
-                  optionValue: availableMachine.name,
+                  optionValue: availableMachine.id,
                 }))}
               />
             </FormSection>

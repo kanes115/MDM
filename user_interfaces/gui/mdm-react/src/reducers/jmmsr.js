@@ -88,7 +88,11 @@ const jmmsr = (state = initialState, action) => {
           },
         },
       };
-    case actionTypes.CREATE_NEW_MACHINE:
+    case actionTypes.CREATE_NEW_MACHINE: {
+      const machinesCount = _.get(state, `systems.${state.activeSystemId}.machines.length`);
+      const newMachine = _.cloneDeep(_.get(action, 'payload.machine'));
+      newMachine.id = machinesCount;
+
       return {
         ...state,
         form: {
@@ -102,11 +106,12 @@ const jmmsr = (state = initialState, action) => {
             ...state.systems[state.activeSystemId],
             machines: [
               ...state.systems[state.activeSystemId].machines,
-              _.cloneDeep(action.payload.machine),
+              newMachine,
             ],
           },
         },
       };
+    }
     case actionTypes.UPDATE_SYSTEM_CONFIG:
       return {
         ...state,

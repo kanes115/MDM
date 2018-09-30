@@ -8,6 +8,7 @@ export function onSocketOpen(emit) {
 
 export function onSocketMessage(emit) {
   return function (message) {
+    console.log(message)
     emit(JSON.parse(message.data));
   };
 }

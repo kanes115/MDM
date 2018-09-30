@@ -13,14 +13,14 @@ const CreationPanel = ({
   handleServiceCreation,
   handleSystemConfiguration,
   handleSystemCreation,
-  handleSystemDeployment,
+  handleSystemDataCollection,
   isSystemActive,
 }) => (
   <div className="panel">
     <CloseIcon onClose={deactivate} />
     <ul>
       {isSystemActive && (
-      <li onClick={handleSystemDeployment}>
+      <li onClick={handleSystemDataCollection}>
         <i className="material-icons">publish</i>
         {' '}
 Deploy system
@@ -79,7 +79,7 @@ CreationPanel.propTypes = {
   handleServiceCreation: PropTypes.func.isRequired,
   handleSystemConfiguration: PropTypes.func.isRequired,
   handleSystemCreation: PropTypes.func.isRequired,
-  handleSystemDeployment: PropTypes.func.isRequired,
+  handleSystemDataCollection: PropTypes.func.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
 };
 CreationPanel.defaultProps = {};
