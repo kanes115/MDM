@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import collectSystemData from '../../providers/websocket';
-
 import { openForm } from '../../actions';
+import { startGatheringData } from '../../actions/graph/deployment';
 
 import CreationButton from './representation/index';
 
@@ -41,9 +40,9 @@ class CreationButtonWrapper extends Component {
     };
 
     handleSystemDataCollection = () => {
-        const { activeSystem } = this.props;
+        const { activeSystem, gatherData } = this.props;
 
-        collectSystemData(activeSystem);
+        gatherData(activeSystem);
     };
 
     render() {
@@ -78,15 +77,17 @@ function mapStateToProps({ jmmsr: { activeSystemId, form: { formOpen }, systems 
 
 function mapDispatchToProps(dispatch) {
     return {
-        openCreationForm: (formType) => dispatch(openForm(formType)),
+        gatherData: activeSystem => dispatch(startGatheringData(activeSystem)),
+        openCreationForm: formType => dispatch(openForm(formType)),
     };
 }
 
 CreationButtonWrapper.propTypes = {
-    activeSystem: PropTypes.shape({}),
-    formOpen: PropTypes.bool.isRequired,
-    isSystemActive: PropTypes.bool.isRequired,
-    openCreationForm: PropTypes.func.isRequired,
+  activeSystem: PropTypes.shape({}),
+  formOpen: PropTypes.bool.isRequired,
+  gatherData: PropTypes.func.isRequired,
+  isSystemActive: PropTypes.bool.isRequired,
+  openCreationForm: PropTypes.func.isRequired,
 };
 CreationButtonWrapper.defaultProps = {};
 

@@ -89,9 +89,8 @@ const jmmsr = (state = initialState, action) => {
         },
       };
     case actionTypes.CREATE_NEW_MACHINE: {
-      const machinesCount = _.get(state, `systems.${state.activeSystemId}.machines.length`);
       const newMachine = _.cloneDeep(_.get(action, 'payload.machine'));
-      newMachine.id = machinesCount;
+      newMachine.id = (new Date()).getTime();
 
       return {
         ...state,
