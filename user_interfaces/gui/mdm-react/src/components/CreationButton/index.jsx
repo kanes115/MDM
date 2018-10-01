@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
 import { openForm } from '../../actions';
-import { startGatheringData } from '../../actions/graph/deployment';
+import { startDeploying, startGatheringData } from '../../actions/graph/deployment';
 
 import CreationButton from './representation/index';
 
@@ -45,6 +45,12 @@ class CreationButtonWrapper extends Component {
         gatherData(activeSystem);
     };
 
+    handleSystemDeployment = () => {
+        const { deploy } = this.props;
+
+        deploy();
+    };
+
     render() {
         const {active} = this.state;
         const {formOpen, isSystemActive} = this.props;
@@ -58,6 +64,7 @@ class CreationButtonWrapper extends Component {
                             handleSystemConfiguration={this.handleSystemConfiguration}
                             handleSystemCreation={this.handleSystemCreation}
                             handleSystemDataCollection={this.handleSystemDataCollection}
+                            handleSystemDeployment={this.handleSystemDeployment}
                             isSystemActive={isSystemActive}
                             toggleCreation={this.toggleCreationPanel}
             />
@@ -77,6 +84,7 @@ function mapStateToProps({ jmmsr: { activeSystemId, form: { formOpen }, systems 
 
 function mapDispatchToProps(dispatch) {
     return {
+        deploy: () => dispatch(startDeploying()),
         gatherData: activeSystem => dispatch(startGatheringData(activeSystem)),
         openCreationForm: formType => dispatch(openForm(formType)),
     };
@@ -84,6 +92,7 @@ function mapDispatchToProps(dispatch) {
 
 CreationButtonWrapper.propTypes = {
   activeSystem: PropTypes.shape({}),
+  deploy: PropTypes.func.isRequired,
   formOpen: PropTypes.bool.isRequired,
   gatherData: PropTypes.func.isRequired,
   isSystemActive: PropTypes.bool.isRequired,

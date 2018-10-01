@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import c from 'classnames';
 
 import { CloseIcon } from '../../../index';
+import DeploymentButton from './DeploymentButton';
 
 import './creation-panel.css';
 
@@ -14,18 +15,17 @@ const CreationPanel = ({
   handleSystemConfiguration,
   handleSystemCreation,
   handleSystemDataCollection,
+  handleSystemDeployment,
   isSystemActive,
 }) => (
   <div className="panel">
     <CloseIcon onClose={deactivate} />
     <ul>
-      {isSystemActive && (
-      <li onClick={handleSystemDataCollection}>
-        <i className="material-icons">publish</i>
-        {' '}
-Deploy system
-      </li>
-      )}
+      <DeploymentButton
+        handleSystemDataCollection={handleSystemDataCollection}
+        handleSystemDeployment={handleSystemDeployment}
+        isSystemActive={isSystemActive}
+      />
       {isSystemActive
         ? (
           <li onClick={handleSystemConfiguration}>
@@ -80,6 +80,7 @@ CreationPanel.propTypes = {
   handleSystemConfiguration: PropTypes.func.isRequired,
   handleSystemCreation: PropTypes.func.isRequired,
   handleSystemDataCollection: PropTypes.func.isRequired,
+  handleSystemDeployment: PropTypes.func.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
 };
 CreationPanel.defaultProps = {};

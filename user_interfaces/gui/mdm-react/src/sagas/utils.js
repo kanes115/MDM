@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 import {
   WEB_SOCKET_MESSAGE_RECEIVED,
 } from '../actions/websocketActions';

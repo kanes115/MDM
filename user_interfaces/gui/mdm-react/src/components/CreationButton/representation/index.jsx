@@ -15,6 +15,7 @@ const CreationButton = ({
   handleSystemConfiguration,
   handleSystemCreation,
   handleSystemDataCollection,
+  handleSystemDeployment,
   isSystemActive,
   toggleCreation,
 }) => (
@@ -31,6 +32,7 @@ const CreationButton = ({
             handleSystemConfiguration={handleSystemConfiguration}
             handleSystemCreation={handleSystemCreation}
             handleSystemDataCollection={handleSystemDataCollection}
+            handleSystemDeployment={handleSystemDeployment}
             isSystemActive={isSystemActive}
           />
         )
@@ -49,6 +51,7 @@ CreationButton.propTypes = {
   handleSystemConfiguration: PropTypes.func.isRequired,
   handleSystemCreation: PropTypes.func.isRequired,
   handleSystemDataCollection: PropTypes.func.isRequired,
+  handleSystemDeployment: PropTypes.func.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
   toggleCreation: PropTypes.func.isRequired,
 };

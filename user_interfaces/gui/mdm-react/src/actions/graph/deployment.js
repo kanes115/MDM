@@ -1,8 +1,18 @@
 import _ from 'lodash';
 
-import collectSystemData from '../../providers/websocket';
+import { collectSystemData, deploySystem } from '../../providers/websocket';
 
 export const SYSTEM_DATA_COLLECTED = 'SYSTEM_DATA_COLLECTED';
+
+export const START_GATHERING_DATA = 'START_GATHERING_DATA';
+
+export function startGatheringData(activeSystem) {
+  collectSystemData(activeSystem);
+
+  return {
+    type: START_GATHERING_DATA,
+  };
+}
 
 export function systemDataCollected(systemData) {
   const collectedData = _.reduce(
@@ -25,16 +35,14 @@ export function systemDataCollected(systemData) {
   };
 }
 
-export const START_GATHERING_DATA = 'START_GATHERING_DATA';
+export const START_DEPLOYING = 'START_DEPLOYING';
 
-export function startGatheringData(activeSystem) {
-  collectSystemData(activeSystem);
+export function startDeploying() {
+  deploySystem();
 
   return {
-    type: START_GATHERING_DATA,
+    type: START_DEPLOYING,
   };
 }
-
-export const START_DEPLOYING = 'START_DEPLOYING';
 
 export const SYSTEM_DEPLOYMENT_SUCCESS = 'SYSTEM_DEPLOYMENT_SUCCESS';
