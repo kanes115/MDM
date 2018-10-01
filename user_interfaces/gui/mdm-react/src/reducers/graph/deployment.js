@@ -33,6 +33,7 @@ const deployment = (state = initialState, action) => {
       return {
         ...state,
         deployed: true,
+        deploying: false,
       };
     }
     default:

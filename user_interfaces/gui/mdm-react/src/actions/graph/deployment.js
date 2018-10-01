@@ -46,3 +46,9 @@ export function startDeploying() {
 }
 
 export const SYSTEM_DEPLOYMENT_SUCCESS = 'SYSTEM_DEPLOYMENT_SUCCESS';
+
+export function systemDeployed() {
+  return {
+    type: SYSTEM_DEPLOYMENT_SUCCESS,
+  };
+}

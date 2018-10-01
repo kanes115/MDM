@@ -3,6 +3,7 @@ import {
 } from '../actions/websocketActions';
 import {
   systemDataCollected,
+  systemDeployed,
 } from '../actions/graph/deployment';
 
 export function onSocketOpen(emit) {
@@ -24,6 +25,9 @@ export function mapMessageToAction(message) {
   switch (type) {
     case 'collected': {
       return systemDataCollected(body);
+    }
+    case 'deployed': {
+      return systemDeployed();
     }
     default:
       return {
