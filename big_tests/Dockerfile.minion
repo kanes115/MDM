@@ -6,7 +6,8 @@ ADD ./big_tests/start_minion.sh /app
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
-    util-linux
+    util-linux \
+    python3
 
 RUN mix local.hex --force
 
