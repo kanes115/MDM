@@ -1,6 +1,6 @@
 # JMMSR
 
-Each null value can be completely ommited.
+`null` means this key must be ommited (sometimes under some conditions). It does not mean there can be null value itself.
 
 ## Schema
 ```
