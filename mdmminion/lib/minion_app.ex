@@ -3,6 +3,7 @@ defmodule MDMMinion.MDMMinionApp do
 
   alias MDMMinion.InfoGatherer
   alias MDMMinion.Deployer
+  alias MDMMinion.Router
 
   def start(_type, _args) do
     Supervisor.start_link(children(), strategy: :one_for_one)
@@ -18,6 +19,10 @@ defmodule MDMMinion.MDMMinionApp do
       %{
         id: Deployer,
         start: {Deployer, :start_link, []}
+      },
+      %{
+        id: Router,
+        start: {Router, :start_link, []}
       }
     ]
   end

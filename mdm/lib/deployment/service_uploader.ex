@@ -25,6 +25,8 @@ defmodule MDM.ServiceUploader do
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
   def upload_services(decision), do: GenServer.call(__MODULE__, {:upload_services, decision})
 
+  def prepare_routes(decision), do: GenServer.call(__MODULE__, :prepare_routes)
+
   @spec run_services() ::  :ok |
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
   def run_services, do: GenServer.call(__MODULE__, :run_services)
@@ -37,6 +39,8 @@ defmodule MDM.ServiceUploader do
 
   def handle_call({:upload_services, decision}, _from, s),
   do: {:reply, do_upload_services(decision), %{s | decision: decision}}
+  def handle_call(:prepare_routes, _from, %__MODULE__{decision: d} = s),
+  do: {:reply, do_prepare_routes(d), s}
   def handle_call(:run_services, _from, %__MODULE__{decision: d} = s),
   do: {:reply, do_run_services(d), s}
   
@@ -45,6 +49,21 @@ defmodule MDM.ServiceUploader do
   end
 
   # Private
+
+  defp do_prepare_routes(decision) do
+    routes =
+    decision
+    |> Enum.map(fn {s, m} -> {Service.get_name(s), Machine.address(m)} end)
+    results = decision
+          |> Enum.map(fn {_, machine} -> 
+            node_name = Machine.node_name(machine)
+            {GenServer.call({MDMMinion.Router, node_name}, {:register_routes, routes}), machine} end)
+    res = Enum.filter(results, fn r -> elem(r, 0) == :error end)
+    case res do
+      [] -> :ok
+      _ -> {:error, {:fault_machines, res}}
+    end
+  end
   
   @spec do_run_services(DeployDecider.decision) :: :ok |
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
