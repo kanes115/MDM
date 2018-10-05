@@ -11,4 +11,4 @@ RUN mix do compile
 
 ARG DOMAIN
 ENV DOMAIN=${DOMAIN}
-CMD iex --sname pilot@${DOMAIN} --cookie ala -S mix
+CMD iex --name pilot@${DOMAIN} --cookie ala -S mix

@@ -2,6 +2,7 @@ FROM elixir:latest
 
 RUN mkdir /app
 COPY ./mdmminion/ /app
+ADD ./big_tests/start_minion.sh /app
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y \
@@ -13,4 +14,6 @@ RUN mix do compile
 
 ARG DOMAIN
 ENV DOMAIN=${DOMAIN}
-CMD iex --sname minion@${DOMAIN} --cookie ala -S mix
+# Script checks if DOMAIN variable is empty
+# If so it uses IP
+CMD DOMAIN=${DOMAIN} ./start_minion.sh
