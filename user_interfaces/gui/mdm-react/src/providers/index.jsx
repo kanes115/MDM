@@ -3,13 +3,13 @@ import { Provider } from 'react-redux';
 
 import store from './store';
 
-import RouteProvider from './route/index';
+import App from '../routes';
 
 class AppProvider extends Component {
   render() {
     return (
       <Provider store={store}>
-        <RouteProvider />
+        <App />
       </Provider>
     );
   }

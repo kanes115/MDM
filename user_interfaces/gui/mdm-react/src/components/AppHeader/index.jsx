@@ -1,25 +1,21 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 
 import './app-header.css';
 
 class AppHeader extends Component {
   render() {
-    const { activeSystemId, history, isSystemActive } = this.props;
+    const { activeSystemId, isSystemActive } = this.props;
 
     return (
-      <header
-        className="mdm-header"
-        onClick={() => history.push('/')}
-      >
+      <header className="mdm-header">
         <h1 className="title">MDM</h1>
         <h4 className="subtitle">
           {isSystemActive
             ? (`System: ${activeSystemId}`)
             : ('No active system')
-                    }
+          }
         </h4>
       </header>
     );
@@ -41,4 +37,4 @@ AppHeader.propTypes = {
 };
 AppHeader.defaultProps = {};
 
-export default withRouter(connect(mapStateToProps, null)(AppHeader));
+export default connect(mapStateToProps, null)(AppHeader);

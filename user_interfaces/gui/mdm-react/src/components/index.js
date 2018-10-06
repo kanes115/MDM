@@ -1,19 +1,17 @@
-import AppHeader from './AppHeader/index';
-import AppNavigation from './AppNavigation/index';
-import AppRoutes from './AppRoutes/index';
+import AppHeader from './AppHeader';
+import AppNavigation from './AppNavigation';
+import AppContent from './AppContent';
 import CloseIcon from './CloseIcon/index';
-import CreationButton from './CreationButton/index';
-import CreationForm from './CreationForm/index';
-import EmptyState from './EmptyState/index';
-import MDMLink from './Link/index';
+import CreationButton from './CreationButton';
+import CreationForm from './CreationForm';
+import EmptyState from './EmptyState';
 
 export {
   AppHeader,
   AppNavigation,
-  AppRoutes,
+  AppContent,
   CloseIcon,
   CreationButton,
   CreationForm,
   EmptyState,
-  MDMLink,
 };

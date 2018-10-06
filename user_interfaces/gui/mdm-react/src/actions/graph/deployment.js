@@ -27,6 +27,7 @@ export function systemDataCollected(systemData) {
     {},
   );
 
+  console.log(collectedData)
   return {
     type: SYSTEM_DATA_COLLECTED,
     payload: {
