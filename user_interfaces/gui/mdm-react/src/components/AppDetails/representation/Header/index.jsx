@@ -57,14 +57,10 @@ function mapStateToProps({
   jmmsr: { activeSystemId, systems },
 }) {
   const activeSystemName = _.get(systems, `${activeSystemId}.name`);
-  const isModelEmpty = _.get(systems, `${activeSystemId}.connections.length`, 0) === 0 &&
-    _.get(systems, `${activeSystemId}.machines.length`, 0) === 0 &&
-    _.get(systems, `${activeSystemId}.services.length`, 0) === 0;
 
   return {
     activeSystemName,
     currentView,
-    isModelEmpty,
   };
 }
 

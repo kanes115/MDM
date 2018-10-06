@@ -1,11 +1,36 @@
-import React from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import AppDetails from './representation/index';
 
-const AppDetailsContainer = () => (
-  <AppDetails />
-);
+class AppDetailsContainer extends Component {
+  render() {
+    const { isModelEmpty } = this.props;
 
-AppDetailsContainer.propTypes = {};
+    return (
+      <AppDetails
+        isModelEmpty={isModelEmpty}
+      />
+    )
+  }
+}
+
+AppDetailsContainer.propTypes = {
+  isModelEmpty: PropTypes.bool.isRequired,
+};
 AppDetailsContainer.defaultProps = {};
 
-export default AppDetailsContainer;
+function mapStateToProps({
+  graph: { view: { currentView } },
+  jmmsr: { activeSystemId, systems },
+}) {
+  const isModelEmpty = _.get(systems, `${activeSystemId}.connections.length`, 0) === 0 &&
+    _.get(systems, `${activeSystemId}.machines.length`, 0) === 0 &&
+    _.get(systems, `${activeSystemId}.services.length`, 0) === 0;
+
+  return {
+    isModelEmpty,
+  };
+}
+
+export default connect()(AppDetailsContainer);
