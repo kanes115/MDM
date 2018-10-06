@@ -5,7 +5,7 @@ defmodule MDMMinion.LinuxRouterBackend do
   def register_routes(routes) do
     res0 =
     routes
-    |> Enum.map(fn {f, t} -> "echo \"#{f} #{t}\" >> /etc/host.aliases" |> String.to_atom end)
+    |> Enum.map(&route_command/1)
     |> Enum.map(fn cmd -> 
       Logger.info("Executing #{cmd}")
       :os.cmd(cmd) end)
@@ -19,6 +19,15 @@ defmodule MDMMinion.LinuxRouterBackend do
     end
   end
 
+  defp route_command({from, to}) do
+    case is_ip(from) do
+      false ->
+        "echo \"#{to} #{from}\" >> /etc/host.aliases"
+      true ->
+        "echo \"#{from} #{to}\" >> /etc/hosts"
+    end |> String.to_atom
+  end
+
   defp save_aliases do
     # this line is not that important
     :os.cmd("echo \"export HOSTALIASES=/etc/host.aliases\" >> /etc/profile && . /etc/profile" |> String.to_atom) 
@@ -28,5 +37,11 @@ defmodule MDMMinion.LinuxRouterBackend do
     end
   end
 
+  defp is_ip(addr) do
+    case :inet.parse_address(addr |> to_charlist) do
+      {:ok, _} -> true
+      {:error, _} -> false
+    end
+  end
 
 end

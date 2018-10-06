@@ -53,7 +53,7 @@ defmodule MDM.ServiceUploader do
   defp do_prepare_routes(decision) do
     routes =
     decision
-    |> Enum.map(fn {s, m} -> {Service.get_name(s), Machine.address(m)} end)
+    |> Enum.map(fn {s, m} -> {Machine.address(m), Service.get_name(s)} end)
     results = decision
           |> Enum.map(fn {_, machine} -> 
             node_name = Machine.node_name(machine)
