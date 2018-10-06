@@ -1,7 +1,7 @@
 if [ -z "${DOMAIN}" ]
 then
     # if domain was not set, we use ip
-    LONG_NAME=$(hostname -i)
+    LONG_NAME=$(hostname -i) # Debian specific
     echo "Long name is $LONG_NAME"
     iex --name minion@${LONG_NAME} --cookie ala -S mix
 else
