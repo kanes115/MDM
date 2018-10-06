@@ -4,7 +4,7 @@ const initialState = {
   searchTerm: '',
   matches: { total: -1, visible: -1 },
   redirectedFrom: null,
-  currentView: ['system'],
+  currentView: [''],
   loaded: false,
 };
 

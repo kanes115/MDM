@@ -1,5 +1,5 @@
 import AppHeader from './AppHeader';
-import AppNavigation from './AppNavigation';
+import AppNavigation from './AppDetails';
 import AppContent from './AppContent';
 import CloseIcon from './CloseIcon/index';
 import CreationButton from './CreationButton';

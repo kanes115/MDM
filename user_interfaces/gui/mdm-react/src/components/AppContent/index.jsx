@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 
-// import Content from '../../routes/index';
 import Content from '../../routes/model';
 
 import './app-routes.css';
