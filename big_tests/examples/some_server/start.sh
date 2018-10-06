@@ -1,2 +1,1 @@
-touch /kot.txt
-while true ; do sleep 5 && echo "ala" >> /kot.txt; done
+ping -c 2 some_server2 >> /ping.txt
