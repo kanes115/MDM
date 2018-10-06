@@ -21,47 +21,23 @@ class AppDetailsHeader extends Component {
     return `${type} ${name}`;
   };
 
-  // isModelling = () => {
-  //   const {
-  //     deployment: {
-  //       dataGathered,
-  //       deployed,
-  //       deploying,
-  //       gatheringData,
-  //     },
-  //   } = this.props;
-  //
-  //   return !(
-  //     dataGathered
-  //       || deployed
-  //       || deploying
-  //       || gatheringData
-  //   )
-  // };
-
   render() {
     const {
-      deployment: {
-        dataGathered,
-        deployed,
-        deploying,
-        gatheringData,
-      },
-      isSystemActive,
+      isModelEmpty,
     } = this.props;
 
     return (
       <div>
-        {isSystemActive
+        {isModelEmpty
           ? (
-            <h2>
-              {this.getViewPath()}
-            </h2>
+            <h1>
+              {'No system active'}
+            </h1>
           )
           : (
-            <h2>
-              {'No system active'}
-            </h2>
+            <h1>
+              {this.getViewPath()}
+            </h1>
           )
         }
       </div>
@@ -72,28 +48,23 @@ class AppDetailsHeader extends Component {
 AppDetailsHeader.propTypes = {
   activeSystemName: PropTypes.string.isRequired,
   currentView: PropTypes.arrayOf(PropTypes.string).isRequired,
-  deployment: PropTypes.shape({
-    dataGathered: PropTypes.bool,
-    deployed: PropTypes.bool,
-    deploying: PropTypes.bool,
-    gatheringData: PropTypes.bool,
-  }).isRequired,
-  isSystemActive: PropTypes.bool.isRequired,
+  isModelEmpty: PropTypes.bool.isRequired,
 };
 AppDetailsHeader.defaultProps = {};
 
 function mapStateToProps({
-  graph: { deployment, view: { currentView } },
+  graph: { view: { currentView } },
   jmmsr: { activeSystemId, systems },
 }) {
   const activeSystemName = _.get(systems, `${activeSystemId}.name`);
-  const isSystemActive = !!activeSystemId;
+  const isModelEmpty = _.get(systems, `${activeSystemId}.connections.length`, 0) === 0 &&
+    _.get(systems, `${activeSystemId}.machines.length`, 0) === 0 &&
+    _.get(systems, `${activeSystemId}.services.length`, 0) === 0;
 
   return {
     activeSystemName,
     currentView,
-    deployment,
-    isSystemActive,
+    isModelEmpty,
   };
 }
 
