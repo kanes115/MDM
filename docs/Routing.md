@@ -1,12 +1,12 @@
 # Routing
 
 Routing between services is designed in a way so that networking between machines is transient for a user.
-One should use services names in places where they would use IP address or domain name.
+One should use services' names in places where they would use IP address or domain name.
 
 ## Linux
 For mapping IPs to service names file `/etc/hosts` is used.
-For mapping Domain names to service names there is an environment variable
-`HOSTALIASES` used. It points to a file similar in the for to `/etc/hosts` but
+For mapping domain names to service names there is an environment variable
+`HOSTALIASES` used. It points to a file similar in the form to `/etc/hosts` but
 which can conatin domain names not only IPs. 
 
 The reason for not simply resolving domain names is to leave a user possibility to
