@@ -9,19 +9,25 @@ services:
       context: ..
       dockerfile: ./big_tests/Dockerfile.pilot
       args:
-        - DOMAIN=pilot
+        - DOMAIN=pilot.com
     ports:
       - "4000:8080"
 
   minion1:
+    networks:
+        default:
+            aliases:
+                - minion1.com
+    build:
+      dockerfile: ./big_tests/Dockerfile.minion
+      context: ..
+  minion2:
+    networks:
+        default:
+            aliases:
+                - minion2.com
     build:
       dockerfile: ./big_tests/Dockerfile.minion
       context: ..
       args:
-          - DOMAIN=minion1
-  minion2:
-      build:
-        dockerfile: ./big_tests/Dockerfile.minion
-        context: ..
-        args:
-            - DOMAIN=minion2
+          - DOMAIN=minion2.com
