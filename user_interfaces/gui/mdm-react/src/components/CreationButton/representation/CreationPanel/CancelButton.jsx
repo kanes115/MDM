@@ -28,12 +28,13 @@ function mapStateToProps({
   graph: {
     deployment: {
       dataGathered,
+      deployed,
       deploying,
       gatheringData,
     },
   },
 }) {
-  const canGoBack = gatheringData || dataGathered || deploying;
+  const canGoBack = (gatheringData || dataGathered || deploying) && !deployed;
 
   return {
     canGoBack,

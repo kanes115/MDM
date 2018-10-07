@@ -7,6 +7,7 @@ class DeploymentButton extends Component {
   render() {
     const {
       dataGathered,
+      deployed,
       deploying,
       gatheringData,
       isSystemActive,
@@ -15,7 +16,7 @@ class DeploymentButton extends Component {
     } = this.props;
 
     return (
-      isSystemActive && (
+      isSystemActive && !deployed && (
         dataGathered
           ? (deploying
             ? (
@@ -51,6 +52,7 @@ class DeploymentButton extends Component {
 
 DeploymentButton.propTypes = {
   dataGathered: PropTypes.bool.isRequired,
+  deployed: PropTypes.bool.isRequired,
   deploying: PropTypes.bool.isRequired,
   gatheringData: PropTypes.bool.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
@@ -63,6 +65,7 @@ function mapStateToProps({
   graph: {
     deployment: {
       dataGathered,
+      deployed,
       deploying,
       gatheringData,
     },
@@ -70,6 +73,7 @@ function mapStateToProps({
 }) {
   return {
     dataGathered,
+    deployed,
     deploying,
     gatheringData,
   };
