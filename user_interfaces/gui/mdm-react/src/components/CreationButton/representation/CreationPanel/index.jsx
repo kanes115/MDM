@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 import { CloseIcon } from '../../..';
+import CancelButton from './CancelButton';
 import ConfigurationButton from './ConfigurationButton';
 import CreationButtons from './CreationButtons';
 import DeploymentButton from './DeploymentButton';
@@ -42,6 +43,9 @@ const CreationPanel = ({
       isSystemActive={isSystemActive}
       modelling={modelling}
     />
+    <ul>
+      <CancelButton />
+    </ul>
   </div>
 );
 

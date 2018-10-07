@@ -75,3 +75,11 @@ export function systemDeploymentError(error) {
     },
   };
 }
+
+export const BACK_TO_DEPLOYMENT = 'BACK_TO_DEPLOYMENT';
+
+export function backToDeployment() {
+  return {
+    type: BACK_TO_DEPLOYMENT,
+  };
+}

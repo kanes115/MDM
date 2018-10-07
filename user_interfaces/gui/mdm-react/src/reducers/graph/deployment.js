@@ -59,6 +59,15 @@ const deployment = (state = initialState, action) => {
         error,
       };
     }
+    case deploymentActionTypes.BACK_TO_DEPLOYMENT: {
+      return {
+        ...state,
+        dataGathered: false,
+        deployed: false,
+        deploying: false,
+        gatheringData: false,
+      };
+    }
     default:
       return state;
   }
