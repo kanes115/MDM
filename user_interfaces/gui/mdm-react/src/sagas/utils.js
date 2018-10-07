@@ -3,7 +3,9 @@ import {
 } from '../actions/websocketActions';
 import {
   systemDataCollected,
+  systemDataCollectionError,
   systemDeployed,
+  systemDeploymentError,
 } from '../actions/graph/deployment';
 
 export function onSocketOpen(emit) {
@@ -20,6 +22,28 @@ export function onSocketMessage(emit) {
   };
 }
 
+function mapErrorToAction(message) {
+  const { body, code, command_name: commandName } = message;
+
+  switch (commandName) {
+    case 'collect_data':
+      return systemDataCollectionError({
+        body,
+        code,
+      });
+    case 'deploy':
+      return systemDeploymentError({
+        body,
+        code,
+      });
+    default:
+      return {
+        type: WEB_SOCKET_MESSAGE_RECEIVED,
+        payload: message,
+      };
+  }
+}
+
 export function mapMessageToAction(message) {
   const { body, msg: type } = message;
   switch (type) {
@@ -28,6 +52,9 @@ export function mapMessageToAction(message) {
     }
     case 'deployed': {
       return systemDeployed();
+    }
+    case 'error': {
+      return mapErrorToAction(message);
     }
     default:
       return {

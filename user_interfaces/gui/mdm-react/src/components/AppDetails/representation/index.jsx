@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 
 import DetailsContent from './Content';
+import DetailsError from './Error';
 // import DetailsHeader from './Header';
 import DetailsStatus from './Status';
 
@@ -11,12 +12,18 @@ class AppDetails extends Component {
   render() {
     const {
       activeSystem,
+      deploymentError,
+      errorOccurred,
       // isModelEmpty,
     } = this.props;
 
     return (
       <div className="mdm-details">
         <DetailsStatus />
+        <DetailsError
+          deploymentError={deploymentError}
+          errorOccurred={errorOccurred}
+        />
         <DetailsContent
           activeSystem={activeSystem}
         />
@@ -32,10 +39,14 @@ AppDetails.propTypes = {
     machines: PropTypes.array,
     services: PropTypes.array,
   }),
+  deploymentError: PropTypes.shape(),
+  errorOccurred: PropTypes.bool,
   isModelEmpty: PropTypes.bool.isRequired,
 };
 AppDetails.defaultProps = {
   activeSystem: null,
+  deploymentError: null,
+  errorOccurred: false,
 };
 
 export default AppDetails;

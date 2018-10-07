@@ -5,6 +5,7 @@ const initialState = {
   deployed: false,
   deploying: false,
   gatheringData: false,
+  error: null,
 };
 
 const deployment = (state = initialState, action) => {
@@ -14,6 +15,7 @@ const deployment = (state = initialState, action) => {
       return {
         ...state,
         gatheringData: true,
+        error: null,
       };
     }
     case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
@@ -23,10 +25,21 @@ const deployment = (state = initialState, action) => {
         gatheringData: false,
       };
     }
+    case deploymentActionTypes.SYSTEM_DATA_COLLECTION_ERROR: {
+      const { payload: { error } } = action;
+
+      return {
+        ...state,
+        dataGathered: false,
+        gatheringData: false,
+        error,
+      };
+    }
     case deploymentActionTypes.START_DEPLOYING: {
       return {
         ...state,
         deploying: true,
+        error: null,
       };
     }
     case deploymentActionTypes.SYSTEM_DEPLOYMENT_SUCCESS: {
@@ -34,6 +47,16 @@ const deployment = (state = initialState, action) => {
         ...state,
         deployed: true,
         deploying: false,
+      };
+    }
+    case deploymentActionTypes.SYSTEM_DEPLOYMENT_ERROR: {
+      const { payload: { error } } = action;
+
+      return {
+        ...state,
+        dataGathered: false,
+        gatheringData: false,
+        error,
       };
     }
     default:
