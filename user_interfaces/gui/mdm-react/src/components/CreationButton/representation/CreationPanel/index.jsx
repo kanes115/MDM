@@ -1,8 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import c from 'classnames';
 
-import { CloseIcon } from '../../../index';
+import { CloseIcon } from '../../..';
+import ConfigurationButton from './ConfigurationButton';
+import CreationButtons from './CreationButtons';
 import DeploymentButton from './DeploymentButton';
 
 import './creation-panel.css';
@@ -17,6 +18,7 @@ const CreationPanel = ({
   handleSystemDataCollection,
   handleSystemDeployment,
   isSystemActive,
+  modelling,
 }) => (
   <div className="panel">
     <CloseIcon onClose={deactivate} />
@@ -26,49 +28,20 @@ const CreationPanel = ({
         handleSystemDeployment={handleSystemDeployment}
         isSystemActive={isSystemActive}
       />
-      {isSystemActive
-        ? (
-          <li onClick={handleSystemConfiguration}>
-            <i className="material-icons">build</i>
-            {' '}
-Configure system
-          </li>
-        )
-        : (
-          <li onClick={handleSystemCreation}>
-            <i className="material-icons">device_hub</i>
-            {' '}
-Add system
-          </li>
-        )
-            }
+      <ConfigurationButton
+        handleSystemConfiguration={handleSystemConfiguration}
+        handleSystemCreation={handleSystemCreation}
+        isSystemActive={isSystemActive}
+        modelling={modelling}
+      />
     </ul>
-    <ul>
-      <li
-        onClick={isSystemActive ? handleMachineCreation : null}
-        className={c({ disabled: !isSystemActive })}
-      >
-        <i className="material-icons">dns</i>
-        {' '}
-Add machine
-      </li>
-      <li
-        onClick={isSystemActive ? handleServiceCreation : null}
-        className={c({ disabled: !isSystemActive })}
-      >
-        <i className="material-icons">category</i>
-        {' '}
-Add service
-      </li>
-      <li
-        onClick={isSystemActive ? handleConnectionCreation : null}
-        className={c({ disabled: !isSystemActive })}
-      >
-        <i className="material-icons">swap_horiz</i>
-        {' '}
-Add connection
-      </li>
-    </ul>
+    <CreationButtons
+      handleConnectionCreation={handleConnectionCreation}
+      handleMachineCreation={handleMachineCreation}
+      handleServiceCreation={handleServiceCreation}
+      isSystemActive={isSystemActive}
+      modelling={modelling}
+    />
   </div>
 );
 
@@ -82,6 +55,7 @@ CreationPanel.propTypes = {
   handleSystemDataCollection: PropTypes.func.isRequired,
   handleSystemDeployment: PropTypes.func.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
+  modelling: PropTypes.bool.isRequired,
 };
 CreationPanel.defaultProps = {};
 

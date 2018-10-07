@@ -52,34 +52,49 @@ class CreationButtonWrapper extends Component {
     };
 
     render() {
-        const {active} = this.state;
-        const {formOpen, isSystemActive} = this.props;
+      const { active } = this.state;
+      const { formOpen, isSystemActive, modelling } = this.props;
 
-        return (
-            <CreationButton active={active}
-                            formActive={formOpen}
-                            handleConnectionCreation={this.handleConnectionCreation}
-                            handleMachineCreation={this.handleMachineCreation}
-                            handleServiceCreation={this.handleServiceCreation}
-                            handleSystemConfiguration={this.handleSystemConfiguration}
-                            handleSystemCreation={this.handleSystemCreation}
-                            handleSystemDataCollection={this.handleSystemDataCollection}
-                            handleSystemDeployment={this.handleSystemDeployment}
-                            isSystemActive={isSystemActive}
-                            toggleCreation={this.toggleCreationPanel}
-            />
-        );
+      return (
+        <CreationButton
+          active={active}
+          formActive={formOpen}
+          handleConnectionCreation={this.handleConnectionCreation}
+          handleMachineCreation={this.handleMachineCreation}
+          handleServiceCreation={this.handleServiceCreation}
+          handleSystemConfiguration={this.handleSystemConfiguration}
+          handleSystemCreation={this.handleSystemCreation}
+          handleSystemDataCollection={this.handleSystemDataCollection}
+          handleSystemDeployment={this.handleSystemDeployment}
+          isSystemActive={isSystemActive}
+          modelling={modelling}
+          toggleCreation={this.toggleCreationPanel}
+        />
+      );
     }
 }
 
-function mapStateToProps({ jmmsr: { activeSystemId, form: { formOpen }, systems } }) {
-    const activeSystem = systems[activeSystemId];
+function mapStateToProps({
+ graph: {
+   deployment: {
+     dataGathered,
+     deployed,
+     deploying,
+     gatheringData,
+   },
+ },
+ jmmsr: { activeSystemId, form: { formOpen }, systems }
+}) {
+  const activeSystem = systems[activeSystemId];
+  const isSystemActive = activeSystemId.length > 0;
+  const modelling = isSystemActive && !(dataGathered || deployed || deploying || gatheringData);
 
-    return {
-        activeSystem,
-        formOpen,
-        isSystemActive: activeSystemId.length > 0,
-    };
+  return {
+    activeSystem,
+    formOpen,
+    isSystemActive,
+    modelling,
+  };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -96,6 +111,7 @@ CreationButtonWrapper.propTypes = {
   formOpen: PropTypes.bool.isRequired,
   gatherData: PropTypes.func.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
+  modelling: PropTypes.bool.isRequired,
   openCreationForm: PropTypes.func.isRequired,
 };
 CreationButtonWrapper.defaultProps = {};

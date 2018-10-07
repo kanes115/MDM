@@ -17,6 +17,7 @@ const CreationButton = ({
   handleSystemDataCollection,
   handleSystemDeployment,
   isSystemActive,
+  modelling,
   toggleCreation,
 }) => (
   !formActive
@@ -34,6 +35,7 @@ const CreationButton = ({
             handleSystemDataCollection={handleSystemDataCollection}
             handleSystemDeployment={handleSystemDeployment}
             isSystemActive={isSystemActive}
+            modelling={modelling}
           />
         )
         : (<CreationIcon activate={toggleCreation} />)
@@ -53,6 +55,7 @@ CreationButton.propTypes = {
   handleSystemDataCollection: PropTypes.func.isRequired,
   handleSystemDeployment: PropTypes.func.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
+  modelling: PropTypes.bool.isRequired,
   toggleCreation: PropTypes.func.isRequired,
 };
 CreationButton.defaultProps = {};
