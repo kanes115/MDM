@@ -23,14 +23,22 @@ defmodule IntegrationTests do
 
 
   test "greets the world" do
-    {:ok, pid} = IntegrationTests.WebSocketExample.start_link("ws://pilot:8080", self())
-    text = basic_jmmsr()
-           |> collect_data
-           |> Poison.encode!
-    WebSockex.send_frame(pid, {:text, text})
-    receive do
-      a -> IO.inspect a
-    end
+    MDMRpc.call(:minion2, Node, :list, [])
+    |> IO.inspect
+    MDMRpc.call(:minion1, Node, :list, [])
+    |> IO.inspect
+    MDMRpc.call(:pilot, Node, :list, [])
+    |> IO.inspect
+    #    {:ok, pid} = IntegrationTests.WebSocketExample.start_link("ws://pilot:8080", self())
+    #    text = basic_jmmsr()
+    #           |> collect_data
+    #           |> Poison.encode!
+    #    WebSockex.send_frame(pid, {:text, text})
+    #    receive do
+    #      a -> IO.inspect a
+    #    end
+    #    
+    #    WebSockex.send_frame(pid, {:close, "going_away"})
     #    socket = Socket.Web.connect! "ws://pilot:8080"
     #    socket |> Socket.Web.send! {:text, @example_jmmsr}
     #    socket |> Socket.Web.recv!() |> IO.inspect() # => {:text, "test"}
@@ -56,7 +64,7 @@ defmodule IntegrationTests do
         "connections" => [
         ],
         "machines" => [
-          machine("minion1_pc", 38, "linux", [{"ip", get_minion1_ip()}]),
+          machine("minion1_pc", 38, "linux", [{"ip", MDMRpc.get_minion1_ip()}]),
           machine("minion2_pc", 39, "linux", [{"domain", "minion2.com"}])
         ],
         "services" => [
@@ -69,10 +77,5 @@ defmodule IntegrationTests do
       }
   end
 
-  defp get_minion1_ip do
-    {:ok, {:hostent, 'minion1', [], :inet, 4, [ip_tuple]}} =
-      :inet_res.getbyname("minion1" |> to_charlist, :a)
-    to_string(:inet_parse.ntoa(ip_tuple))
-  end
-
+  
 end

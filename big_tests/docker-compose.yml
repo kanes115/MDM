@@ -10,6 +10,11 @@ services:
       dockerfile: ./big_tests/Dockerfile.pilot
       args:
         - DOMAIN=pilot.com
+    networks:
+        default:
+            aliases:
+                - pilot.com
+
     ports:
       - "4000:8080"
 
