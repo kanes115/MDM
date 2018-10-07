@@ -15,7 +15,7 @@ if [[ $# > 0 && $1 == "run" ]]; then
         -it --rm --name mdm_test_runner \
         -v $PWD/..:/mdm \
         -w  /mdm/mdm mdm_test_env:latest \
-        iex --name test@test.com -S mix test
+        iex --name test@test.com --cookie ala -S mix test
 else
     docker run --network big_tests_default --name mdm_test_runner --rm -it -v $PWD/..:/mdm -w  /mdm mdm_test_env:latest
 fi
