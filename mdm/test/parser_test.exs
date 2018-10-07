@@ -2,6 +2,7 @@ defmodule ParserTest do
   use ExUnit.Case
   doctest MDM
   alias MDM.JmmsrParser
+  import JmmsrHelpers
 
   @tmp_file "/tmp/tmp_file.mdm"
   @not_existing_machine_id 429587493759
@@ -424,65 +425,6 @@ defmodule ParserTest do
           service("some_service2")
         ]
       }
-    end
-
-    defp live_metric({:machine, machine_id}, metric_name, {val, unit}) do
-      %{
-        "for_machine" => true,
-        "metric" => metric_name,
-        "machine_id" => machine_id,
-        "unit" => unit,
-        "value" => val
-      }
-    end
-    defp live_metric({:service, service_name}, metric_name, {val, unit}) do
-      %{
-        "for_machine" => false,
-        "metric" => metric_name,
-        "service_name" => service_name,
-        "unit" => unit,
-        "value" => val
-      }
-    end
-
-
-    defp connection(from, to, port \\ 80) do
-        %{
-            "port" => port,
-            "service_from" => from,
-            "service_to" => to
-          }
-    end
-
-    defp machine(name, id, os \\ "linux", address \\ [{"ip", "192.168.1.1"}], ssh_host \\ "some_host_from_ssh_config") do
-        %{
-            "id" => id,
-            "name" => name,
-            "os" => os
-        }
-        |> add_address(address)
-        |> Map.put("ssh_host", ssh_host)
-    end
-
-    defp add_address(machine, addresses) do
-      Enum.reduce(addresses,
-                  machine,
-                  fn {k, v}, m -> Map.put(m, k, v) end)
-    end
-
-    defp service(name, available_machines \\ []) do
-        %{
-            "containerized" => true,
-            "name" => name,
-            "requirements" => %{
-              "HDD" => 242,
-              "RAM" => 453,
-              "available_machines" => available_machines,
-              "os" => ["linux"]
-            },
-            "service_dir" => "/some/path/to/directory",
-            "service_executable" => "/some/path/to/file"
-          }
     end
 
     # TODO simplify

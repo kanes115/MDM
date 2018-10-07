@@ -1,0 +1,8 @@
+FROM elixir:latest
+
+RUN apt-get update && apt-get install -y \
+    util-linux
+
+RUN mix local.hex --force
+
+CMD bash

@@ -23,7 +23,8 @@ defmodule MDM.MixProject do
   defp deps do
     [
       {:poison, "~> 3.1"},
-      {:socket, "~> 0.3"},
+      {:socket, "~> 0.3"}, # ws used for server side
+      {:websockex, "~> 0.4.0"}, # ws client for testing 
       {:distillery, "~> 1.5"}
     ]
   end
