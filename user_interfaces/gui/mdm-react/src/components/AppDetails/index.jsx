@@ -7,10 +7,11 @@ import AppDetails from './representation';
 
 class AppDetailsContainer extends Component {
   render() {
-    const { isModelEmpty } = this.props;
+    const { activeSystem, isModelEmpty } = this.props;
 
     return (
       <AppDetails
+        activeSystem={activeSystem}
         isModelEmpty={isModelEmpty}
       />
     );
@@ -18,18 +19,28 @@ class AppDetailsContainer extends Component {
 }
 
 AppDetailsContainer.propTypes = {
+  activeSystem: PropTypes.shape({
+    config: PropTypes.object,
+    connections: PropTypes.array,
+    machines: PropTypes.array,
+    services: PropTypes.array,
+  }),
   isModelEmpty: PropTypes.bool.isRequired,
 };
-AppDetailsContainer.defaultProps = {};
+AppDetailsContainer.defaultProps = {
+  activeSystem: null,
+};
 
 function mapStateToProps({
   jmmsr: { activeSystemId, systems },
 }) {
-  const isModelEmpty = _.get(systems, `${activeSystemId}.connections.length`, 0) === 0
-    && _.get(systems, `${activeSystemId}.machines.length`, 0) === 0
-    && _.get(systems, `${activeSystemId}.services.length`, 0) === 0;
+  const activeSystem = systems[activeSystemId];
+  const isModelEmpty = _.get(activeSystem, 'connections.length', 0) === 0
+    && _.get(activeSystem, 'machines.length', 0) === 0
+    && _.get(activeSystem, 'services.length', 0) === 0;
 
   return {
+    activeSystem,
     isModelEmpty,
   };
 }

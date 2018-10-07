@@ -1,6 +1,7 @@
 import _ from 'lodash';
 
 import * as actionTypes from '../../actions';
+// import * as deploymentActionTypes from '../../actions/graph/deployment';
 
 const initialState = {
   renderer: 'global',
@@ -74,13 +75,13 @@ const trafficData = (state = initialState, action) => {
             name: 'INTERNET',
             renderer: 'focusedChild',
             maxVolume: 100000,
-            updated: Date.now(),
+            // updated: Date.now(),
           },
         ],
         connections: [],
         class: 'danger',
         metadata: {},
-        updated: Date.now(),
+        // updated: Date.now(),
         data: {
           connected: 0,
           deployed: 0,
@@ -92,7 +93,7 @@ const trafficData = (state = initialState, action) => {
         metrics: {},
         notices: [],
         class: 'normal',
-        updated: Date.now(),
+        // updated: Date.now(),
       });
 
       return {
@@ -113,7 +114,7 @@ const trafficData = (state = initialState, action) => {
         name: _.get(newService, 'name'),
         renderer: 'focusedChild',
         maxVolume: 100000,
-        updated: Date.now(),
+        // updated: Date.now(),
       });
       connections.push({
         source: 'INTERNET',
@@ -121,12 +122,12 @@ const trafficData = (state = initialState, action) => {
         metrics: {},
         notices: [],
         class: 'normal',
-        updated: Date.now(),
+        // updated: Date.now(),
       });
 
       servicesNode.nodes = services;
       servicesNode.connections = connections;
-      servicesNode.updated = Date.now();
+      // servicesNode.updated = Date.now();
       const nodes = [...state.nodes];
       nodes[1] = servicesNode;
 
@@ -150,11 +151,11 @@ const trafficData = (state = initialState, action) => {
         data: {
           port: _.get(newConnection, 'port'),
         },
-        updated: Date.now(),
+        // updated: Date.now(),
       });
 
       servicesNode.connections = connections;
-      servicesNode.updated = Date.now();
+      // servicesNode.updated = Date.now();
       const nodes = [...state.nodes];
       nodes[1] = servicesNode;
 
@@ -164,6 +165,31 @@ const trafficData = (state = initialState, action) => {
         updated: Date.now(),
       };
     }
+
+    // case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
+    //   const { nodes } = state;
+    //
+    //   const newNodes = nodes.map((node, index) => {
+    //     if (index === 0 || index === 1) {
+    //       return node;
+    //     }
+    //     return {
+    //       ...node,
+    //       class: 'warning',
+    //       // data: {
+    //       //   ...node.data,
+    //       //   connected: 1,
+    //       // },
+    //     };
+    //   });
+    //   console.log(nodes, newNodes)
+    //
+    //   return {
+    //     ...state,
+    //     nodes: newNodes,
+    //     updated: Date.now(),
+    //   };
+    // }
     default:
       return state;
   }

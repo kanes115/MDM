@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import * as actionTypes from '../actions';
+import * as deploymentActionTypes from '../actions/graph/deployment';
 
 import { system } from '../utils/jmmsr/schema';
 
@@ -130,6 +131,31 @@ const jmmsr = (state = initialState, action) => {
           },
         },
       };
+
+    case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
+      const { activeSystemId } = state;
+      const machines = _.get(state, `systems.${activeSystemId}.machines`);
+      const { payload: { collectedData } } = action;
+
+      const newMachines = machines.map(machine => ({
+        ...machine,
+        resources: {
+          ...(_.get(collectedData, `${machine.id}.resources`)),
+        },
+      }));
+      console.log('!!!', newMachines)
+
+      return {
+        ...state,
+        systems: {
+          ...state.systems,
+          [activeSystemId]: {
+            ...state.systems[activeSystemId],
+            machines: newMachines,
+          },
+        },
+      };
+    }
     default:
       return state;
   }

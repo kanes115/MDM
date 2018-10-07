@@ -1,16 +1,10 @@
 import React, {Component} from 'react';
-import _ from 'lodash';
 import Vizceral from 'vizceral-react';
-
-import DetailsPanelConnection from './detailsPanelConnection';
-import DetailsPanelNode from './detailsPanelNode';
 
 import './index.css';
 
 
 const hasOwnPropFunc = Object.prototype.hasOwnProperty;
-
-const panelWidth = 400;
 
 class ModelGraph extends Component {
     constructor (props) {
@@ -20,7 +14,7 @@ class ModelGraph extends Component {
             redirectedFrom: undefined,
             selectedChart: undefined,
             displayOptions: {
-                allowDraggingOfNodes: true,
+                allowDraggingOfNodes: false,
                 showLabels: true
             },
             currentGraph_physicsOptions: {
@@ -51,6 +45,7 @@ class ModelGraph extends Component {
 
     viewChanged = (data) => {
       const {setView} = this.props;
+      console.log('viewChanged', data)
 
       const changedState = {
         currentView: data.view,
@@ -75,15 +70,16 @@ class ModelGraph extends Component {
     };
 
     viewUpdated = () => {
-        this.setState({});
+      console.log('VIEW UPDATED')
+      this.setState({});
     };
 
     objectHighlighted = (highlightedObject) => {
-      console.log(highlightedObject)
+      console.log('objectHighlighted', highlightedObject)
         // need to set objectToHighlight for diffing on the react component. since it was already highlighted here, it will be a noop
-        this.setState({
-            highlightedObject: highlightedObject, objectToHighlight: highlightedObject ? highlightedObject.getName() : undefined, searchTerm: '', matches: { total: -1, visible: -1 }, redirectedFrom: undefined
-        });
+        // this.setState({
+        //     highlightedObject: highlightedObject, objectToHighlight: highlightedObject ? highlightedObject.getName() : undefined, searchTerm: '', matches: { total: -1, visible: -1 }, redirectedFrom: undefined
+        // });
     };
 
     nodeContextSizeChanged = (dimensions) => {
@@ -117,90 +113,38 @@ class ModelGraph extends Component {
     // }
 
     updateData (newTraffic) {
-        const regionUpdateStatus = _.map(
-            _.filter(
-                newTraffic.nodes, n => n.name !== 'INTERNET'),
-                node => ({ region: node.name, updated: node.updated }),
-        );
-        const lastUpdatedTime = _.max(_.map(regionUpdateStatus, 'updated'));
-
-        this.setState({
-            regionUpdateStatus: regionUpdateStatus,
-            timeOffset: newTraffic.clientUpdateTime - newTraffic.serverUpdateTime,
-            lastUpdatedTime: lastUpdatedTime,
-            trafficData: newTraffic
-        });
-    }
-
-    isSelectedNode () {
-      const { view: { currentView } } = this.props;
-
-      return currentView && currentView[1] !== undefined;
+      console.log('UPDATE_DATA', newTraffic)
+      // const regionUpdateStatus = _.map(
+      //   _.filter(newTraffic.nodes, n => n.name !== 'INTERNET'),
+      //   node => ({ region: node.name, updated: node.updated} ),
+      // );
+      // const lastUpdatedTime = _.max(_.map(regionUpdateStatus, 'updated'));
+      //
+      // this.setState({
+      //     regionUpdateStatus: regionUpdateStatus,
+      //     timeOffset: newTraffic.clientUpdateTime - newTraffic.serverUpdateTime,
+      //     lastUpdatedTime: lastUpdatedTime,
+      //     trafficData: newTraffic
+      // });
     }
 
     zoomCallback = () => {
-        const currentView = _.clone(this.state.currentView);
-        if (currentView.length === 1 && this.state.focusedNode) {
-            currentView.push(this.state.focusedNode.name);
-        } else if (currentView.length === 2) {
-            currentView.pop();
-        }
-        this.setState({ currentView: currentView });
-    };
-
-    detailsClosed = () => {
-        // If there is a selected node, deselect the node
-        if (this.isSelectedNode()) {
-            this.setState({ currentView: [this.state.currentView[0]] });
-        } else {
-            // If there is just a detailed node, remove the detailed node.
-            this.setState({ focusedNode: undefined, highlightedObject: undefined });
-        }
+        // const currentView = _.clone(this.state.currentView);
+        // if (currentView.length === 1 && this.state.focusedNode) {
+        //     currentView.push(this.state.focusedNode.name);
+        // } else if (currentView.length === 2) {
+        //     currentView.pop();
+        // }
+        // this.setState({ currentView: currentView });
     };
 
     matchesFound = (matches) => {
         this.setState({ matches: matches });
     };
 
-    // nodeClicked = (node) => {
-    //     if (this.state.currentView.length === 1) {
-    //         // highlight node
-    //         this.setState({ objectToHighlight: node.getName() });
-    //     } else if (this.state.currentView.length === 2) {
-    //         // detailed view of node
-    //         this.setState({ currentView: [this.state.currentView[0], node.getName()] });
-    //     }
-    // };
-
-    onNodeClick = (node) => {
-        const {
-          // onNodeHighlight,
-          setDetailedNodeView,
-          view,
-        } = this.props;
-        console.log('!!!onNodeClick', view, node)
-
-      if (view.length === 1) {
-        // highlight node
-        console.log(1)
-        // this.setState({ objectToHighlight: node.getName() });
-        // onNodeHighlight(node.getName());
-      } else if (view.length === 2) {
-        // detailed view of node
-        console.log(2)
-        // this.setState({ currentView: [this.state.currentView[0], node.getName()] });
-        setDetailedNodeView([view[0], node.getName()]);
-      }
-    };
-
     render () {
-        const globalView = this.state.currentView && this.state.currentView.length === 0;
-        const nodeView = !globalView && this.state.currentView && this.state.currentView[1] !== undefined;
-        let nodeToShowDetails = this.state.currentGraph && this.state.currentGraph.focusedNode;
-        nodeToShowDetails = nodeToShowDetails || (this.state.highlightedObject && this.state.highlightedObject.type === 'node' ? this.state.highlightedObject : undefined);
-        const connectionToShowDetails = this.state.highlightedObject && this.state.highlightedObject.type === 'connection' ? this.state.highlightedObject : undefined;
-
         const { definitions, trafficData, view } = this.props;
+        console.log('!!!!!!!!', view.currentView)
 
         return (
             <div className="vizceral-container">
@@ -229,26 +173,6 @@ class ModelGraph extends Component {
                                   updateData={this.updateData}
                         />
                     </div>
-                    {
-                        !!nodeToShowDetails
-                        && <DetailsPanelNode node={nodeToShowDetails}
-                                             nodeSelected={nodeView}
-                                             region={view.currentView[0]}
-                                             width={panelWidth}
-                                             zoomCallback={this.zoomCallback}
-                                             closeCallback={this.detailsClosed}
-                                             nodeClicked={node => this.onNodeClick(node)}
-                        />
-                    }
-                    {
-                        !!connectionToShowDetails
-                        && <DetailsPanelConnection connection={connectionToShowDetails}
-                                                   region={view.currentView[0]}
-                                                   width={panelWidth}
-                                                   closeCallback={this.detailsClosed}
-                                                   nodeClicked={node => this.onNodeClick(node)}
-                        />
-                    }
                 </div>
             </div>
         );
