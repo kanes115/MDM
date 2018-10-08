@@ -6,13 +6,14 @@ import MachineList from './MachineList/index';
 
 class AppDetailsContent extends Component {
   render() {
-    const { activeSystem } = this.props;
+    const { activeSystem, onEditClick } = this.props;
 
     console.log(activeSystem)
     return (
       <div>
         <MachineList
           machines={_.get(activeSystem, 'machines', [])}
+          onEditClick={onEditClick}
         />
       </div>
     );
@@ -26,6 +27,7 @@ AppDetailsContent.propTypes = {
     machines: PropTypes.array,
     services: PropTypes.array,
   }).isRequired,
+  onEditClick: PropTypes.func.isRequired,
 };
 AppDetailsContent.defaultProps = {};
 

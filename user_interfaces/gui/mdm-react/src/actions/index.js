@@ -1,10 +1,11 @@
 export const OPEN_FORM = 'OPEN_FORM';
 
-export function openForm(formType) {
+export function openForm(formType, object = null) {
   return {
     type: OPEN_FORM,
     payload: {
       formType,
+      object,
     },
   };
 }
@@ -68,6 +69,17 @@ export function updateSystemConfig(config) {
     type: UPDATE_SYSTEM_CONFIG,
     payload: {
       config,
+    },
+  };
+}
+
+export const UPDATE_MACHINE = 'UPDATE_MACHINE';
+
+export function updateMachine(machine) {
+  return {
+    type: UPDATE_MACHINE,
+    payload: {
+      machine,
     },
   };
 }
