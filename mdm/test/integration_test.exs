@@ -1,49 +1,41 @@
 defmodule IntegrationTests do
   use ExUnit.Case
   import JmmsrHelpers
-
-  defmodule WebSocketExample do
-    use WebSockex
-
-    def start_link(url, report_to) do
-      WebSockex.start_link(url, __MODULE__, report_to)
-    end
-
-    def handle_frame({type, msg}, report_to) do
-      IO.puts "Received Message - Type: #{inspect type} -- Message: #{inspect msg}"
-      send report_to, msg
-      {:ok, report_to}
-    end
-
-    def handle_cast({:send, {type, msg} = frame}, state) do
-      IO.puts "Sending #{type} frame with payload: #{msg}"
-      {:reply, frame, state}
-    end
+  
+  test "Command collect_data returns collected data" do
+    {:ok, pid} = WebSocket.start_link("ws://pilot:8080", self())
+    text = basic_jmmsr()
+           |> collect_data
+           |> Poison.encode!
+    WebSocket.send_text(pid, text)
+    resp = WebSocket.receive(pid) |> Poison.decode!
+    200 = resp["code"]
+    "collect_data" = resp["command_name"]
+    "collected" = resp["msg"]
+    collected_machines = resp["body"]["collected_data"]
+    2 = length(collected_machines)
+    collected_machines
+    |> Enum.each(fn m -> check_collected_machine(m, basic_jmmsr()["machines"]) end)
+    WebSockex.send_frame(pid, {:close, "going_away"})
   end
 
-
-  test "greets the world" do
-    MDMRpc.call(:minion2, Node, :list, [])
-    |> IO.inspect
-    MDMRpc.call(:minion1, Node, :list, [])
-    |> IO.inspect
-    MDMRpc.call(:pilot, Node, :list, [])
-    |> IO.inspect
-    #    {:ok, pid} = IntegrationTests.WebSocketExample.start_link("ws://pilot:8080", self())
-    #    text = basic_jmmsr()
-    #           |> collect_data
-    #           |> Poison.encode!
-    #    WebSockex.send_frame(pid, {:text, text})
-    #    receive do
-    #      a -> IO.inspect a
-    #    end
-    #    
-    #    WebSockex.send_frame(pid, {:close, "going_away"})
-    #    socket = Socket.Web.connect! "ws://pilot:8080"
-    #    socket |> Socket.Web.send! {:text, @example_jmmsr}
-    #    socket |> Socket.Web.recv!() |> IO.inspect() # => {:text, "test"}
-    assert MDM.hello() == :world
+  test "Command collect_data can be called multiple times with almost the same result (expect colleected resources)" do
+    {:ok, pid} = WebSocket.start_link("ws://pilot:8080", self())
+    text = basic_jmmsr()
+           |> collect_data
+           |> Poison.encode!
+    WebSocket.send_text(pid, text)
+    WebSocket.send_text(pid, text)
+    resp1 = WebSocket.receive(pid) |> Poison.decode! 
+    resp2 = WebSocket.receive(pid) |> Poison.decode!
+    m1 = resp1["body"]["collected_data"]
+               |> Enum.map(fn %{"machine" => m} -> Map.delete(m, "resources") end)
+    m2 = resp2["body"]["collected_data"]
+               |> Enum.map(fn %{"machine" => m} -> Map.delete(m, "resources") end)
+    assert m1 == m2
+    WebSockex.send_frame(pid, {:close, "going_away"})
   end
+
 
 
   ## HELPERS
@@ -77,5 +69,15 @@ defmodule IntegrationTests do
       }
   end
 
+  defp check_collected_machine(%{"machine" => machine, "ok?" => true}, expected_machines) do
+    %{"name" => name} = machine
+    expected_machine = expected_machines |> Enum.find(fn %{"name" => n} -> n == name end)
+    assert expected_machine["name"] == machine["name"]
+    assert expected_machine["ip"] == machine["ip"]
+    assert expected_machine["domain"] == machine["domain"]
+    assert expected_machine["id"] == machine["id"]
+    assert expected_machine["os"] == machine["os"]
+    assert Map.has_key?(machine, "resources")
+  end
   
 end
