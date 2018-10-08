@@ -2,9 +2,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-import collectSystemData from '../../providers/websocket';
-
 import { openForm } from '../../actions';
+import { startDeploying, startGatheringData } from '../../actions/graph/deployment';
 
 import CreationButton from './representation/index';
 
@@ -41,52 +40,79 @@ class CreationButtonWrapper extends Component {
     };
 
     handleSystemDataCollection = () => {
-        const { activeSystem } = this.props;
+        const { activeSystem, gatherData } = this.props;
 
-        collectSystemData(activeSystem);
+        gatherData(activeSystem);
+    };
+
+    handleSystemDeployment = () => {
+        const { deploy } = this.props;
+
+        deploy();
     };
 
     render() {
-        const {active} = this.state;
-        const {formOpen, isSystemActive} = this.props;
+      const { active } = this.state;
+      const { formOpen, isSystemActive, modelling } = this.props;
 
-        return (
-            <CreationButton active={active}
-                            formActive={formOpen}
-                            handleConnectionCreation={this.handleConnectionCreation}
-                            handleMachineCreation={this.handleMachineCreation}
-                            handleServiceCreation={this.handleServiceCreation}
-                            handleSystemConfiguration={this.handleSystemConfiguration}
-                            handleSystemCreation={this.handleSystemCreation}
-                            handleSystemDataCollection={this.handleSystemDataCollection}
-                            isSystemActive={isSystemActive}
-                            toggleCreation={this.toggleCreationPanel}
-            />
-        );
+      return (
+        <CreationButton
+          active={active}
+          formActive={formOpen}
+          handleConnectionCreation={this.handleConnectionCreation}
+          handleMachineCreation={this.handleMachineCreation}
+          handleServiceCreation={this.handleServiceCreation}
+          handleSystemConfiguration={this.handleSystemConfiguration}
+          handleSystemCreation={this.handleSystemCreation}
+          handleSystemDataCollection={this.handleSystemDataCollection}
+          handleSystemDeployment={this.handleSystemDeployment}
+          isSystemActive={isSystemActive}
+          modelling={modelling}
+          toggleCreation={this.toggleCreationPanel}
+        />
+      );
     }
 }
 
-function mapStateToProps({ jmmsr: { activeSystemId, form: { formOpen }, systems } }) {
-    const activeSystem = systems[activeSystemId];
+function mapStateToProps({
+ graph: {
+   deployment: {
+     dataGathered,
+     deployed,
+     deploying,
+     gatheringData,
+   },
+ },
+ jmmsr: { activeSystemId, form: { formOpen }, systems }
+}) {
+  const activeSystem = systems[activeSystemId];
+  const isSystemActive = activeSystemId.length > 0;
+  const modelling = isSystemActive && !(dataGathered || deployed || deploying || gatheringData);
 
-    return {
-        activeSystem,
-        formOpen,
-        isSystemActive: activeSystemId.length > 0,
-    };
+  return {
+    activeSystem,
+    formOpen,
+    isSystemActive,
+    modelling,
+  };
 }
 
 function mapDispatchToProps(dispatch) {
     return {
-        openCreationForm: (formType) => dispatch(openForm(formType)),
+        deploy: () => dispatch(startDeploying()),
+        gatherData: activeSystem => dispatch(startGatheringData(activeSystem)),
+        openCreationForm: formType => dispatch(openForm(formType)),
     };
 }
 
 CreationButtonWrapper.propTypes = {
-    activeSystem: PropTypes.shape({}),
-    formOpen: PropTypes.bool.isRequired,
-    isSystemActive: PropTypes.bool.isRequired,
-    openCreationForm: PropTypes.func.isRequired,
+  activeSystem: PropTypes.shape({}),
+  deploy: PropTypes.func.isRequired,
+  formOpen: PropTypes.bool.isRequired,
+  gatherData: PropTypes.func.isRequired,
+  isSystemActive: PropTypes.bool.isRequired,
+  modelling: PropTypes.bool.isRequired,
+  openCreationForm: PropTypes.func.isRequired,
 };
 CreationButtonWrapper.defaultProps = {};
 

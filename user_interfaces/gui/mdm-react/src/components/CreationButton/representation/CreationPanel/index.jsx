@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import c from 'classnames';
 
-import { CloseIcon } from '../../../index';
+import { CloseIcon } from '../../..';
+import CancelButton from './CancelButton';
+import ConfigurationButton from './ConfigurationButton';
+import CreationButtons from './CreationButtons';
+import DeploymentButton from './DeploymentButton';
 
 import './creation-panel.css';
 
@@ -14,60 +17,34 @@ const CreationPanel = ({
   handleSystemConfiguration,
   handleSystemCreation,
   handleSystemDataCollection,
+  handleSystemDeployment,
   isSystemActive,
+  modelling,
 }) => (
   <div className="panel">
     <CloseIcon onClose={deactivate} />
     <ul>
-      {isSystemActive && (
-      <li onClick={handleSystemDataCollection}>
-        <i className="material-icons">publish</i>
-        {' '}
-Deploy system
-      </li>
-      )}
-      {isSystemActive
-        ? (
-          <li onClick={handleSystemConfiguration}>
-            <i className="material-icons">build</i>
-            {' '}
-Configure system
-          </li>
-        )
-        : (
-          <li onClick={handleSystemCreation}>
-            <i className="material-icons">device_hub</i>
-            {' '}
-Add system
-          </li>
-        )
-            }
+      <DeploymentButton
+        handleSystemDataCollection={handleSystemDataCollection}
+        handleSystemDeployment={handleSystemDeployment}
+        isSystemActive={isSystemActive}
+      />
+      <ConfigurationButton
+        handleSystemConfiguration={handleSystemConfiguration}
+        handleSystemCreation={handleSystemCreation}
+        isSystemActive={isSystemActive}
+        modelling={modelling}
+      />
     </ul>
+    <CreationButtons
+      handleConnectionCreation={handleConnectionCreation}
+      handleMachineCreation={handleMachineCreation}
+      handleServiceCreation={handleServiceCreation}
+      isSystemActive={isSystemActive}
+      modelling={modelling}
+    />
     <ul>
-      <li
-        onClick={isSystemActive ? handleMachineCreation : null}
-        className={c({ disabled: !isSystemActive })}
-      >
-        <i className="material-icons">dns</i>
-        {' '}
-Add machine
-      </li>
-      <li
-        onClick={isSystemActive ? handleServiceCreation : null}
-        className={c({ disabled: !isSystemActive })}
-      >
-        <i className="material-icons">category</i>
-        {' '}
-Add service
-      </li>
-      <li
-        onClick={isSystemActive ? handleConnectionCreation : null}
-        className={c({ disabled: !isSystemActive })}
-      >
-        <i className="material-icons">swap_horiz</i>
-        {' '}
-Add connection
-      </li>
+      <CancelButton />
     </ul>
   </div>
 );
@@ -80,7 +57,9 @@ CreationPanel.propTypes = {
   handleSystemConfiguration: PropTypes.func.isRequired,
   handleSystemCreation: PropTypes.func.isRequired,
   handleSystemDataCollection: PropTypes.func.isRequired,
+  handleSystemDeployment: PropTypes.func.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
+  modelling: PropTypes.bool.isRequired,
 };
 CreationPanel.defaultProps = {};
 

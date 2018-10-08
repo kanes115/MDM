@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import './App.css';
 
-import { AppRoutes, AppHeader, AppNavigation } from '../components';
+import { AppContent, AppHeader, AppNavigation } from '../components';
 import { initializeWebSocketChannel } from '../actions/websocketActions';
 
 class App extends Component {
@@ -19,7 +19,7 @@ class App extends Component {
       <div className="mdm">
         <AppHeader />
         <AppNavigation />
-        <AppRoutes />
+        <AppContent />
       </div>
     );
   }
