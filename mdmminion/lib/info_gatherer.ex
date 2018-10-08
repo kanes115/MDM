@@ -21,7 +21,7 @@ defmodule MDMMinion.InfoGatherer do
   def handle_call(:get_info, _from, state) do
     gatherer_backend = backend(state)
     data = collect_data(gatherer_backend)
-    {:reply, {:ok, data}, :ignored}
+    {:reply, {:ok, data}, state}
   end
 
   @spec collect_data(gatherer_backend()) :: %{cpu: single_resource(),
