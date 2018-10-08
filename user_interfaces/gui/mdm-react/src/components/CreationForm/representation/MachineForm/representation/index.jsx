@@ -38,10 +38,6 @@ class MachineForm extends Component {
                     optionLabel: 'Linux',
                     optionValue: 'linux',
                   },
-                  {
-                    optionLabel: 'Debian',
-                    optionValue: 'debian',
-                  },
                 ]}
               />
             </FormSection>

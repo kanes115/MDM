@@ -68,10 +68,6 @@ class ServiceForm extends Component {
                     optionLabel: 'Linux',
                     optionValue: 'linux',
                   },
-                  {
-                    optionLabel: 'Debian',
-                    optionValue: 'debian',
-                  },
                 ]}
               />
               <InputField
