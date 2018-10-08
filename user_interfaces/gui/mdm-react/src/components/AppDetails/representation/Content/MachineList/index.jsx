@@ -34,8 +34,11 @@ class MachineList extends Component {
           {machines.map(machine => (
             <MachineListElement
               key={machine.id}
+              canModify={true}
               isExpanded={expanded[machine.id]}
               machine={machine}
+              onDeleteClick={() => console.log('delete', machine.id)}
+              onEditClick={() => console.log('edit', machine.id)}
               toggleMachineExpanded={this.toggleMachineExpanded}
             />
           ))}
