@@ -3,12 +3,12 @@ defmodule IntegrationTests do
   import JmmsrHelpers
   
   test "Command collect_data returns collected data" do
-    {:ok, pid} = WebSocket.start_link("ws://pilot:8080", self())
-    text = basic_jmmsr()
-           |> collect_data
-           |> Poison.encode!
-    WebSocket.send_text(pid, text)
-    resp = WebSocket.receive(pid) |> Poison.decode!
+    WebSocket.start_link("ws://pilot:8080", self())
+    basic_jmmsr()
+    |> collect_data
+    |> Poison.encode!
+    |> WebSocket.send_text()
+    resp = WebSocket.receive() |> Poison.decode!
     200 = resp["code"]
     "collect_data" = resp["command_name"]
     "collected" = resp["msg"]
@@ -16,24 +16,24 @@ defmodule IntegrationTests do
     2 = length(collected_machines)
     collected_machines
     |> Enum.each(fn m -> check_collected_machine(m, basic_jmmsr()["machines"]) end)
-    WebSockex.send_frame(pid, {:close, "going_away"})
+    WebSockex.send_frame(WebSocket, {:close, "going_away"})
   end
 
-  test "Command collect_data can be called multiple times with almost the same result (expect colleected resources)" do
-    {:ok, pid} = WebSocket.start_link("ws://pilot:8080", self())
+  test "Command collect_data can be called multiple times with almost the same result (expect collected resources)" do
+    WebSocket.start_link("ws://pilot:8080", self())
     text = basic_jmmsr()
            |> collect_data
            |> Poison.encode!
-    WebSocket.send_text(pid, text)
-    WebSocket.send_text(pid, text)
-    resp1 = WebSocket.receive(pid) |> Poison.decode! 
-    resp2 = WebSocket.receive(pid) |> Poison.decode!
+    WebSocket.send_text(text)
+    WebSocket.send_text(text)
+    resp1 = WebSocket.receive() |> Poison.decode! 
+    resp2 = WebSocket.receive() |> Poison.decode!
     m1 = resp1["body"]["collected_data"]
                |> Enum.map(fn %{"machine" => m} -> Map.delete(m, "resources") end)
     m2 = resp2["body"]["collected_data"]
                |> Enum.map(fn %{"machine" => m} -> Map.delete(m, "resources") end)
     assert m1 == m2
-    WebSockex.send_frame(pid, {:close, "going_away"})
+    WebSockex.send_frame(WebSocket, {:close, "going_away"})
   end
 
 
@@ -44,7 +44,7 @@ defmodule IntegrationTests do
     %{"command_name" => "collect_data",
       "body" => jmmsr}
   end
-  
+ 
   def basic_jmmsr do
       %{
         "config" => %{

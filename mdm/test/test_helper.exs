@@ -25,14 +25,14 @@ defmodule WebSocket do
   use WebSockex
 
   def start_link(url, report_to) do
-    WebSockex.start_link(url, __MODULE__, report_to)
+    WebSockex.start_link(url, __MODULE__, report_to, name: __MODULE__)
   end
 
-  def send_text(pid, text) do
-    WebSockex.send_frame(pid, {:text, text})
+  def send_text(text) do
+    WebSockex.send_frame(__MODULE__, {:text, text})
   end
 
-  def receive(pid) do
+  def receive do
     receive do
       msg -> msg
     end
