@@ -2,7 +2,6 @@ defmodule IntegrationTests do
   use ExUnit.Case
   import JmmsrHelpers
 
-  # TODO start socket in init_per_suite
   @example_dir_on_pilot "/examples"
 
     setup do
