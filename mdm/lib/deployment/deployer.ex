@@ -51,6 +51,7 @@ defmodule MDM.Deployer do
   end
   def handle_call(%Request{command_name: :deploy} = req, _, %__MODULE__{state: fsm, jmmsr: jmmsr} = state)
   when fsm == :collected_data do
+    Logger.info("Deploying the system...")
     with {:ok, decision} <- MDM.DeployDecider.decide(jmmsr),
          :ok <- MDM.ServiceUploader.upload_services(decision),
          :ok <- MDM.ServiceUploader.prepare_routes(decision),

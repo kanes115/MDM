@@ -1,0 +1,49 @@
+{"command_name": "collect_data", "body": {
+    "services": [
+        {"name": "some_server",
+         "service_dir": "/examples/pinger_system/some_server/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 25,
+            "hdd": 200,
+            "available_machines": [38]
+         }
+        },
+        {"name": "some_server2",
+         "service_dir": "/examples/pinger_system/some_server2/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 8324,
+            "hdd": 201,
+            "available_machines": [39]
+         }
+        }
+    ],
+"machines": [
+           {"id": 38,
+            "name": "ala",
+            "ip": "192.168.208.4",
+            "ssh_host": "LocalVM",
+            "os": "linux"
+           },
+            {"id": 39,
+            "name": "agi komp",
+            "domain": "minion2.com",
+            "ssh_host": "unknown",
+            "os": "linux"
+           }
+          ],
+"connections": [
+             ],
+"config": {"metrics": ["cpuUsage"],
+          "persist": true,
+          "persist_machine": 34,
+          "pilot_machine": 34
+        },
+"live_metrics": []
+}
+}

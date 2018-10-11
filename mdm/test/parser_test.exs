@@ -456,17 +456,4 @@ defmodule ParserTest do
       |> put_in(list_path, list)
     end
 
-    defp add_to_list(jmmsr, list_path, element) do
-      list = jmmsr
-             |> pop_in(list_path)
-             |> elem(0)
-      new_list = [element | list]
-
-      jmmsr
-      |> put_in(list_path, new_list)
-    end
-
-
-
-
 end

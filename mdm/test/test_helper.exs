@@ -1,5 +1,54 @@
 ExUnit.start()
 
+defmodule MDMRpc do
+  @type entity :: :pilot | :minion1 | :minion2
+
+  def call(entity, module, func, args) do
+    node_name = entity_to_node(entity)
+    :rpc.call(node_name, module, func, args)
+  end
+
+  def get_minion1_ip do
+    {:ok, {:hostent, 'minion1', [], :inet, 4, [ip_tuple]}} =
+      :inet_res.getbyname("minion1" |> to_charlist, :a)
+    to_string(:inet_parse.ntoa(ip_tuple))
+  end
+
+  defp entity_to_node(:pilot), do: :"pilot@pilot.com"
+  defp entity_to_node(:minion1), do: :"minion@#{get_minion1_ip()}"
+  defp entity_to_node(:minion2), do: :"minion@minion2.com"
+
+end
+
+defmodule WebSocket do
+  use WebSockex
+
+  def start_link(url, report_to) do
+    WebSockex.start_link(url, __MODULE__, report_to, name: __MODULE__)
+  end
+
+  def send_text(text) do
+    WebSockex.send_frame(__MODULE__, {:text, text})
+  end
+
+  def receive do
+    receive do
+      msg -> msg
+    end
+  end
+
+  def handle_frame({type, msg}, report_to) do
+    send report_to, msg
+    {:ok, report_to}
+  end
+
+  def handle_cast({:send, {type, msg} = frame}, state) do
+    {:reply, frame, state}
+  end
+end
+
+
+
 defmodule JmmsrHelpers do
 
   def live_metric({:machine, machine_id}, metric_name, {val, unit}) do
@@ -59,6 +108,16 @@ defmodule JmmsrHelpers do
       "service_dir" => service_dir,
       "service_executable" => "./start.sh"
     }
+  end
+
+  def add_to_list(jmmsr, list_path, element) do
+    list = jmmsr
+           |> pop_in(list_path)
+           |> elem(0)
+    new_list = [element | list]
+
+    jmmsr
+    |> put_in(list_path, new_list)
   end
 
 end
