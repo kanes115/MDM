@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
+import { openForm } from '../../actions';
+
 import AppDetails from './representation';
 
 class AppDetailsContainer extends Component {
@@ -12,6 +14,7 @@ class AppDetailsContainer extends Component {
       deploymentError,
       errorOccurred,
       isModelEmpty,
+      onEditClick,
     } = this.props;
 
     return (
@@ -20,6 +23,7 @@ class AppDetailsContainer extends Component {
         deploymentError={deploymentError}
         errorOccurred={errorOccurred}
         isModelEmpty={isModelEmpty}
+        onEditClick={onEditClick}
       />
     );
   }
@@ -35,6 +39,7 @@ AppDetailsContainer.propTypes = {
   deploymentError: PropTypes.shape(),
   errorOccurred: PropTypes.bool,
   isModelEmpty: PropTypes.bool.isRequired,
+  onEditClick: PropTypes.func.isRequired,
 };
 AppDetailsContainer.defaultProps = {
   activeSystem: null,
@@ -60,4 +65,10 @@ function mapStateToProps({
   };
 }
 
-export default connect(mapStateToProps)(AppDetailsContainer);
+function mapDispatchToProps(dispatch) {
+  return {
+    onEditClick: (type, object) => dispatch(openForm(type, object)),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppDetailsContainer);

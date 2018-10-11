@@ -22,7 +22,7 @@ class MachineForm extends Component {
       >
         {({ formState }) => (
           <div className="machine-form">
-            <FormHeader title="New machine" />
+            <FormHeader title="Machine" />
             <FormSection title="Basic information">
               <InputField
                 id="machine-name"
@@ -37,10 +37,6 @@ class MachineForm extends Component {
                   {
                     optionLabel: 'Linux',
                     optionValue: 'linux',
-                  },
-                  {
-                    optionLabel: 'Debian',
-                    optionValue: 'debian',
                   },
                 ]}
               />
@@ -72,7 +68,7 @@ class MachineForm extends Component {
                 onSubmit();
               }}
             >
-                            Create machine
+              {'Submit'}
             </button>
           </div>
         )

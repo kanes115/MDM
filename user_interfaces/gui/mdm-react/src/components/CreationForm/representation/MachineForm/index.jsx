@@ -2,44 +2,73 @@ import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
 
-import {createNewMachine} from '../../../../actions';
+import {
+  createNewMachine,
+  updateMachine,
+} from '../../../../actions';
 
 import MachineForm from './representation/index';
 
 class MachineFormWrapper extends Component {
-    constructor(props) {
-        super(props);
+  constructor(props) {
+    super(props);
 
-        this.machineCreationFormAPI = null;
+    this.machineCreationFormAPI = null;
+  }
+
+  setFormAPI = (formAPI) => {
+    const { formObject } = this.props;
+    this.machineCreationFormAPI = formAPI;
+    console.log(formObject)
+
+    if (formObject) {
+      this.machineCreationFormAPI.setValues(formObject);
     }
+  };
 
-    setFormAPI = (formAPI) => {
-        this.machineCreationFormAPI = formAPI;
-    };
+  onSubmit = () => {
+    const { createMachine, formObject, updateMachine } = this.props;
+    const {values: machine} = this.machineCreationFormAPI.getState();
 
-    onSubmit = () => {
-        const {values: machine} = this.machineCreationFormAPI.getState();
-
-        this.props.createMachine(machine);
-    };
-
-    render() {
-        return (
-            <MachineForm onSubmit={this.onSubmit}
-                         setFormAPI={this.setFormAPI}/>
-        );
+    if (formObject) {
+      updateMachine(machine);
+    } else {
+      createMachine(machine);
     }
+  };
+
+  render() {
+    return (
+      <MachineForm
+        onSubmit={this.onSubmit}
+        setFormAPI={this.setFormAPI}
+      />
+    );
+  }
+}
+
+function mapStateToProps({
+  jmmsr: {form: {formObject}},
+}) {
+  return {
+    formObject,
+  };
 }
 
 function mapDispatchToProps(dispatch) {
-    return {
-        createMachine: (machine) => dispatch(createNewMachine(machine)),
-    };
+  return {
+    createMachine: (machine) => dispatch(createNewMachine(machine)),
+    updateMachine: (machine) => dispatch(updateMachine(machine)),
+  };
 }
 
 MachineFormWrapper.propTypes = {
-    createMachine: PropTypes.func.isRequired,
+  createMachine: PropTypes.func.isRequired,
+  formObject: PropTypes.shape({}),
+  updateMachine: PropTypes.func.isRequired,
 };
-MachineFormWrapper.defaultProps = {};
+MachineFormWrapper.defaultProps = {
+  formObject: null
+};
 
-export default connect(null, mapDispatchToProps)(MachineFormWrapper);
+export default connect(mapStateToProps, mapDispatchToProps)(MachineFormWrapper);

@@ -7,6 +7,7 @@ import { system } from '../utils/jmmsr/schema';
 const initialState = {
   activeSystemId: '',
   form: {
+    formObject: null,
     formOpen: false,
     formType: '',
   },
@@ -20,6 +21,7 @@ const jmmsr = (state = initialState, action) => {
         ...state,
         form: {
           ...state.form,
+          formObject: action.payload.object,
           formOpen: true,
           formType: action.payload.formType,
         },
@@ -29,6 +31,7 @@ const jmmsr = (state = initialState, action) => {
         ...state,
         form: {
           ...state.form,
+          formObject: null,
           formOpen: false,
           formType: '',
         },
@@ -45,6 +48,7 @@ const jmmsr = (state = initialState, action) => {
         activeSystemId: action.payload.systemId,
         form: {
           ...state.form,
+          formObject: null,
           formOpen: false,
           formType: '',
         },
@@ -56,6 +60,7 @@ const jmmsr = (state = initialState, action) => {
         ...state,
         form: {
           ...state.form,
+          formObject: null,
           formOpen: false,
           formType: '',
         },
@@ -75,6 +80,7 @@ const jmmsr = (state = initialState, action) => {
         ...state,
         form: {
           ...state.form,
+          formObject: null,
           formOpen: false,
           formType: '',
         },
@@ -97,6 +103,7 @@ const jmmsr = (state = initialState, action) => {
         ...state,
         form: {
           ...state.form,
+          formObject: null,
           formOpen: false,
           formType: '',
         },
@@ -117,6 +124,7 @@ const jmmsr = (state = initialState, action) => {
         ...state,
         form: {
           ...state.form,
+          formObject: null,
           formOpen: false,
           formType: '',
         },
@@ -131,6 +139,30 @@ const jmmsr = (state = initialState, action) => {
           },
         },
       };
+    case actionTypes.UPDATE_MACHINE: {
+      const machines = [...state.systems[state.activeSystemId].machines];
+      const updatedMachineId = _.get(action, 'payload.machine.id');
+      const index = _.findIndex(machines, machine => machine.id === updatedMachineId);
+
+      machines[index] = _.get(action, 'payload.machine');
+
+      return {
+        ...state,
+        form: {
+          ...state.form,
+          formObject: null,
+          formOpen: false,
+          formType: '',
+        },
+        systems: {
+          ...state.systems,
+          [state.activeSystemId]: {
+            ...state.systems[state.activeSystemId],
+            machines,
+          },
+        },
+      };
+    }
 
     case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
       const { activeSystemId } = state;

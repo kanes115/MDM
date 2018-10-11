@@ -15,6 +15,7 @@ class AppDetails extends Component {
       deploymentError,
       errorOccurred,
       // isModelEmpty,
+      onEditClick,
     } = this.props;
 
     return (
@@ -26,6 +27,7 @@ class AppDetails extends Component {
         />
         <DetailsContent
           activeSystem={activeSystem}
+          onEditClick={onEditClick}
         />
       </div>
     );
@@ -41,7 +43,8 @@ AppDetails.propTypes = {
   }),
   deploymentError: PropTypes.shape(),
   errorOccurred: PropTypes.bool,
-  isModelEmpty: PropTypes.bool.isRequired,
+  // isModelEmpty: PropTypes.bool.isRequired,
+  onEditClick: PropTypes.func.isRequired,
 };
 AppDetails.defaultProps = {
   activeSystem: null,
