@@ -143,8 +143,11 @@ class ModelGraph extends Component {
     };
 
     render () {
-        const { definitions, trafficData, view } = this.props;
-        console.log('!!!!!!!!', view.currentView)
+        const {
+          // definitions,
+          trafficData,
+          view,
+        } = this.props;
 
         return (
             <div className="vizceral-container">
@@ -157,7 +160,7 @@ class ModelGraph extends Component {
                         left: '240px',
                     }}>
                         <Vizceral traffic={trafficData}
-                                  definitions={definitions}
+                                  // definitions={definitions}
                                   view={view.currentView}
                                   showLabels={this.state.displayOptions.showLabels}
                                   filters={this.state.filters}
