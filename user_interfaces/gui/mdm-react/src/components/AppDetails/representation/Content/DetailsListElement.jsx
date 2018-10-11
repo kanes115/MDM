@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
+import './details-list-element.css';
+
 const DetailsListElement = ({
   canModify,
   children,
@@ -11,31 +13,38 @@ const DetailsListElement = ({
   toggleExpanded,
 }) => (
   <li>
-    <div>
-      {title}
-      <button
-        type="button"
-        onClick={toggleExpanded}
-      >
-        {isExpanded
-          ? (<i className="material-icons">expand_less</i>)
-          : (<i className="material-icons">expand_more</i>)
-        }
-      </button>
-      <button
-        type="button"
-        onClick={onEditClick}
-        disabled={!canModify}
-      >
-        <i className="material-icons">edit</i>
-      </button>
-      <button
-        type="button"
-        onClick={onDeleteClick}
-        disabled={!canModify}
-      >
-        <i className="material-icons">delete</i>
-      </button>
+    <div className="mdm-details-element">
+      <div className="title">
+        {title}
+      </div>
+      <div className="options">
+        <button
+          className="mdm-details-element-option"
+          type="button"
+          onClick={toggleExpanded}
+        >
+          {isExpanded
+            ? (<i className="material-icons">expand_less</i>)
+            : (<i className="material-icons">expand_more</i>)
+          }
+        </button>
+        <button
+          className="mdm-details-element-option"
+          type="button"
+          onClick={onEditClick}
+          disabled={!canModify}
+        >
+          <i className="material-icons">edit</i>
+        </button>
+        <button
+          className="mdm-details-element-option"
+          type="button"
+          onClick={onDeleteClick}
+          disabled={!canModify}
+        >
+          <i className="material-icons">delete</i>
+        </button>
+      </div>
     </div>
     {isExpanded && children}
   </li>

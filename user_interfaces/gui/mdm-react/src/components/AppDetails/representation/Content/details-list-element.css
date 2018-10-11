@@ -1,0 +1,13 @@
+.mdm-details-element {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mdm-details-element .options .mdm-details-element-option {
+    border: none;
+    background-color: transparent;
+    color: white;
+    padding: 4px;
+}
