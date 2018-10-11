@@ -154,7 +154,16 @@ const trafficData = (state = initialState, action) => {
     }
 
     case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
-      const { nodes } = state;
+      const { connections, nodes } = state;
+
+      // const newConnections = connections.map(connection => ({
+      //   ...connection,
+      //   metrics: {
+      //     normal: 10.0,
+      //     danger: 0.0,
+      //     warning: 0.0,
+      //   },
+      // }));
 
       const newNodes = nodes.map((node, index) => {
         if (index === 0 || index === 1) {
@@ -163,6 +172,51 @@ const trafficData = (state = initialState, action) => {
         return {
           ...node,
           class: 'warning',
+        };
+      });
+
+      return {
+        ...state,
+        nodes: newNodes,
+        // connections: newConnections,
+        updated: Date.now(),
+      };
+    }
+    case deploymentActionTypes.BACK_TO_MODELLING: {
+      const { connections, nodes } = state;
+
+      // const newConnections = connections.map(connection => ({
+      //   ...connection,
+      //   metrics: {},
+      // }));
+
+      const newNodes = nodes.map((node, index) => {
+        if (index === 0 || index === 1) {
+          return node;
+        }
+        return {
+          ...node,
+          class: 'danger',
+        };
+      });
+
+      return {
+        ...state,
+        nodes: newNodes,
+        // connections: newConnections,
+        updated: Date.now(),
+      };
+    }
+    case deploymentActionTypes.SYSTEM_DEPLOYMENT_SUCCESS: {
+      const { nodes } = state;
+
+      const newNodes = nodes.map((node, index) => {
+        if (index === 0 || index === 1) {
+          return node;
+        }
+        return {
+          ...node,
+          class: 'normal',
         };
       });
 
