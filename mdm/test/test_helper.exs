@@ -5,7 +5,6 @@ defmodule MDMRpc do
 
   def call(entity, module, func, args) do
     node_name = entity_to_node(entity)
-                |> IO.inspect
     :rpc.call(node_name, module, func, args)
   end
 
