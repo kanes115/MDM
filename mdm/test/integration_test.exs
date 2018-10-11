@@ -116,8 +116,8 @@ defmodule IntegrationTests do
           machine("minion2_pc", 39, "linux", [{"domain", "minion2.com"}])
         ],
         "services" => [
-          service("some_server", [38], "./big_tests/examples/some_server/"),
-          service("some_other_server", [39], "./big_tests/examples/some_server/")
+          service("some_server", [38], "./some/fake/dir"),
+          service("some_other_server", [39], "./some/fake/dir/")
         ],
         "live_metrics" => [
           live_metric({:service, "some_server"}, "cpu", {456, "ms"})
