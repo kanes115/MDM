@@ -10,3 +10,15 @@
 .mdm-creation-form .mdm-form-input-field label {
     font-size: 1rem;
 }
+
+.mdm-creation-form .mdm-form-input-field.error-occurred {
+    color: crimson;
+}
+
+.mdm-creation-form .mdm-form-input-field .error {
+    display: none;
+}
+
+.mdm-creation-form .mdm-form-input-field.error-occurred .error {
+    display: block;
+}

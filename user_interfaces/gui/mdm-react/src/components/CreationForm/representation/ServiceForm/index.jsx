@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
 import {connect} from 'react-redux';
+import _ from 'lodash';
 
 import {
   createNewService,
@@ -28,22 +29,27 @@ class ServiceFormWrapper extends Component {
 
   onSubmit = () => {
     const { createService, formObject, updateService } = this.props;
-    const { values: service } = this.serviceCreationFormAPI.getState();
+    const { values: service, errors } = this.serviceCreationFormAPI.getState();
 
-    if (formObject) {
-      updateService(service);
-    } else {
-      createService(service);
+    if (_.isEmpty(errors)) {
+      if (formObject) {
+        updateService(service);
+      } else {
+        createService(service);
+      }
     }
   };
 
   render() {
-    const {availableMachineNames} = this.props;
+    const { availableMachineNames, serviceNames } = this.props;
 
     return (
-      <ServiceForm availableMachineNames={availableMachineNames}
-                   onSubmit={this.onSubmit}
-                   setFormAPI={this.setFormAPI}/>
+      <ServiceForm
+        availableMachineNames={availableMachineNames}
+        onSubmit={this.onSubmit}
+        serviceNames={serviceNames}
+        setFormAPI={this.setFormAPI}
+      />
     );
   }
 }
@@ -57,10 +63,12 @@ function mapStateToProps({
 }) {
   const activeSystem = systems[activeSystemId];
   const availableMachineNames = activeSystem.machines.map(machine => machine.name);
+  const serviceNames = activeSystem.services.map(service => service.name);
 
   return {
     availableMachineNames,
     formObject,
+    serviceNames,
   };
 }
 
@@ -75,8 +83,11 @@ ServiceFormWrapper.propTypes = {
   availableMachineNames: PropTypes.arrayOf(PropTypes.string),
   createService: PropTypes.func.isRequired,
   formObject: PropTypes.shape({}),
+  serviceNames: PropTypes.arrayOf(PropTypes.string),
   updateService: PropTypes.func.isRequired,
 };
-ServiceFormWrapper.defaultProps = {};
+ServiceFormWrapper.defaultProps = {
+  serviceNames: [],
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(ServiceFormWrapper);
