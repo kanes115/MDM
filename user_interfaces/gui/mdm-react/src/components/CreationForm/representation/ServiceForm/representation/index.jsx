@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { Form } from 'informed';
+import _ from 'lodash';
+
+import validateServiceName from './validation';
 
 import {
   CheckboxField,
@@ -8,13 +11,19 @@ import {
   FormSection,
   InputField,
   SelectionField,
-} from '../../../../FormElements/index';
+} from '../../../../FormElements';
 
 import './service-form.css';
 
 class ServiceForm extends Component {
   render() {
-    const { availableMachineNames, onSubmit, setFormAPI } = this.props;
+    const {
+      availableMachineNames,
+      onSubmit,
+      originalName,
+      serviceNames,
+      setFormAPI,
+    } = this.props;
 
     return (
       <Form
@@ -23,12 +32,16 @@ class ServiceForm extends Component {
       >
         {({ formState }) => (
           <div className="service-form">
-            <FormHeader title="New service" />
+            <FormHeader title="Service" />
             <FormSection title="Basic information">
               <InputField
                 id="service-name"
+                error={_.get(formState, 'errors.name')}
                 field="name"
                 label="Service name"
+                validate={validateServiceName(serviceNames, originalName)}
+                validateOnBlur
+                validateOnChange
               />
               <InputField
                 id="service-dir"
@@ -92,11 +105,10 @@ class ServiceForm extends Component {
                 onSubmit();
               }}
             >
-                            Create service
+              {'Submit'}
             </button>
           </div>
-        )
-                }
+        )}
       </Form>
     );
   }
@@ -105,8 +117,14 @@ class ServiceForm extends Component {
 ServiceForm.propTypes = {
   availableMachineNames: PropTypes.arrayOf(PropTypes.string),
   onSubmit: PropTypes.func.isRequired,
+  originalName: PropTypes.string,
+  serviceNames: PropTypes.arrayOf(PropTypes.string),
   setFormAPI: PropTypes.func.isRequired,
 };
-ServiceForm.defaultProps = {};
+ServiceForm.defaultProps = {
+  availableMachineNames: [],
+  originalName: null,
+  serviceNames: [],
+};
 
 export default ServiceForm;

@@ -55,7 +55,10 @@ SelectionField.propTypes = {
   options: PropTypes.arrayOf(
     PropTypes.shape({
       optionLabel: PropTypes.string,
-      optionValue: PropTypes.string,
+      optionValue: PropTypes.oneOfType([
+        PropTypes.string,
+        PropTypes.number,
+      ]),
     }),
   ).isRequired,
 };

@@ -163,6 +163,30 @@ const jmmsr = (state = initialState, action) => {
         },
       };
     }
+    case actionTypes.UPDATE_SERVICE: {
+      const services = [...state.systems[state.activeSystemId].services];
+      const updatedServiceName = _.get(action, 'payload.service.name');
+      const index = _.findIndex(services, service => service.name === updatedServiceName);
+
+      services[index] = _.get(action, 'payload.service');
+
+      return {
+        ...state,
+        form: {
+          ...state.form,
+          formObject: null,
+          formOpen: false,
+          formType: '',
+        },
+        systems: {
+          ...state.systems,
+          [state.activeSystemId]: {
+            ...state.systems[state.activeSystemId],
+            services,
+          },
+        },
+      };
+    }
 
     case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
       const { activeSystemId } = state;

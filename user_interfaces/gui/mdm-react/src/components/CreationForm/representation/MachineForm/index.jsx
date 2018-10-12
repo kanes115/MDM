@@ -19,7 +19,6 @@ class MachineFormWrapper extends Component {
   setFormAPI = (formAPI) => {
     const { formObject } = this.props;
     this.machineCreationFormAPI = formAPI;
-    console.log(formObject)
 
     if (formObject) {
       this.machineCreationFormAPI.setValues(formObject);
