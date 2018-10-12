@@ -137,9 +137,9 @@ const trafficData = (state = initialState, action) => {
         metrics: {},
         notices: [],
         class: 'normal',
-        // data: {
-        //   port: _.get(newConnection, 'port'),
-        // },
+        metadata: {
+          port: _.get(newConnection, 'port'),
+        },
       });
 
       servicesNode.connections = connections;
@@ -154,16 +154,7 @@ const trafficData = (state = initialState, action) => {
     }
 
     case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
-      const { connections, nodes } = state;
-
-      // const newConnections = connections.map(connection => ({
-      //   ...connection,
-      //   metrics: {
-      //     normal: 10.0,
-      //     danger: 0.0,
-      //     warning: 0.0,
-      //   },
-      // }));
+      const { nodes } = state;
 
       const newNodes = nodes.map((node, index) => {
         if (index === 0 || index === 1) {
@@ -178,17 +169,11 @@ const trafficData = (state = initialState, action) => {
       return {
         ...state,
         nodes: newNodes,
-        // connections: newConnections,
         updated: Date.now(),
       };
     }
     case deploymentActionTypes.BACK_TO_MODELLING: {
-      const { connections, nodes } = state;
-
-      // const newConnections = connections.map(connection => ({
-      //   ...connection,
-      //   metrics: {},
-      // }));
+      const { nodes } = state;
 
       const newNodes = nodes.map((node, index) => {
         if (index === 0 || index === 1) {
@@ -203,7 +188,6 @@ const trafficData = (state = initialState, action) => {
       return {
         ...state,
         nodes: newNodes,
-        // connections: newConnections,
         updated: Date.now(),
       };
     }
