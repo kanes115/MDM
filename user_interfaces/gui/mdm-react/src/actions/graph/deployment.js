@@ -76,10 +76,10 @@ export function systemDeploymentError(error) {
   };
 }
 
-export const BACK_TO_DEPLOYMENT = 'BACK_TO_DEPLOYMENT';
+export const BACK_TO_MODELLING = 'BACK_TO_MODELLING';
 
 export function backToDeployment() {
   return {
-    type: BACK_TO_DEPLOYMENT,
+    type: BACK_TO_MODELLING,
   };
 }

@@ -45,7 +45,6 @@ class ModelGraph extends Component {
 
     viewChanged = (data) => {
       const {setView} = this.props;
-      console.log('viewChanged', data)
 
       const changedState = {
         currentView: data.view,
@@ -70,72 +69,15 @@ class ModelGraph extends Component {
     };
 
     viewUpdated = () => {
-      console.log('VIEW UPDATED')
       this.setState({});
     };
 
     objectHighlighted = (highlightedObject) => {
       console.log('objectHighlighted', highlightedObject)
-        // need to set objectToHighlight for diffing on the react component. since it was already highlighted here, it will be a noop
-        // this.setState({
-        //     highlightedObject: highlightedObject, objectToHighlight: highlightedObject ? highlightedObject.getName() : undefined, searchTerm: '', matches: { total: -1, visible: -1 }, redirectedFrom: undefined
-        // });
     };
 
     nodeContextSizeChanged = (dimensions) => {
         this.setState({ labelDimensions: dimensions });
-    };
-
-    // shouldComponentUpdate (nextProps, nextState) {
-    //     if (!this.state.currentView
-    //         || this.state.currentView[0] !== nextState.currentView[0]
-    //         || this.state.currentView[1] !== nextState.currentView[1]
-    //         || this.state.highlightedObject !== nextState.highlightedObject
-    //     ) {
-    //         const titleArray = (nextState.currentView || []).slice(0);
-    //         titleArray.unshift('Vizceral');
-    //         document.title = titleArray.join(' / ');
-    //
-    //         if (this.poppedState) {
-    //             this.poppedState = false;
-    //         } else if (nextState.currentView) {
-    //             const highlightedObjectName = nextState.highlightedObject && nextState.highlightedObject.getName();
-    //             const state = {
-    //                 title: document.title,
-    //                 url: nextState.currentView.join('/') + (highlightedObjectName ? `?highlighted=${highlightedObjectName}` : ''),
-    //                 selected: nextState.currentView,
-    //                 highlighted: highlightedObjectName
-    //             };
-    //             window.history.pushState(state, state.title, state.url);
-    //         }
-    //     }
-    //     return true;
-    // }
-
-    updateData (newTraffic) {
-      console.log('UPDATE_DATA', newTraffic)
-      // const regionUpdateStatus = _.map(
-      //   _.filter(newTraffic.nodes, n => n.name !== 'INTERNET'),
-      //   node => ({ region: node.name, updated: node.updated} ),
-      // );
-      // const lastUpdatedTime = _.max(_.map(regionUpdateStatus, 'updated'));
-      //
-      // this.setState({
-      //     regionUpdateStatus: regionUpdateStatus,
-      //     timeOffset: newTraffic.clientUpdateTime - newTraffic.serverUpdateTime,
-      //     lastUpdatedTime: lastUpdatedTime,
-      //     trafficData: newTraffic
-      // });
-    }
-
-    zoomCallback = () => {
-        // const currentView = _.clone(this.state.currentView);
-        // if (currentView.length === 1 && this.state.focusedNode) {
-        //     currentView.push(this.state.focusedNode.name);
-        // } else if (currentView.length === 2) {
-        //     currentView.pop();
-        // }
-        // this.setState({ currentView: currentView });
     };
 
     matchesFound = (matches) => {
@@ -143,8 +85,10 @@ class ModelGraph extends Component {
     };
 
     render () {
-        const { definitions, trafficData, view } = this.props;
-        console.log('!!!!!!!!', view.currentView)
+        const {
+          trafficData,
+          view,
+        } = this.props;
 
         return (
             <div className="vizceral-container">
@@ -157,7 +101,6 @@ class ModelGraph extends Component {
                         left: '240px',
                     }}>
                         <Vizceral traffic={trafficData}
-                                  definitions={definitions}
                                   view={view.currentView}
                                   showLabels={this.state.displayOptions.showLabels}
                                   filters={this.state.filters}
@@ -170,7 +113,6 @@ class ModelGraph extends Component {
                                   match={this.state.searchTerm}
                                   modes={this.state.modes}
                                   allowDraggingOfNodes={this.state.displayOptions.allowDraggingOfNodes}
-                                  updateData={this.updateData}
                         />
                     </div>
                 </div>

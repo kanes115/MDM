@@ -59,7 +59,7 @@ const deployment = (state = initialState, action) => {
         error,
       };
     }
-    case deploymentActionTypes.BACK_TO_DEPLOYMENT: {
+    case deploymentActionTypes.BACK_TO_MODELLING: {
       return {
         ...state,
         dataGathered: false,
