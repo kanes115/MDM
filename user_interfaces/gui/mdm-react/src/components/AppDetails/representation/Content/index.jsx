@@ -8,7 +8,6 @@ class AppDetailsContent extends Component {
   render() {
     const { activeSystem, onEditClick } = this.props;
 
-    console.log(activeSystem)
     return (
       <div>
         <MachineList
@@ -26,9 +25,11 @@ AppDetailsContent.propTypes = {
     connections: PropTypes.array,
     machines: PropTypes.array,
     services: PropTypes.array,
-  }).isRequired,
+  }),
   onEditClick: PropTypes.func.isRequired,
 };
-AppDetailsContent.defaultProps = {};
+AppDetailsContent.defaultProps = {
+  activeSystem: null,
+};
 
 export default AppDetailsContent;
