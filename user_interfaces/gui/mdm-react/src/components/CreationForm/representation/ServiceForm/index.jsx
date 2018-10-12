@@ -41,12 +41,13 @@ class ServiceFormWrapper extends Component {
   };
 
   render() {
-    const { availableMachineNames, serviceNames } = this.props;
+    const { availableMachineNames, originalName, serviceNames } = this.props;
 
     return (
       <ServiceForm
         availableMachineNames={availableMachineNames}
         onSubmit={this.onSubmit}
+        originalName={originalName}
         serviceNames={serviceNames}
         setFormAPI={this.setFormAPI}
       />
@@ -64,10 +65,12 @@ function mapStateToProps({
   const activeSystem = systems[activeSystemId];
   const availableMachineNames = activeSystem.machines.map(machine => machine.name);
   const serviceNames = activeSystem.services.map(service => service.name);
+  const originalName = _.get(formObject, 'name', null);
 
   return {
     availableMachineNames,
     formObject,
+    originalName,
     serviceNames,
   };
 }
@@ -83,10 +86,12 @@ ServiceFormWrapper.propTypes = {
   availableMachineNames: PropTypes.arrayOf(PropTypes.string),
   createService: PropTypes.func.isRequired,
   formObject: PropTypes.shape({}),
+  originalName: PropTypes.string,
   serviceNames: PropTypes.arrayOf(PropTypes.string),
   updateService: PropTypes.func.isRequired,
 };
 ServiceFormWrapper.defaultProps = {
+  originalName: null,
   serviceNames: [],
 };
 

@@ -17,7 +17,13 @@ import './service-form.css';
 
 class ServiceForm extends Component {
   render() {
-    const { availableMachineNames, onSubmit, serviceNames, setFormAPI } = this.props;
+    const {
+      availableMachineNames,
+      onSubmit,
+      originalName,
+      serviceNames,
+      setFormAPI,
+    } = this.props;
 
     return (
       <Form
@@ -33,7 +39,7 @@ class ServiceForm extends Component {
                 error={_.get(formState, 'errors.name')}
                 field="name"
                 label="Service name"
-                validate={validateServiceName(serviceNames)}
+                validate={validateServiceName(serviceNames, originalName)}
                 validateOnBlur
                 validateOnChange
               />
@@ -111,11 +117,13 @@ class ServiceForm extends Component {
 ServiceForm.propTypes = {
   availableMachineNames: PropTypes.arrayOf(PropTypes.string),
   onSubmit: PropTypes.func.isRequired,
+  originalName: PropTypes.string,
   serviceNames: PropTypes.arrayOf(PropTypes.string),
   setFormAPI: PropTypes.func.isRequired,
 };
 ServiceForm.defaultProps = {
   availableMachineNames: [],
+  originalName: null,
   serviceNames: [],
 };
 
