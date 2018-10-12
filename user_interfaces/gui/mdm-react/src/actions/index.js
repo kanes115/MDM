@@ -83,3 +83,14 @@ export function updateMachine(machine) {
     },
   };
 }
+
+export const UPDATE_SERVICE = 'UPDATE_SERVICE';
+
+export function updateService(service) {
+  return {
+    type: UPDATE_SERVICE,
+    payload: {
+      service,
+    },
+  };
+}
