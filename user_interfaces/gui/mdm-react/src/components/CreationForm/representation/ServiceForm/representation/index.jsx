@@ -23,7 +23,7 @@ class ServiceForm extends Component {
       >
         {({ formState }) => (
           <div className="service-form">
-            <FormHeader title="New service" />
+            <FormHeader title="Service" />
             <FormSection title="Basic information">
               <InputField
                 id="service-name"
@@ -92,11 +92,10 @@ class ServiceForm extends Component {
                 onSubmit();
               }}
             >
-                            Create service
+              {'Submit'}
             </button>
           </div>
-        )
-                }
+        )}
       </Form>
     );
   }
@@ -107,6 +106,8 @@ ServiceForm.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   setFormAPI: PropTypes.func.isRequired,
 };
-ServiceForm.defaultProps = {};
+ServiceForm.defaultProps = {
+  availableMachineNames: [],
+};
 
 export default ServiceForm;
