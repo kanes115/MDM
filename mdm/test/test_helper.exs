@@ -8,8 +8,8 @@ defmodule MDMRpc do
     :rpc.call(node_name, module, func, args)
   end
 
-  def all_call(module, func, args) do
-    entities()
+  def minion_call(module, func, args) do
+    minions()
     |> Enum.map(fn entity -> call(entity, module, func, args) end)
   end
 
@@ -23,7 +23,8 @@ defmodule MDMRpc do
   defp entity_to_node(:minion1), do: :"minion@#{get_minion1_ip()}"
   defp entity_to_node(:minion2), do: :"minion@minion2.com"
 
-  defp entities, do: [:pilot, :minion1, :minion2]
+  defp entities, do: [:pilot | minions()]
+  defp minions, do: [:minion1, :minion2]
 
 end
 
