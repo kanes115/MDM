@@ -103,26 +103,26 @@ defmodule IntegrationTests do
       |> Enum.each(fn m -> check_collected_machine(m, basic_jmmsr()["machines"]) end)
   end
 
-    
-      test "(pinger system) Command deploy deploys example services to exactly one machine specified (dump decider)" do
-        text = basic_jmmsr(Path.join(@example_dir_on_pilot, "pingers_system/some_server"),
-                           Path.join(@example_dir_on_pilot, "pingers_system/some_server2"))
-               |> collect_data
-               |> Poison.encode!
-               |> WebSocket.send_text
-        WebSocket.receive()
-        deploy()
-        |> Poison.encode!
-        |> WebSocket.send_text
-        %{"body" => %{},
-          "code" => 200,
-          "command_name" => "deploy",
-          "msg" => "deployed"} = WebSocket.receive() |> Poison.decode!
-        wait_for_ping
-        ping_res = {:ok, "0\n"}
-        ^ping_res = MDMRpc.call(:minion1, File, :read, ["/ping.txt"])
-        ^ping_res = MDMRpc.call(:minion2, File, :read, ["/ping.txt"])
-      end
+
+  test "(pinger system) Command deploy deploys example services to exactly one machine specified (dump decider)" do
+    text = basic_jmmsr(Path.join(@example_dir_on_pilot, "pingers_system/some_server"),
+                       Path.join(@example_dir_on_pilot, "pingers_system/some_server2"))
+           |> collect_data
+           |> Poison.encode!
+           |> WebSocket.send_text
+    WebSocket.receive()
+    deploy()
+    |> Poison.encode!
+    |> WebSocket.send_text
+    %{"body" => %{},
+      "code" => 200,
+      "command_name" => "deploy",
+      "msg" => "deployed"} = WebSocket.receive() |> Poison.decode!
+    wait_for_ping()
+    ping_res = {:ok, "0\n"}
+    ^ping_res = MDMRpc.call(:minion1, File, :read, ["/ping.txt"])
+    ^ping_res = MDMRpc.call(:minion2, File, :read, ["/ping.txt"])
+  end
 
 
 
