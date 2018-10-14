@@ -35,6 +35,11 @@ defmodule WebSocket do
     WebSockex.start(url, __MODULE__, report_to, name: __MODULE__)
   end
 
+
+  def start_anonymous(url) do
+    WebSockex.start(url, __MODULE__, :ignored)
+  end
+
   def close do
     WebSockex.send_frame(__MODULE__, :close)
     WebSockex.cast(__MODULE__, :close)

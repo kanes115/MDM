@@ -6,11 +6,12 @@ defmodule IntegrationTests do
   @ping_res_file "/ping.txt"
   @minion_tmp_dir "~/tmp_mdm"
   @minion_services_file "~/mdm_services"
+  @url "ws://pilot:8080"
 
   setup do
     # We don't use start_link because on_exit is run
     # in another process and this one dies
-    {:ok, pid} = WebSocket.start("ws://pilot:8080", self())
+    {:ok, pid} = WebSocket.start(@url, self())
     on_exit fn ->
       :ok = WebSocket.close
 
@@ -21,8 +22,12 @@ defmodule IntegrationTests do
     :ok
   end
 
+  test "Extra connections are rejected (only one at a time)" do
+    {:error, %WebSockex.ConnError{original: :timeout}}
+    = WebSocket.start_anonymous(@url)
+  end
+
   test "Command collect_data returns collected data" do
-    IO.inspect(self())
     basic_jmmsr()
     |> collect_data
     |> Poison.encode!
