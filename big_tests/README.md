@@ -11,6 +11,12 @@ and then to run test containers
 docker-compose up
 ```
 
+To faciliate the process of restarting test environment, we came up with a script:
+```
+./restart.sh [rebuild]
+```
+Rebuild option will also rebuild all the images. Use if backend code have changed.
+
 From outside containers the pilot is available at port 4000 on localhost and minions are visible to him on domains `minion1.com` and `mionon2.com`.
 Because of the fact that it is impossible to connect to conatiners from outside docker network on MACos systems, we run tests from another container.
 
