@@ -4,8 +4,8 @@ defmodule IntegrationTests do
 
   @example_dir_on_pilot "/examples"
   @ping_res_file "/ping.txt"
-  @minion_tmp_dir "~/tmp_mdm"
-  @minion_services_file "~/mdm_services"
+  @minion_tmp_dir "/root/tmp_mdm"
+  @minion_services_file "/root/mdm_services"
   @url "ws://pilot:8080"
 
   setup do
@@ -13,11 +13,27 @@ defmodule IntegrationTests do
     # in another process and this one dies
     {:ok, pid} = WebSocket.start(@url, self())
     on_exit fn ->
-      :ok = WebSocket.close
+      # TODO
+      # Now it might happen (and happens ofetntimes) that
+      # on_exit will stop executing and therefore the connection won't
+      # manage to close and will be closed brutally
+      #
+      # Also close function might not be good, needs investigation
+      # but we don't fix it now as it does not have any big consequences
+      # the only thing that happen is that ws_communicator gets an error,
+      # it restarts and continues to work properly.
+      #
+      # Probable solution - linking to the process, trapping exits
+      # WebSockex does not provide an elegant way to close connection (sic!)
+      WebSocket.close
 
-      MDMRpc.all_call(File, :rm, @ping_res_file)
-      MDMRpc.all_call(File, :rm_rf, @minion_tmp_dir)
-      MDMRpc.all_call(File, :rm_rf, @minion_services_file)
+      MDMRpc.minion_call(File, :rm, [@ping_res_file])
+      MDMRpc.minion_call(File, :rm_rf, [@minion_tmp_dir])
+      MDMRpc.minion_call(File, :rm_rf, [@minion_services_file])
+      # We have to restart application to initiate it with a new state
+      # (state contains info about saved files which we deleted above)
+      MDMRpc.minion_call(Application, :stop, [:mdmminion])
+      MDMRpc.minion_call(Application, :ensure_all_started, [:mdmminion])
     end
     :ok
   end
