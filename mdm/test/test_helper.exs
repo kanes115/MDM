@@ -8,6 +8,11 @@ defmodule MDMRpc do
     :rpc.call(node_name, module, func, args)
   end
 
+  def all_call(module, func, args) do
+    entities()
+    |> Enum.map(fn entity -> call(entity, module, func, args) end)
+  end
+
   def get_minion1_ip do
     {:ok, {:hostent, 'minion1', [], :inet, 4, [ip_tuple]}} =
       :inet_res.getbyname("minion1" |> to_charlist, :a)
@@ -18,13 +23,21 @@ defmodule MDMRpc do
   defp entity_to_node(:minion1), do: :"minion@#{get_minion1_ip()}"
   defp entity_to_node(:minion2), do: :"minion@minion2.com"
 
+  defp entities, do: [:pilot, :minion1, :minion2]
+
 end
 
 defmodule WebSocket do
   use WebSockex
+  require Logger
 
-  def start_link(url, report_to) do
-    WebSockex.start_link(url, __MODULE__, report_to, name: __MODULE__)
+  def start(url, report_to) do
+    WebSockex.start(url, __MODULE__, report_to, name: __MODULE__)
+  end
+
+  def close do
+    WebSockex.send_frame(__MODULE__, :close)
+    WebSockex.cast(__MODULE__, :close)
   end
 
   def send_text(text) do
@@ -42,9 +55,17 @@ defmodule WebSocket do
     {:ok, report_to}
   end
 
+  def handle_cast(:close, state) do
+    {:stop, :normal, state}
+  end
   def handle_cast({:send, {type, msg} = frame}, state) do
     {:reply, frame, state}
   end
+
+  def terminate(reason, _state) do
+    exit(:normal)
+  end
+ 
 end
 
 

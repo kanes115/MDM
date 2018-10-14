@@ -1,54 +1,62 @@
 defmodule IntegrationTests do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   import JmmsrHelpers
 
   @example_dir_on_pilot "/examples"
+  @ping_res_file "/ping.txt"
+  @minion_tmp_dir "~/tmp_mdm"
+  @minion_services_file "~/mdm_services"
 
-    setup do
-      {:ok, pid} = WebSocket.start_link("ws://pilot:8080", self())
-      on_exit fn ->
-        # TODO do it synchronously
-        Process.exit(pid, :kill)
-        :timer.sleep(30)
-      end
-      :ok
+  setup do
+    # We don't use start_link because on_exit is run
+    # in another process and this one dies
+    {:ok, pid} = WebSocket.start("ws://pilot:8080", self())
+    on_exit fn ->
+      :ok = WebSocket.close
+
+      MDMRpc.all_call(File, :rm, @ping_res_file)
+      MDMRpc.all_call(File, :rm_rf, @minion_tmp_dir)
+      MDMRpc.all_call(File, :rm_rf, @minion_services_file)
     end
-    
-    test "Command collect_data returns collected data" do
-      basic_jmmsr()
-      |> collect_data
-      |> Poison.encode!
-      |> WebSocket.send_text()
-      resp = WebSocket.receive() |> Poison.decode!
-      200 = resp["code"]
-      "collect_data" = resp["command_name"]
-      "collected" = resp["msg"]
-      collected_machines = resp["body"]["collected_data"]
-      2 = length(collected_machines)
-      collected_machines
-      |> Enum.each(fn m -> check_collected_machine(m, basic_jmmsr()["machines"]) end)
-    end
-  
-    test "Command collect_data can be called multiple times with almost the same result (expect collected resources)" do
-      text = basic_jmmsr()
-             |> collect_data
-             |> Poison.encode!
-      WebSocket.send_text(text)
-      WebSocket.send_text(text)
-      resp1 = WebSocket.receive() |> Poison.decode! 
-      resp2 = WebSocket.receive() |> Poison.decode!
-      m1 = resp1["body"]["collected_data"]
-                 |> Enum.map(fn %{"machine" => m} -> Map.delete(m, "resources") end)
-      m2 = resp2["body"]["collected_data"]
-                 |> Enum.map(fn %{"machine" => m} -> Map.delete(m, "resources") end)
-      assert m1 == m2
-    end
-  
-    test "On Jmmsr parser error, error is returned in specific format and req can be repeated" do
-      basic_jmmsr()
-      |> JmmsrHelpers.add_to_list(["machines"], machine(
-                                                  43, # worng name type
-                                                  3232))
+    :ok
+  end
+
+  test "Command collect_data returns collected data" do
+    IO.inspect(self())
+    basic_jmmsr()
+    |> collect_data
+    |> Poison.encode!
+    |> WebSocket.send_text()
+    resp = WebSocket.receive() |> Poison.decode!
+    200 = resp["code"]
+    "collect_data" = resp["command_name"]
+    "collected" = resp["msg"]
+    collected_machines = resp["body"]["collected_data"]
+    2 = length(collected_machines)
+    collected_machines
+    |> Enum.each(fn m -> check_collected_machine(m, basic_jmmsr()["machines"]) end)
+  end
+
+  test "Command collect_data can be called multiple times with almost the same result (expect collected resources)" do
+    text = basic_jmmsr()
+           |> collect_data
+           |> Poison.encode!
+    WebSocket.send_text(text)
+    WebSocket.send_text(text)
+    resp1 = WebSocket.receive() |> Poison.decode! 
+    resp2 = WebSocket.receive() |> Poison.decode!
+    m1 = resp1["body"]["collected_data"]
+         |> Enum.map(fn %{"machine" => m} -> Map.delete(m, "resources") end)
+    m2 = resp2["body"]["collected_data"]
+         |> Enum.map(fn %{"machine" => m} -> Map.delete(m, "resources") end)
+    assert m1 == m2
+  end
+
+  test "On Jmmsr parser error, error is returned in specific format and req can be repeated" do
+    basic_jmmsr()
+    |> JmmsrHelpers.add_to_list(["machines"], machine(
+      43, # worng name type
+      3232))
       |> collect_data
       |> Poison.encode!
       |> WebSocket.send_text
@@ -72,30 +80,30 @@ defmodule IntegrationTests do
       2 = length(collected_machines)
       collected_machines
       |> Enum.each(fn m -> check_collected_machine(m, basic_jmmsr()["machines"]) end)
-    end
-
-
-  test "(pinger system) Command deploy deploys example services to exactly one machine specified (dump decider)" do
-    text = basic_jmmsr(Path.join(@example_dir_on_pilot, "pingers_system/some_server"),
-                       Path.join(@example_dir_on_pilot, "pingers_system/some_server2"))
-           |> collect_data
-           |> Poison.encode!
-           |> WebSocket.send_text
-    WebSocket.receive()
-    deploy()
-    |> Poison.encode!
-    |> WebSocket.send_text
-    %{"body" => %{},
-      "code" => 200,
-      "command_name" => "deploy",
-      "msg" => "deployed"} = WebSocket.receive() |> Poison.decode!
-    wait_for_ping
-    ping_res = {:ok, "0\n"}
-    ^ping_res = MDMRpc.call(:minion1, File, :read, ["/ping.txt"])
-    ^ping_res = MDMRpc.call(:minion2, File, :read, ["/ping.txt"])
-    # TODO 1) clean after this testcase: remove /ping.txt files
-    #      2) Figure out why application mdm shutdowns
   end
+
+    
+      test "(pinger system) Command deploy deploys example services to exactly one machine specified (dump decider)" do
+        text = basic_jmmsr(Path.join(@example_dir_on_pilot, "pingers_system/some_server"),
+                           Path.join(@example_dir_on_pilot, "pingers_system/some_server2"))
+               |> collect_data
+               |> Poison.encode!
+               |> WebSocket.send_text
+        WebSocket.receive()
+        deploy()
+        |> Poison.encode!
+        |> WebSocket.send_text
+        %{"body" => %{},
+          "code" => 200,
+          "command_name" => "deploy",
+          "msg" => "deployed"} = WebSocket.receive() |> Poison.decode!
+        wait_for_ping
+        ping_res = {:ok, "0\n"}
+        ^ping_res = MDMRpc.call(:minion1, File, :read, ["/ping.txt"])
+        ^ping_res = MDMRpc.call(:minion2, File, :read, ["/ping.txt"])
+        # TODO 1) clean after this testcase: remove /ping.txt files
+        #      2) Figure out why application mdm shutdowns
+      end
 
 
 
