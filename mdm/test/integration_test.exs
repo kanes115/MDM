@@ -101,8 +101,6 @@ defmodule IntegrationTests do
         ping_res = {:ok, "0\n"}
         ^ping_res = MDMRpc.call(:minion1, File, :read, ["/ping.txt"])
         ^ping_res = MDMRpc.call(:minion2, File, :read, ["/ping.txt"])
-        # TODO 1) clean after this testcase: remove /ping.txt files
-        #      2) Figure out why application mdm shutdowns
       end
 
 
