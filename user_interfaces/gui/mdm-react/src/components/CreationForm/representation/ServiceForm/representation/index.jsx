@@ -18,7 +18,7 @@ import './service-form.css';
 class ServiceForm extends Component {
   render() {
     const {
-      availableMachineNames,
+      availableMachines,
       onSubmit,
       originalName,
       serviceNames,
@@ -66,10 +66,7 @@ class ServiceForm extends Component {
                 field="requirements.available_machines"
                 label="Available machines"
                 multiple
-                options={availableMachineNames.map(availableMachineName => ({
-                  optionLabel: availableMachineName,
-                  optionValue: availableMachineName,
-                }))}
+                options={availableMachines}
               />
               <SelectionField
                 id="service-os"
@@ -115,14 +112,20 @@ class ServiceForm extends Component {
 }
 
 ServiceForm.propTypes = {
-  availableMachineNames: PropTypes.arrayOf(PropTypes.string),
+  availableMachines: PropTypes.arrayOf(PropTypes.shape({
+    optionValue: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+    optionLabel: PropTypes.string,
+  })),
   onSubmit: PropTypes.func.isRequired,
   originalName: PropTypes.string,
   serviceNames: PropTypes.arrayOf(PropTypes.string),
   setFormAPI: PropTypes.func.isRequired,
 };
 ServiceForm.defaultProps = {
-  availableMachineNames: [],
+  availableMachines: [],
   originalName: null,
   serviceNames: [],
 };

@@ -30,6 +30,16 @@ class ServiceFormWrapper extends Component {
   onSubmit = () => {
     const { createService, formObject, updateService } = this.props;
     const { values: service, errors } = this.serviceCreationFormAPI.getState();
+    const availableMachines = _.map(
+      _.get(service, 'requirements.available_machines', []),
+      availableMachine => Number.parseInt(availableMachine, 10),
+    );
+    _.set(service, 'requirements.available_machines', availableMachines);
+    const hdd = _.get(service, 'requirements.HDD');
+    _.set(service, 'requirements.HDD', Number.parseInt(hdd, 10));
+    const ram = _.get(service, 'requirements.RAM');
+    _.set(service, 'requirements.RAM', Number.parseInt(ram, 10));
+
 
     if (_.isEmpty(errors)) {
       if (formObject) {
@@ -41,11 +51,11 @@ class ServiceFormWrapper extends Component {
   };
 
   render() {
-    const { availableMachineNames, originalName, serviceNames } = this.props;
+    const { availableMachines, originalName, serviceNames } = this.props;
 
     return (
       <ServiceForm
-        availableMachineNames={availableMachineNames}
+        availableMachines={availableMachines}
         onSubmit={this.onSubmit}
         originalName={originalName}
         serviceNames={serviceNames}
@@ -63,12 +73,15 @@ function mapStateToProps({
   },
 }) {
   const activeSystem = systems[activeSystemId];
-  const availableMachineNames = activeSystem.machines.map(machine => machine.name);
+  const availableMachines = activeSystem.machines.map(machine => ({
+    optionValue: machine.id,
+    optionLabel: machine.name,
+  }));
   const serviceNames = activeSystem.services.map(service => service.name);
   const originalName = _.get(formObject, 'name', null);
 
   return {
-    availableMachineNames,
+    availableMachines,
     formObject,
     originalName,
     serviceNames,
@@ -83,7 +96,13 @@ function mapDispatchToProps(dispatch) {
 }
 
 ServiceFormWrapper.propTypes = {
-  availableMachineNames: PropTypes.arrayOf(PropTypes.string),
+  availableMachines: PropTypes.arrayOf(PropTypes.shape({
+    optionValue: PropTypes.oneOfType([
+      PropTypes.string,
+      PropTypes.number,
+    ]),
+    optionLabel: PropTypes.string,
+  })),
   createService: PropTypes.func.isRequired,
   formObject: PropTypes.shape({}),
   originalName: PropTypes.string,
@@ -91,6 +110,7 @@ ServiceFormWrapper.propTypes = {
   updateService: PropTypes.func.isRequired,
 };
 ServiceFormWrapper.defaultProps = {
+  availableMachines: [],
   originalName: null,
   serviceNames: [],
 };
