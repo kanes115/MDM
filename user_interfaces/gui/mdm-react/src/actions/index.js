@@ -94,3 +94,44 @@ export function updateService(service) {
     },
   };
 }
+
+export const START_FILE_PROCESSING = 'START_FILE_PROCESSING';
+
+export function startFileProcessing() {
+  return {
+    type: START_FILE_PROCESSING,
+  };
+}
+
+export const FILE_PROCESSING_PROGRESS = 'FILE_PROCESSING_PROGRESS';
+
+export function fileProcessingProgress(progressEvent) {
+  return {
+    type: FILE_PROCESSING_PROGRESS,
+    payload: {
+      progressEvent,
+    },
+  };
+}
+
+export const FILE_PROCESSING_SUCCESS = 'FILE_PROCESSING_SUCCESS';
+
+export function fileProcessingSuccess(successEvent) {
+  return {
+    type: FILE_PROCESSING_SUCCESS,
+    payload: {
+      successEvent,
+    },
+  };
+}
+
+export const FILE_PROCESSING_ERROR = 'FILE_PROCESSING_ERROR';
+
+export function fileProcessingError(errorEvent) {
+  return {
+    type: FILE_PROCESSING_ERROR,
+    payload: {
+      errorEvent,
+    },
+  };
+}

@@ -6,6 +6,12 @@ import { system } from '../utils/jmmsr/schema';
 
 const initialState = {
   activeSystemId: '',
+  fileLoader: {
+    error: null,
+    file: null,
+    loading: false,
+    progress: 0,
+  },
   form: {
     formObject: null,
     formOpen: false,
@@ -212,6 +218,68 @@ const jmmsr = (state = initialState, action) => {
         },
       };
     }
+
+    case actionTypes.START_FILE_PROCESSING: {
+      return {
+        ...state,
+        fileLoader: {
+          ...state.fileLoader,
+          error: null,
+          file: null,
+          loading: true,
+          progress: 0,
+        },
+      };
+    }
+    case actionTypes.FILE_PROCESSING_PROGRESS: {
+      const event = _.get(action, 'payload.progressEvent');
+      const lengthComputable = _.get(event, 'lengthComputable', false);
+      const loaded = _.get(event, 'loaded', 0);
+      const total = _.get(event, 'total', 0);
+
+      if (lengthComputable) {
+        return {
+          ...state,
+          fileLoader: {
+            ...state.fileLoader,
+            progress: loaded / total,
+          },
+        };
+      }
+
+      return state;
+    }
+    case actionTypes.FILE_PROCESSING_SUCCESS: {
+      const event = _.get(action, 'payload.successEvent');
+      const result = _.get(event, 'target.result', '');
+      const file = JSON.parse(result);
+
+      return {
+        ...state,
+        fileLoader: {
+          ...state.fileLoader,
+          error: null,
+          file,
+          loading: false,
+          progress: 1,
+        },
+      };
+    }
+    case actionTypes.FILE_PROCESSING_ERROR: {
+      const event = _.get(action, 'payload.errorEvent');
+
+      return {
+        ...state,
+        fileLoader: {
+          ...state.fileLoader,
+          error: event,
+          file: null,
+          loading: false,
+          progress: 1,
+        },
+      };
+    }
+
     default:
       return state;
   }
