@@ -20,7 +20,7 @@ const ConnectionForm = ({
   >
     {() => (
       <div className="service-form">
-        <FormHeader title="New connection" />
+        <FormHeader title="Connection" />
         <FormSection title="Connection details">
           <InputField
             id="connection-port"
@@ -56,7 +56,7 @@ const ConnectionForm = ({
             onSubmit();
           }}
         >
-          Create connection
+          {'Submit'}
         </button>
       </div>
     )
