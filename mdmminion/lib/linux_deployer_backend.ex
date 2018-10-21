@@ -26,7 +26,9 @@ defmodule MDMMinion.LinuxDeployerBackend do
     # TODO for now we don't get ready for monitoring here
     # TODO use System.at_exit/1 later
     spawn fn ->
-      System.cmd("bash", [start_script_relative_path], cd: service_dir) end
+      service_runner_script = MDMMinion.ScriptProvider.get(:service_runner, :unix)
+      cmd = "#{service_runner_script} #{start_script_relative_path} /logs"
+      System.cmd("bash", ["-c", cmd], cd: service_dir) end
     :ok
   end
 

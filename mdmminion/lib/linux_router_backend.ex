@@ -30,7 +30,7 @@ defmodule MDMMinion.LinuxRouterBackend do
 
   defp save_aliases do
     # this line is not that important
-    :os.cmd("echo \"export HOSTALIASES=/etc/host.aliases\" >> /etc/profile && . /etc/profile" |> String.to_atom) 
+    :os.cmd("echo \"export HOSTALIASES=/etc/host.aliases\" >> /etc/bash.bashrc && . /etc/bash.bashrc" |> String.to_atom) 
     case System.put_env("HOSTALIASES", "/etc/host.aliases") do
       :ok -> []
       error -> {:error, error}

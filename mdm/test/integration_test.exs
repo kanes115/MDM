@@ -122,6 +122,10 @@ defmodule IntegrationTests do
     ping_res = {:ok, "0\n"}
     ^ping_res = MDMRpc.call(:minion1, File, :read, ["/ping.txt"])
     ^ping_res = MDMRpc.call(:minion2, File, :read, ["/ping.txt"])
+    # logs are created
+    IO.puts "---- logs ----"
+    MDMRpc.call(:minion1, File, :read, ["/logs"])
+    |> IO.inspect
   end
 
 

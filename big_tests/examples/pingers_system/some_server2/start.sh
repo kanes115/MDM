@@ -1,2 +1,2 @@
-ping -c 2 some_server
+ping -c 2 some_server || true
 echo "$?" > /ping.txt
