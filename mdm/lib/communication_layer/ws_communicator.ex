@@ -9,15 +9,17 @@ defmodule MDM.WSCommunicator do
 
   @type comm_type :: :cast | :call
 
+  @type command() :: atom()
+
   ## API
 
   # TODO in the future (when the need comes) we will subscribe
   # processes on certain `command_names` like `:deploy` or `metric_uppdate_request`
   # etc. Right now we have only one subscriber
-  @spec start_link({comm_type(), pid()}) ::
+  @spec start_link([{comm_type(), pid(), command()}]) ::
   {:ok, pid()} | :ignore | {:error, {:already_started, pid()} | term()}
-  def start_link({comm_type, subscriber}) do
-    GenServer.start_link(__MODULE__, %{subscriber: subscriber, comm_type: comm_type, client: :no_client},
+  def start_link(subscriptions) do
+    GenServer.start_link(__MODULE__, %{subscriptions: subscriptions, client: :no_client},
                          name: __MODULE__)
   end
 
@@ -47,15 +49,24 @@ defmodule MDM.WSCommunicator do
     GenServer.cast(self(), :wait_for_conn)
     {:noreply, %{state | client: :no_client}}
   end
-  def handle_cast({:handle_msg, msg}, %{client: client, comm_type: comm_type, subscriber: sub} = state) do
+  def handle_cast({:handle_msg, msg}, %{client: client, subscriptions: subs} = state) do
     case map_to_command(msg) do
       {:error, reason} ->
         resp = Response.response_command_malformed(%{reason: inspect(reason)})
         send_json(client, resp |> Response.to_json)
       command ->
-        handle_request(client, sub, comm_type, command)
+        get_subscribers(subs, command.command_name)
+        |> Enum.each(fn({comm_type, subscriber}) ->
+          handle_request(client, subscriber, comm_type, command) end)
     end
     {:noreply, state}
+  end
+
+  defp get_subscribers(subscriptions, command) do
+    subscriptions
+    |> Enum.filter(fn {_, _, commands} ->
+      Enum.member?(commands, command) end)
+    |> Enum.map(fn {comm_type, subscriber, _} -> {comm_type, subscriber} end)
   end
 
   defp handle_request(_, sub, :cast, command), do: GenServer.cast(sub, command)

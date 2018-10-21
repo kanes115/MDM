@@ -10,8 +10,7 @@ if [[ $# == 1 ]] && [[ "$1" == "rebuild" ]]; then
 elif (( $# >= 1 )); then
     print_usage
     exit 1
-else
-    docker-compose down
-    docker-compose rm -f
 fi
+docker-compose down
+docker-compose rm -f
 docker-compose up

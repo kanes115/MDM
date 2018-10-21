@@ -3,7 +3,10 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
 import ConnectionForm from './representation/index';
-import { createNewConnection } from "../../../../actions";
+import {
+  createNewConnection,
+  updateConnection,
+} from "../../../../actions";
 
 class ConnectionFormWrapper extends Component {
   constructor(props) {
@@ -13,10 +16,16 @@ class ConnectionFormWrapper extends Component {
   }
 
   setFormAPI = (formAPI) => {
+    const { formObject } = this.props;
     this.connectionCreationFormAPI = formAPI;
+
+    if (formObject) {
+      this.connectionCreationFormAPI.setValues(formObject);
+    }
   };
 
   onSubmit = () => {
+    const { createConnection, updateConnection, formObject } = this.props;
     const {
       values: {
         service_from,
@@ -25,11 +34,22 @@ class ConnectionFormWrapper extends Component {
       },
     } = this.connectionCreationFormAPI.getState();
 
-    this.props.createConnection({
-      service_from,
-      service_to,
-      port,
-    });
+    if (formObject) {
+      updateConnection(
+        {
+          service_from,
+          service_to,
+          port,
+        },
+        formObject,
+      )
+    } else {
+      createConnection({
+        service_from,
+        service_to,
+        port,
+      });
+    }
   };
 
   render() {
@@ -49,7 +69,9 @@ class ConnectionFormWrapper extends Component {
 
 ConnectionFormWrapper.propTypes = {
   createConnection: PropTypes.func.isRequired,
+  formObject: PropTypes.shape({}),
   serviceNames: PropTypes.arrayOf(PropTypes.string).isRequired,
+  updateConnection: PropTypes.func.isRequired,
 };
 ConnectionFormWrapper.defaultProps = {};
 
@@ -57,12 +79,16 @@ function mapStateToProps({
   jmmsr: {
    systems,
    activeSystemId,
+    form: {
+     formObject,
+    },
   },
 }) {
   const activeSystem = systems[activeSystemId];
   const serviceNames = activeSystem.services.map(service => service.name);
 
   return {
+    formObject,
     serviceNames,
   };
 }
@@ -70,6 +96,7 @@ function mapStateToProps({
 function mapDispatchToProps(dispatch) {
   return {
     createConnection: (connection) => dispatch(createNewConnection(connection)),
+    updateConnection: (connection, oldConnection) => dispatch(updateConnection(connection, oldConnection)),
   };
 }
 

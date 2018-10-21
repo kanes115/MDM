@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
+import ConnectionList from './ConnectionList';
 import MachineList from './MachineList';
 import ServiceList from './ServiceList';
 
@@ -17,6 +18,10 @@ class AppDetailsContent extends Component {
         />
         <ServiceList
           services={_.get(activeSystem, 'services', [])}
+          onEditClick={onEditClick}
+        />
+        <ConnectionList
+          connections={_.get(activeSystem, 'connections', [])}
           onEditClick={onEditClick}
         />
       </div>

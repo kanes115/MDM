@@ -193,6 +193,31 @@ const jmmsr = (state = initialState, action) => {
         },
       };
     }
+    case actionTypes.UPDATE_CONNECTION: {
+      const connections = [...state.systems[state.activeSystemId].connections];
+      const newConnection = _.get(action, 'payload.connection');
+      const oldConnection = _.get(action, 'payload.oldConnection');
+      const index = _.findIndex(connections, con => _.isEqual(con, oldConnection));
+
+      connections[index] = newConnection;
+
+      return {
+        ...state,
+        form: {
+          ...state.form,
+          formObject: null,
+          formOpen: false,
+          formType: '',
+        },
+        systems: {
+          ...state.systems,
+          [state.activeSystemId]: {
+            ...state.systems[state.activeSystemId],
+            connections,
+          },
+        },
+      };
+    }
 
     case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
       const { activeSystemId } = state;
