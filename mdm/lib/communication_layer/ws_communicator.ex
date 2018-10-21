@@ -9,17 +9,16 @@ defmodule MDM.WSCommunicator do
 
   @type comm_type :: :cast | :call
 
+  @type command() :: atom()
+
   ## API
 
   # TODO in the future (when the need comes) we will subscribe
   # processes on certain `command_names` like `:deploy` or `metric_uppdate_request`
   # etc. Right now we have only one subscriber
-  @spec start_link({comm_type(), pid()}) ::
+  @spec start_link([{comm_type(), pid(), command()}]) ::
   {:ok, pid()} | :ignore | {:error, {:already_started, pid()} | term()}
   def start_link(subscriptions) do
-    :dbg.tracer
-    :dbg.tpl(__MODULE__, :get_subscribers, :x)
-    :dbg.p(:all, :c)
     GenServer.start_link(__MODULE__, %{subscriptions: subscriptions, client: :no_client},
                          name: __MODULE__)
   end
