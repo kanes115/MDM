@@ -94,3 +94,15 @@ export function updateService(service) {
     },
   };
 }
+
+export const UPDATE_CONNECTION = 'UPDATE_CONNECTION';
+
+export function updateConnection(connection, oldConnection) {
+  return {
+    type: UPDATE_CONNECTION,
+    payload: {
+      connection,
+      oldConnection,
+    },
+  };
+}
