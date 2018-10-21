@@ -43,6 +43,32 @@ defmodule IntegrationTests do
     = WebSocket.start_anonymous(@url)
   end
 
+  test "Command check_correctness returns 200 and is_ok=true if parsed correctly" do
+    basic_jmmsr()
+    |> check_correctness
+    |> Poison.encode!
+    |> WebSocket.send_text()
+    resp = WebSocket.receive() |> Poison.decode!
+    200 = resp["code"]
+    "check_correctness" = resp["command_name"]
+    %{"is_ok" => true} = resp["body"]
+  end
+
+  test "Command check_correctness returns 200 and is_ok=false along with error details if not parsed correctly" do
+    basic_jmmsr()
+    |> JmmsrHelpers.add_to_list(["machines"], machine(
+      43, # worng name type
+      3232))
+    |> check_correctness
+    |> Poison.encode!
+    |> WebSocket.send_text()
+    resp = WebSocket.receive() |> Poison.decode!
+    200 = resp["code"]
+    "check_correctness" = resp["command_name"]
+    %{"is_ok" => false, "path" => "machines, name", "reason" => "type_mismatch"} = resp["body"]
+  end
+
+
   test "Command collect_data returns collected data" do
     basic_jmmsr()
     |> collect_data
@@ -133,6 +159,11 @@ defmodule IntegrationTests do
   ## HELPERS
 
   defp wait_for_ping, do: :timer.sleep(5000)
+
+  defp check_correctness(jmmsr) do
+    %{"command_name" => "check_correctness",
+      "body" => jmmsr}
+  end
 
   defp collect_data(jmmsr) do
     %{"command_name" => "collect_data",
