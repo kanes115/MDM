@@ -28,9 +28,9 @@ class ConnectionList extends Component {
         }
       } else {
         const expandedCopy = _.cloneDeep(expanded);
-        const newExpanded = expandedCopy.splice(index, 1);
+        expandedCopy.splice(index, 1);
         return {
-          expanded: newExpanded,
+          expanded: expandedCopy,
         };
       }
     });
