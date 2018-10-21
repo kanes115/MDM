@@ -16,6 +16,10 @@ defmodule MDM.Deployer do
     GenServer.start_link(__MODULE__, %__MODULE__{state: :waiting_for_reqest}, name: __MODULE__)
   end
 
+  def commands do
+    [:collect_data, :deploy]
+  end
+
   # Test API
   def get_state, do: GenServer.call(__MODULE__, :get_state)
 

@@ -5,6 +5,8 @@ defmodule MDM.MDMApp do
   alias MDM.Deployer
   alias MDM.InfoGatherer
   alias MDM.ServiceUploader
+  alias MDM.CorrectnessChecker
+
 
 
   def start(_type, _args) do
@@ -16,7 +18,13 @@ defmodule MDM.MDMApp do
     [
       %{
         id: WSCommunicator,
-        start: {WSCommunicator, :start_link, [{:call, Deployer}]}
+        start: {WSCommunicator, :start_link,
+          [[{:call, Deployer, Deployer.commands()},
+            {:call, CorrectnessChecker, CorrectnessChecker.commands()}]]}
+      },
+      %{
+        id: CorrectnessChecker,
+        start: {CorrectnessChecker, :start_link, []}
       },
       %{
         id: Deployer,
