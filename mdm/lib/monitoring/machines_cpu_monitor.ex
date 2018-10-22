@@ -1,6 +1,15 @@
 defmodule MDM.CollectMachineMetric do
+  # TODO change file name
+  require Logger
   @interval 10_000 #ms
   @behaviour MDM.Monitor
+
+  @moduledoc """
+  This is a module to monitor resources of the whole target machine.
+
+  Because we only use erlang function to get needed data, we don't need
+  to have any backends on mdmminion side and can simply do an rpc call.
+  """
 
   alias MDM.Machine
   alias MDM.Event
@@ -23,25 +32,49 @@ defmodule MDM.CollectMachineMetric do
   defp get_metrics(machines) do
     machines
     |> Enum.map(fn machine ->
-      {machine.name, :rpc.call(Machine.node_name(machine), :cpu_sup, :util, [[]])} end)
+      {
+        machine.name,
+        :rpc.call(Machine.node_name(machine), :cpu_sup, :util, [[]]),
+        :rpc.call(Machine.node_name(machine), :memsup, :get_memory_data, [])
+      }
+      end)
   end
 
   defp send_metrics(metrics) do
     parsed_metrics = metrics
                      |> Enum.reduce([], &parse_metric/2)
-    payload = %{"metrics" => parsed_metrics}
+    payload = %{"machines" => parsed_metrics}
     Event.new_event(:machine_metrics, payload)
-    |> MDM.WSCommunicator.push_event()
+    |> WSCommunicator.push_event()
   end
 
-  defp parse_metric({name, {:badrpc, reason}}, acc) do
-    [%{"name" => name, "is_ok" => false, "reason" => inspect(reason)}
+  defp parse_metric({name, cpu, memory}, acc) do
+    cpu_m = parse_cpu(cpu)
+    mem_m = parse_mem(memory)
+    metrics = %{"cpu" => cpu_m, "mem" => mem_m}
+    [%{"machine_name" => name, "metrics" => metrics}
      | acc]
   end
-  defp parse_metric({name, {:all, busy, non_busy, _}}, acc) do
-    percent = busy / non_busy
-    [%{"name" => name, "is_ok" => true, "metric_name" => "cpu",
-      "util_percentage" => percent} | acc]
+
+  defp parse_cpu({:badrpc, reason}) do
+    %{"is_ok" => false, "reason" => inspect(reason)}
+  end
+  defp parse_cpu({:all, busy, non_busy, _}) do
+    percent = busy * 100 / non_busy
+    %{"is_ok" => true, "val" => percent, "unit" => "%"}
+  end
+
+  defp parse_mem({:badrpc, reason}) do
+    %{"is_ok" => false, "reason" => inspect(reason)}
+  end
+  defp parse_mem({0, _allocated, _worst}) do
+    Logger.warn("Got total memory 0 bytes. Is memsup turned on on minions?")
+    %{"is_ok" => false, "reason" => "internal server error (is memsup turned on on minions?)"}
+  end
+  defp parse_mem({total, allocated, _worst}) do
+    {total, allocated} |> IO.inspect
+    percent = allocated * 100 / total
+    %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end
 
 end
