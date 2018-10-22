@@ -23,9 +23,8 @@ defmodule MDM.WSCommunicator do
                          name: __MODULE__)
   end
 
-  @spec send_answer(Response.t) :: :ok | :error
-  def send_answer(%Response{} = resp) do
-    GenServer.call(__MODULE__, {:send_answer, resp})
+  def push_event(event) do
+    GenServer.call(__MODULE__, {:push_event, event})
   end
 
   ## GenServer callbacks
@@ -75,8 +74,10 @@ defmodule MDM.WSCommunicator do
     do_send_answer(client, resp)
   end
 
-  def handle_call({:send_answer, answer}, _from, %{client: client} = state) do
-    {:reply, do_send_answer(client, answer), state}
+  def handle_call({:push_event, event}, _from, %{client: client} = state) do
+    json = MDM.Event.to_json(event)
+    client |> send_json(json)
+    {:reply, :ok, state}
   end
 
   defp spawn_receiver_fun(forward_dest, client) do
