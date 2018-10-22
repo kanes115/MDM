@@ -12,6 +12,9 @@ defmodule MDMMinion.MDMMinionApp do
 
   defp children do
     [
+      %{id: :cpu_sup,
+        start: {:cpu_sup, :start_link, []}
+      },
       %{
         id: InfoGatherer,
         start: {InfoGatherer, :start_link, []}
