@@ -82,15 +82,17 @@ defmodule MDM.CollectMachineMetric do
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end
 
-  defp parse_net({net_in, net_out}) do
+  defp parse_net({:error, reason}) do
+    {%{"is_ok" => false, "reason" => inspect(reason)},
+     %{"is_ok" => false, "reason" => inspect(reason)}}
+  end
+  defp parse_net({:ok, {net_in, net_out}}) do
     {%{"is_ok" => true, "val" => net_in, "unit" => "KB/s"},
      %{"is_ok" => true, "val" => net_out, "unit" => "KB/s"}}
   end
 
   defp get_network(node_name) do
-    {:ok, traffic_in_kb_per_sec}
-    = GenServer.call({MDMMinion.NetworkInfo, node_name}, :get_traffic_for_machine)
-    traffic_in_kb_per_sec
+    GenServer.call({MDMMinion.NetworkInfo, node_name}, :get_traffic_for_machine)
   end
 
 end
