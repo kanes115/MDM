@@ -35,7 +35,8 @@ defmodule MDM.CollectMachineMetric do
       {
         machine.name,
         :rpc.call(Machine.node_name(machine), :cpu_sup, :util, [[]]),
-        :rpc.call(Machine.node_name(machine), :memsup, :get_memory_data, [])
+        :rpc.call(Machine.node_name(machine), :memsup, :get_memory_data, []),
+        get_network(Machine.node_name(machine))
       }
       end)
   end
@@ -48,10 +49,14 @@ defmodule MDM.CollectMachineMetric do
     |> WSCommunicator.push_event()
   end
 
-  defp parse_metric({name, cpu, memory}, acc) do
+  defp parse_metric({name, cpu, memory, net}, acc) do
     cpu_m = parse_cpu(cpu)
     mem_m = parse_mem(memory)
-    metrics = %{"cpu" => cpu_m, "mem" => mem_m}
+    {net_in, net_out} = parse_net(net)
+    metrics = %{"cpu" => cpu_m,
+                "mem" => mem_m,
+                "net_in" => net_in,
+                "net_out" => net_out}
     [%{"machine_name" => name, "metrics" => metrics}
      | acc]
   end
@@ -75,6 +80,17 @@ defmodule MDM.CollectMachineMetric do
     {total, allocated} |> IO.inspect
     percent = allocated * 100 / total
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
+  end
+
+  defp parse_net({net_in, net_out}) do
+    {%{"is_ok" => true, "val" => net_in, "unit" => "KB/s"},
+     %{"is_ok" => true, "val" => net_out, "unit" => "KB/s"}}
+  end
+
+  defp get_network(node_name) do
+    {:ok, traffic_in_kb_per_sec}
+    = GenServer.call({MDMMinion.NetworkInfo, node_name}, :get_traffic_for_machine)
+    traffic_in_kb_per_sec
   end
 
 end

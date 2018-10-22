@@ -4,6 +4,7 @@ defmodule MDMMinion.MDMMinionApp do
   alias MDMMinion.InfoGatherer
   alias MDMMinion.Deployer
   alias MDMMinion.Router
+  alias MDMMinion.NetworkInfo
 
   def start(_type, _args) do
     Application.ensure_all_started(:os_mon)
@@ -13,6 +14,10 @@ defmodule MDMMinion.MDMMinionApp do
 
   defp children do
     [
+      %{
+        id: NetworkInfo,
+        start: {NetworkInfo, :start_link, []}
+      },
       %{
         id: InfoGatherer,
         start: {InfoGatherer, :start_link, []}
