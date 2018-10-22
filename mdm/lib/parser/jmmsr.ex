@@ -1,10 +1,10 @@
 defmodule MDM.Jmmsr do
 
-  @type jmmsr :: %{services: [MDM.Service.t],
-                   machines: [MDM.Machine.t],
-                   connections: [map()],
-                   config: map(),
-                   live_metrics: [map()]}
+  @type t :: %{services: [MDM.Service.t],
+               machines: [MDM.Machine.t],
+               connections: [map()],
+               config: map(),
+               live_metrics: [map()]}
 
   defstruct [:services, :machines, :connections, :config, :live_metrics]
 
