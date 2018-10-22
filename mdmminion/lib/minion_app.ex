@@ -6,15 +6,13 @@ defmodule MDMMinion.MDMMinionApp do
   alias MDMMinion.Router
 
   def start(_type, _args) do
+    Application.ensure_all_started(:os_mon)
     Supervisor.start_link(children(), strategy: :one_for_one)
   end
 
 
   defp children do
     [
-      %{id: :cpu_sup,
-        start: {:cpu_sup, :start_link, []}
-      },
       %{
         id: InfoGatherer,
         start: {InfoGatherer, :start_link, []}
