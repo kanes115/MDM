@@ -7,7 +7,7 @@ defmodule MDM.MDMApp do
   alias MDM.ServiceUploader
   alias MDM.CorrectnessChecker
   alias MDM.Monitor
-
+  alias MDM.MonitorTasksSup
 
 
   def start(_type, _args) do
@@ -42,7 +42,8 @@ defmodule MDM.MDMApp do
       %{
         id: Monitor,
         start: {Monitor, :start_link, []}
-      }
+      },
+      {Task.Supervisor, name: MonitorTasksSup}
     ]
   end
 

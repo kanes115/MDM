@@ -10,7 +10,11 @@ defmodule MDM.Monitor do
   defmodule CollectMachineMetric do
     @interval 10_000 #ms
 
-    def collect_loop(machines) do
+    def get_task(machines) do
+      fn -> collect_loop(machines) end
+    end
+
+    defp collect_loop(machines) do
       receive do
       after
         @interval ->
@@ -62,7 +66,8 @@ defmodule MDM.Monitor do
 
 
   def handle_call({:start_monitoring, machines}, _, %__MODULE__{state: :waiting}) do
-    Task.async(fn -> CollectMachineMetric.collect_loop(machines) end)
+    task = CollectMachineMetric.get_task(machines)
+    Task.Supervisor.start_child(MDM.MonitorTasksSup, task)
     {:reply, :ok, %__MODULE__{state: :ignored}} # TODO
   end
 
