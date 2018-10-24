@@ -3,6 +3,12 @@ import _ from 'lodash';
 import * as actionTypes from '../../actions';
 import * as deploymentActionTypes from '../../actions/graph/deployment';
 
+import {
+  machineToTrafficData,
+  serviceToTrafficData,
+  connectionToTrafficData,
+} from './utils';
+
 const initialState = {
   renderer: 'global',
   name: '',
@@ -62,31 +68,11 @@ const trafficData = (state = initialState, action) => {
         updated: Date.now(),
       };
     case actionTypes.CREATE_NEW_MACHINE: {
-      const newNodes = [...state.nodes];
-      const newConnections = [...state.connections];
       const newMachine = _.get(action, 'payload.machine', {});
-      newNodes.push({
-        renderer: 'region',
-        name: _.get(newMachine, 'name'),
-        nodes: [
-          {
-            nodes: [],
-            name: 'INTERNET',
-            renderer: 'focusedChild',
-            maxVolume: 100000,
-          },
-        ],
-        connections: [],
-        class: 'danger',
-        metadata: {},
-      });
-      newConnections.push({
-        source: 'INTERNET',
-        target: _.get(newMachine, 'name'),
-        metrics: {},
-        notices: [],
-        class: 'normal',
-      });
+      const {
+        nodes: newNodes,
+        connections: newConnections,
+      } = machineToTrafficData(state, newMachine);
 
       return {
         ...state,
@@ -97,28 +83,7 @@ const trafficData = (state = initialState, action) => {
     }
     case actionTypes.CREATE_NEW_SERVICE: {
       const newService = _.get(action, 'payload.service', {});
-      const servicesNode = { ...state.nodes[1] };
-      const services = [...servicesNode.nodes];
-      const connections = [...servicesNode.connections];
-
-      services.push({
-        nodes: [],
-        name: _.get(newService, 'name'),
-        renderer: 'focusedChild',
-        maxVolume: 100000,
-      });
-      connections.push({
-        source: 'INTERNET',
-        target: _.get(newService, 'name'),
-        metrics: {},
-        notices: [],
-        class: 'normal',
-      });
-
-      servicesNode.nodes = services;
-      servicesNode.connections = connections;
-      const nodes = [...state.nodes];
-      nodes[1] = servicesNode;
+      const { nodes } = serviceToTrafficData(state, newService);
 
       return {
         ...state,
@@ -128,28 +93,45 @@ const trafficData = (state = initialState, action) => {
     }
     case actionTypes.CREATE_NEW_CONNECTION: {
       const newConnection = _.get(action, 'payload.connection', {});
-      const servicesNode = { ...state.nodes[1] };
-      const connections = [...servicesNode.connections];
-
-      connections.push({
-        source: _.get(newConnection, 'service_from'),
-        target: _.get(newConnection, 'service_to'),
-        metrics: {},
-        notices: [],
-        class: 'normal',
-        metadata: {
-          port: _.get(newConnection, 'port'),
-        },
-      });
-
-      servicesNode.connections = connections;
-      const nodes = [...state.nodes];
-      nodes[1] = servicesNode;
+      const { nodes } = connectionToTrafficData(state, newConnection);
 
       return {
         ...state,
         nodes,
         updated: Date.now(),
+      };
+    }
+
+    case actionTypes.INITIALIZE_LOADED_SYSTEM: {
+      const system = _.get(action, 'payload.system');
+      const machines = _.get(system, 'machines');
+      const services = _.get(system, 'services');
+      const connections = _.get(system, 'connections');
+
+      const newState = { ...state };
+      _.forEach(machines, (machine) => {
+        const {
+          nodes: newNodes,
+          connections: newConnections,
+        } = machineToTrafficData(newState, machine);
+
+        newState.nodes = newNodes;
+        newState.connections = newConnections;
+      });
+      _.forEach(services, (service) => {
+        const { nodes: newNodes } = serviceToTrafficData(newState, service);
+
+        newState.nodes = newNodes;
+      });
+      _.forEach(connections, (connection) => {
+        const { nodes } = connectionToTrafficData(newState, connection);
+
+        newState.nodes = nodes;
+      });
+      newState.updated = Date.now();
+
+      return {
+        ...newState,
       };
     }
 

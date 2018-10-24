@@ -1,3 +1,7 @@
+import _ from 'lodash';
+
+import { validateModel } from '../providers/websocket';
+
 export const OPEN_FORM = 'OPEN_FORM';
 
 export function openForm(formType, object = null) {
@@ -103,6 +107,73 @@ export function updateConnection(connection, oldConnection) {
     payload: {
       connection,
       oldConnection,
+    },
+  };
+}
+
+export const START_FILE_PROCESSING = 'START_FILE_PROCESSING';
+
+export function startFileProcessing() {
+  return {
+    type: START_FILE_PROCESSING,
+  };
+}
+
+export const FILE_PROCESSING_PROGRESS = 'FILE_PROCESSING_PROGRESS';
+
+export function fileProcessingProgress(progressEvent) {
+  return {
+    type: FILE_PROCESSING_PROGRESS,
+    payload: {
+      progressEvent,
+    },
+  };
+}
+
+export const FILE_PROCESSING_SUCCESS = 'FILE_PROCESSING_SUCCESS';
+
+export function fileProcessingSuccess(successEvent) {
+  const result = _.get(successEvent, 'target.result', '');
+  const model = JSON.parse(result);
+  validateModel(model);
+
+  return {
+    type: FILE_PROCESSING_SUCCESS,
+    payload: {
+      successEvent,
+    },
+  };
+}
+
+export const FILE_PROCESSING_ERROR = 'FILE_PROCESSING_ERROR';
+
+export function fileProcessingError(errorEvent) {
+  return {
+    type: FILE_PROCESSING_ERROR,
+    payload: {
+      errorEvent,
+    },
+  };
+}
+
+export const SYSTEM_CHECK_SUCCESS = 'SYSTEM_CHECK_SUCCESS';
+
+export function systemCheckSuccess(body) {
+  return {
+    type: SYSTEM_CHECK_SUCCESS,
+    payload: {
+      body,
+    },
+  };
+}
+
+export const INITIALIZE_LOADED_SYSTEM = 'INITIALIZE_LOADED_SYSTEM';
+
+export function initializeLoadedSystem(system) {
+  return {
+    type: INITIALIZE_LOADED_SYSTEM,
+    payload: {
+      system,
     },
   };
 }

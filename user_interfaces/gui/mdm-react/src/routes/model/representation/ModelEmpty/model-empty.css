@@ -1,0 +1,12 @@
+.mdm-drop-zone {
+    width: 100%;
+    border-radius: 5px;
+    border: 2px dashed transparent;
+
+    transition: border 0.2s;
+}
+
+.mdm-drop-zone:hover {
+    border-radius: 5px;
+    border: 2px dashed black;
+}

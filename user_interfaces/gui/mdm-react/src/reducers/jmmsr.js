@@ -6,6 +6,15 @@ import { system } from '../utils/jmmsr/schema';
 
 const initialState = {
   activeSystemId: '',
+  fileLoader: {
+    error: null,
+    file: null,
+    loading: false,
+    progress: 0,
+    valid: false,
+    validating: false,
+    validationError: null,
+  },
   form: {
     formObject: null,
     formOpen: false,
@@ -237,6 +246,100 @@ const jmmsr = (state = initialState, action) => {
         },
       };
     }
+
+    case actionTypes.START_FILE_PROCESSING: {
+      return {
+        ...state,
+        fileLoader: {
+          ...state.fileLoader,
+          error: null,
+          file: null,
+          loading: true,
+          progress: 0,
+        },
+      };
+    }
+    case actionTypes.FILE_PROCESSING_PROGRESS: {
+      const event = _.get(action, 'payload.progressEvent');
+      const lengthComputable = _.get(event, 'lengthComputable', false);
+      const loaded = _.get(event, 'loaded', 0);
+      const total = _.get(event, 'total', 0);
+
+      if (lengthComputable) {
+        return {
+          ...state,
+          fileLoader: {
+            ...state.fileLoader,
+            progress: loaded / total,
+          },
+        };
+      }
+
+      return state;
+    }
+    case actionTypes.FILE_PROCESSING_SUCCESS: {
+      const event = _.get(action, 'payload.successEvent');
+      const result = _.get(event, 'target.result', '');
+      const file = JSON.parse(result);
+
+      return {
+        ...state,
+        fileLoader: {
+          ...state.fileLoader,
+          error: null,
+          file,
+          loading: false,
+          progress: 1,
+          validating: true,
+        },
+      };
+    }
+    case actionTypes.FILE_PROCESSING_ERROR: {
+      const event = _.get(action, 'payload.errorEvent');
+
+      return {
+        ...state,
+        fileLoader: {
+          ...state.fileLoader,
+          error: event,
+          file: null,
+          loading: false,
+          progress: 1,
+        },
+      };
+    }
+
+    case actionTypes.SYSTEM_CHECK_SUCCESS: {
+      const body = _.get(action, 'payload.body');
+      const file = _.get(state, 'fileLoader.file');
+      const valid = _.get(body, 'is_ok', false);
+
+      if (valid) {
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [state.activeSystemId]: file,
+          },
+          fileLoader: {
+            ...state.fileLoader,
+            valid,
+            validating: false,
+            validationError: null,
+          },
+        };
+      }
+      return {
+        ...state,
+        fileLoader: {
+          ...state.fileLoader,
+          valid,
+          validating: false,
+          validationError: body,
+        },
+      };
+    }
+
     default:
       return state;
   }
