@@ -16,7 +16,15 @@ function deploySystem() {
   }));
 }
 
+function validateModel(model) {
+  dispatcher.sendMessage(JSON.stringify({
+    command_name: 'check_correctness',
+    body: model,
+  }));
+}
+
 export {
   collectSystemData,
   deploySystem,
+  validateModel,
 };

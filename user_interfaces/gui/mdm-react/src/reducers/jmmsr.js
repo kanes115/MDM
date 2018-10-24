@@ -11,6 +11,9 @@ const initialState = {
     file: null,
     loading: false,
     progress: 0,
+    valid: false,
+    validating: false,
+    validationError: null,
   },
   form: {
     formObject: null,
@@ -287,6 +290,7 @@ const jmmsr = (state = initialState, action) => {
           file,
           loading: false,
           progress: 1,
+          validating: true,
         },
       };
     }
@@ -301,6 +305,37 @@ const jmmsr = (state = initialState, action) => {
           file: null,
           loading: false,
           progress: 1,
+        },
+      };
+    }
+
+    case actionTypes.SYSTEM_CHECK_SUCCESS: {
+      const body = _.get(action, 'payload.body');
+      const file = _.get(state, 'fileLoader.file');
+      const valid = _.get(body, 'is_ok', false);
+
+      if (valid) {
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [state.activeSystemId]: file,
+          },
+          fileLoader: {
+            ...state.fileLoader,
+            valid,
+            validating: false,
+            validationError: null,
+          },
+        };
+      }
+      return {
+        ...state,
+        fileLoader: {
+          ...state.fileLoader,
+          valid,
+          validating: false,
+          validationError: body,
         },
       };
     }

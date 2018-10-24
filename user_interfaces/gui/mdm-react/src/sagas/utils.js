@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 import {
   WEB_SOCKET_MESSAGE_RECEIVED,
 } from '../actions/websocketActions';
@@ -7,6 +9,9 @@ import {
   systemDeployed,
   systemDeploymentError,
 } from '../actions/graph/deployment';
+import {
+  systemCheckSuccess,
+} from '../actions';
 
 export function onSocketOpen(emit) {
   return () => {
@@ -52,6 +57,9 @@ export function mapMessageToAction(message) {
     }
     case 'deployed': {
       return systemDeployed();
+    }
+    case 'checked': {
+      return systemCheckSuccess(body);
     }
     case 'error': {
       return mapErrorToAction(message);

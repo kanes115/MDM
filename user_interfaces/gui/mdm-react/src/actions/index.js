@@ -1,3 +1,7 @@
+import _ from 'lodash';
+
+import { validateModel } from '../providers/websocket';
+
 export const OPEN_FORM = 'OPEN_FORM';
 
 export function openForm(formType, object = null) {
@@ -129,6 +133,10 @@ export function fileProcessingProgress(progressEvent) {
 export const FILE_PROCESSING_SUCCESS = 'FILE_PROCESSING_SUCCESS';
 
 export function fileProcessingSuccess(successEvent) {
+  const result = _.get(successEvent, 'target.result', '');
+  const model = JSON.parse(result);
+  validateModel(model);
+
   return {
     type: FILE_PROCESSING_SUCCESS,
     payload: {
@@ -144,6 +152,28 @@ export function fileProcessingError(errorEvent) {
     type: FILE_PROCESSING_ERROR,
     payload: {
       errorEvent,
+    },
+  };
+}
+
+export const SYSTEM_CHECK_SUCCESS = 'SYSTEM_CHECK_SUCCESS';
+
+export function systemCheckSuccess(body) {
+  return {
+    type: SYSTEM_CHECK_SUCCESS,
+    payload: {
+      body,
+    },
+  };
+}
+
+export const INITIALIZE_LOADED_SYSTEM = 'INITIALIZE_LOADED_SYSTEM';
+
+export function initializeLoadedSystem(system) {
+  return {
+    type: INITIALIZE_LOADED_SYSTEM,
+    payload: {
+      system,
     },
   };
 }
