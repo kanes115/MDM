@@ -294,6 +294,33 @@ const jmmsr = (state = initialState, action) => {
       return state;
     }
 
+    case actionTypes.DELETE_CONNECTION: {
+      const deletedConnection = _.get(action, 'payload.connection');
+
+      const activeSystem = { ...state.systems[state.activeSystemId] };
+      const newConnections = [...activeSystem.connections];
+
+      const index = _.findIndex(
+        newConnections,
+        connection => _.isEqual(connection, deletedConnection),
+      );
+      if (index !== -1) {
+        newConnections.splice(index, 1);
+
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [state.activeSystemId]: {
+              ...state.systems[state.activeSystemId],
+              connections: newConnections,
+            },
+          },
+        };
+      }
+      return state;
+    }
+
     case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
       const { activeSystemId } = state;
       const machines = _.get(state, `systems.${activeSystemId}.machines`);
