@@ -222,6 +222,42 @@ const jmmsr = (state = initialState, action) => {
       };
     }
 
+    case actionTypes.DELETE_MACHINE: {
+      const deletedMachine = _.get(action, 'payload.machine');
+
+      const activeSystem = {...state.systems[state.activeSystemId]};
+      const newMachines = [...activeSystem.machines];
+      const newServices = [...activeSystem.services];
+
+      const index = _.findIndex(newMachines, machine => _.isEqual(machine, deletedMachine));
+      if (index !== -1) {
+        newMachines.splice(index, 1);
+        _.forEach(
+          newServices,
+          (service) => {
+            const newAvailableMachines = _.filter(
+              _.get(service, 'requirements.available_machines', []),
+              availableMachine => availableMachine === _.get(deletedMachine, 'id'),
+            );
+            _.set(service, 'requirements.available_machines', newAvailableMachines);
+          },
+        );
+
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [state.activeSystemId]: {
+              ...state.systems[state.activeSystemId],
+              machines: newMachines,
+              services: newServices,
+            },
+          },
+        };
+      }
+      return state;
+    }
+
     case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {
       const { activeSystemId } = state;
       const machines = _.get(state, `systems.${activeSystemId}.machines`);
