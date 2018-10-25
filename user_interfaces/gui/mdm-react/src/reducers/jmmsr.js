@@ -225,7 +225,7 @@ const jmmsr = (state = initialState, action) => {
     case actionTypes.DELETE_MACHINE: {
       const deletedMachine = _.get(action, 'payload.machine');
 
-      const activeSystem = {...state.systems[state.activeSystemId]};
+      const activeSystem = { ...state.systems[state.activeSystemId] };
       const newMachines = [...activeSystem.machines];
       const newServices = [...activeSystem.services];
 
@@ -251,6 +251,42 @@ const jmmsr = (state = initialState, action) => {
               ...state.systems[state.activeSystemId],
               machines: newMachines,
               services: newServices,
+            },
+          },
+        };
+      }
+      return state;
+    }
+
+    case actionTypes.DELETE_SERVICE: {
+      const deletedService = _.get(action, 'payload.service');
+      const deletedServiceName = _.get(deletedService, 'name');
+
+      const activeSystem = { ...state.systems[state.activeSystemId] };
+      const newServices = [...activeSystem.services];
+
+      const index = _.findIndex(
+        newServices,
+        service => _.isEqual(_.get(service, 'name'), deletedServiceName),
+      );
+      if (index !== -1) {
+        newServices.splice(index, 1);
+        const newConnections = _.filter(
+          activeSystem.connections,
+          connection => (
+            (_.get(connection, 'service_from') !== deletedServiceName)
+            && (_.get(connection, 'service_to') !== deletedServiceName)
+          ),
+        );
+
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [state.activeSystemId]: {
+              ...state.systems[state.activeSystemId],
+              services: newServices,
+              connections: newConnections,
             },
           },
         };
