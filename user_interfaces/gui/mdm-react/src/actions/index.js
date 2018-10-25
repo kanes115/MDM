@@ -111,6 +111,39 @@ export function updateConnection(connection, oldConnection) {
   };
 }
 
+export const DELETE_MACHINE = 'DELETE_MACHINE';
+
+export function deleteMachine(machine) {
+  return {
+    type: DELETE_MACHINE,
+    payload: {
+      machine,
+    },
+  };
+}
+
+export const DELETE_SERVICE = 'DELETE_SERVICE';
+
+export function deleteService(service) {
+  return {
+    type: DELETE_SERVICE,
+    payload: {
+      service,
+    },
+  };
+}
+
+export const DELETE_CONNECTION = 'DELETE_CONNECTION';
+
+export function deleteConnection(connection) {
+  return {
+    type: DELETE_CONNECTION,
+    payload: {
+      connection,
+    },
+  };
+}
+
 export const START_FILE_PROCESSING = 'START_FILE_PROCESSING';
 
 export function startFileProcessing() {

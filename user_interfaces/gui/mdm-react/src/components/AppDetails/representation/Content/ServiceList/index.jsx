@@ -22,7 +22,7 @@ class ServiceList extends Component {
   };
 
   render() {
-    const { services, onEditClick } = this.props;
+    const { services, onDeleteClick, onEditClick } = this.props;
     const { expanded } = this.state;
 
     return services.length > 0 && (
@@ -36,7 +36,7 @@ class ServiceList extends Component {
               key={service.name}
               canModify={true}
               isExpanded={expanded[service.name]}
-              onDeleteClick={() => console.log('delete', service.name)}
+              onDeleteClick={() => onDeleteClick('service', service)}
               onEditClick={() => onEditClick('service', service)}
               service={service}
               toggleMachineExpanded={this.toggleMachineExpanded}
@@ -50,6 +50,7 @@ class ServiceList extends Component {
 
 ServiceList.propTypes = {
   services: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onDeleteClick: PropTypes.func.isRequired,
   onEditClick: PropTypes.func.isRequired,
 };
 ServiceList.defaultProps = {};

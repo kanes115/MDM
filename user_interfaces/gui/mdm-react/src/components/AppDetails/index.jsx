@@ -3,7 +3,12 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
-import { openForm } from '../../actions';
+import {
+  deleteMachine,
+  deleteService,
+  deleteConnection,
+  openForm,
+} from '../../actions';
 
 import AppDetails from './representation';
 
@@ -14,6 +19,7 @@ class AppDetailsContainer extends Component {
       deploymentError,
       errorOccurred,
       isModelEmpty,
+      onDeleteClick,
       onEditClick,
     } = this.props;
 
@@ -23,6 +29,7 @@ class AppDetailsContainer extends Component {
         deploymentError={deploymentError}
         errorOccurred={errorOccurred}
         isModelEmpty={isModelEmpty}
+        onDeleteClick={onDeleteClick}
         onEditClick={onEditClick}
       />
     );
@@ -39,6 +46,7 @@ AppDetailsContainer.propTypes = {
   deploymentError: PropTypes.shape(),
   errorOccurred: PropTypes.bool,
   isModelEmpty: PropTypes.bool.isRequired,
+  onDeleteClick: PropTypes.func.isRequired,
   onEditClick: PropTypes.func.isRequired,
 };
 AppDetailsContainer.defaultProps = {
@@ -67,6 +75,18 @@ function mapStateToProps({
 
 function mapDispatchToProps(dispatch) {
   return {
+    onDeleteClick: (type, object) => {
+      switch (type) {
+        case 'machine':
+          return dispatch(deleteMachine(object));
+        case 'service':
+          return dispatch(deleteService(object));
+        case 'connection':
+          return dispatch(deleteConnection(object));
+        default:
+          return null;
+      }
+    },
     onEditClick: (type, object) => dispatch(openForm(type, object)),
   };
 }
