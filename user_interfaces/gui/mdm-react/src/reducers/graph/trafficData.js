@@ -132,6 +132,47 @@ const trafficData = (state = initialState, action) => {
       };
     }
 
+    case actionTypes.DELETE_SERVICE: {
+      const deletedService = _.get(action, 'payload.service');
+
+      const newNodes = [...state.nodes];
+      const newServiceNode = { ...newNodes[1] };
+      const newServices = [...newServiceNode.nodes];
+
+      const serviceIndex = _.findIndex(
+        newServices,
+        service => service.name === deletedService.name,
+      );
+      const newConnections = _.reduce(
+        newServiceNode.connections,
+        (connections, connection) => {
+          if (
+            connection.target === deletedService.name
+            || connection.source === deletedService.name
+          ) {
+            return connections;
+          }
+          connections.push(connection);
+          return connections;
+        },
+        [],
+      );
+
+      if (serviceIndex !== -1) {
+        newServices.splice(serviceIndex, 1);
+      }
+
+      newServiceNode.nodes = newServices;
+      newServiceNode.connections = newConnections;
+      newNodes[1] = newServiceNode;
+
+      return {
+        ...state,
+        nodes: newNodes,
+        updated: Date.now(),
+      };
+    }
+
     case actionTypes.INITIALIZE_LOADED_SYSTEM: {
       const system = _.get(action, 'payload.system');
       const machines = _.get(system, 'machines');
