@@ -11,7 +11,13 @@ defmodule MDMMinion.BackendNif do
 
   @spec halo() :: :ok
   def halo() do
-    # if the NIF can't be loaded, this function is called instead.
     exit(:nif_library_not_loaded)
   end
+
+  @spec run_service(String.t, String.t) :: :ok
+  def run_service(_service_dir, _exec_path) do
+    exit(:nif_library_not_loaded)
+  end
+
+
 end
