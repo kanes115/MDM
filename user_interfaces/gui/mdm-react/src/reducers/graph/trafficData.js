@@ -102,6 +102,36 @@ const trafficData = (state = initialState, action) => {
       };
     }
 
+    case actionTypes.DELETE_MACHINE: {
+      const deletedMachine = _.get(action, 'payload.machine');
+
+      const newNodes = [...state.nodes];
+      const newConnections = [...state.connections];
+
+      const nodeIndex = _.findIndex(
+        newNodes,
+        node => node.name === deletedMachine.name,
+      );
+      const connectionIndex = _.findIndex(
+        newConnections,
+        connection => connection.target === deletedMachine.name,
+      );
+
+      if (nodeIndex !== -1) {
+        newNodes.splice(nodeIndex, 1);
+      }
+      if (connectionIndex !== -1) {
+        newConnections.splice(connectionIndex, 1);
+      }
+
+      return {
+        ...state,
+        nodes: newNodes,
+        connections: newConnections,
+        updated: Date.now(),
+      };
+    }
+
     case actionTypes.INITIALIZE_LOADED_SYSTEM: {
       const system = _.get(action, 'payload.system');
       const machines = _.get(system, 'machines');
