@@ -96,7 +96,7 @@ function mapStateToProps({
 function mapDispatchToProps(dispatch) {
   return {
     createConnection: (connection) => dispatch(createNewConnection(connection)),
-    updateConnection: (connection, oldConnection) => dispatch(updateConnection(connection, oldConnection)),
+    updateConnection: (newConnection, oldConnection) => dispatch(updateConnection(newConnection, oldConnection)),
   };
 }
 

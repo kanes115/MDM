@@ -215,7 +215,7 @@ const jmmsr = (state = initialState, action) => {
     }
     case actionTypes.UPDATE_CONNECTION: {
       const connections = [...state.systems[state.activeSystemId].connections];
-      const newConnection = _.get(action, 'payload.connection');
+      const newConnection = _.get(action, 'payload.newConnection');
       const oldConnection = _.get(action, 'payload.oldConnection');
       const index = _.findIndex(connections, con => _.isEqual(con, oldConnection));
 

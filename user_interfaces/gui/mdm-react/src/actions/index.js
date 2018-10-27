@@ -103,11 +103,11 @@ export function updateService(newService, oldService) {
 
 export const UPDATE_CONNECTION = 'UPDATE_CONNECTION';
 
-export function updateConnection(connection, oldConnection) {
+export function updateConnection(newConnection, oldConnection) {
   return {
     type: UPDATE_CONNECTION,
     payload: {
-      connection,
+      newConnection,
       oldConnection,
     },
   };

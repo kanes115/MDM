@@ -174,6 +174,38 @@ const trafficData = (state = initialState, action) => {
         updated: Date.now(),
       };
     }
+    case actionTypes.UPDATE_CONNECTION: {
+      const oldConnection = _.get(action, 'payload.oldConnection');
+      const newConnection = _.get(action, 'payload.newConnection');
+      const newNodes = [...state.nodes];
+      const servicesNode = newNodes[1];
+      const serviceConnections = [...servicesNode.connections];
+
+      servicesNode.connections = _.map(
+        serviceConnections,
+        (connection) => {
+          if (
+            connection.source === oldConnection.service_from
+            && connection.target === oldConnection.service_to
+          ) {
+            return {
+              ...connection,
+              source: newConnection.service_from,
+              target: newConnection.service_to,
+            };
+          }
+          return connection;
+        },
+      );
+
+      newNodes[1] = servicesNode;
+
+      return {
+        ...state,
+        nodes: newNodes,
+        updated: Date.now(),
+      };
+    }
 
     case actionTypes.DELETE_MACHINE: {
       const deletedMachine = _.get(action, 'payload.machine');
