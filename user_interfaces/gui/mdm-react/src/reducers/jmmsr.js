@@ -175,10 +175,25 @@ const jmmsr = (state = initialState, action) => {
     }
     case actionTypes.UPDATE_SERVICE: {
       const services = [...state.systems[state.activeSystemId].services];
-      const updatedServiceName = _.get(action, 'payload.service.name');
-      const index = _.findIndex(services, service => service.name === updatedServiceName);
+      const connections = [...state.systems[state.activeSystemId].connections];
+      const newServiceName = _.get(action, 'payload.newService.name');
+      const oldServiceName = _.get(action, 'payload.oldService.name');
+      const index = _.findIndex(services, service => service.name === oldServiceName);
 
-      services[index] = _.get(action, 'payload.service');
+      services[index] = _.get(action, 'payload.newService');
+      const newConnections = _.map(
+        connections,
+        (connection) => {
+          const newConnection = { ...connection };
+          if (newConnection.service_from === oldServiceName) {
+            newConnection.service_from = newServiceName;
+          }
+          if (newConnection.service_to === oldServiceName) {
+            newConnection.service_to = newServiceName;
+          }
+          return newConnection;
+        },
+      );
 
       return {
         ...state,
@@ -193,6 +208,7 @@ const jmmsr = (state = initialState, action) => {
           [state.activeSystemId]: {
             ...state.systems[state.activeSystemId],
             services,
+            connections: newConnections,
           },
         },
       };

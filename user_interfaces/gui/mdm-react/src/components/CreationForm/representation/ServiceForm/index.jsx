@@ -43,7 +43,7 @@ class ServiceFormWrapper extends Component {
 
     if (_.isEmpty(errors)) {
       if (formObject) {
-        updateService(service);
+        updateService(service, formObject);
       } else {
         createService(service);
       }
@@ -91,7 +91,7 @@ function mapStateToProps({
 function mapDispatchToProps(dispatch) {
   return {
     createService: (service) => dispatch(createNewService(service)),
-    updateService: (service) => dispatch(updateService(service)),
+    updateService: (newService, oldService) => dispatch(updateService(newService, oldService)),
   };
 }
 

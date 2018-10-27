@@ -135,6 +135,45 @@ const trafficData = (state = initialState, action) => {
         connections: newConnections,
       };
     }
+    case actionTypes.UPDATE_SERVICE: {
+      const newServiceName = _.get(action, 'payload.newService.name', '');
+      const oldServiceName = _.get(action, 'payload.oldService.name', '');
+
+      const newNodes = [...state.nodes];
+      const servicesNode = { ...newNodes[1] };
+
+      const services = [...servicesNode.nodes];
+      const serviceConnections = [...servicesNode.connections];
+
+      const serviceIndex = _.findIndex(services, service => service.name === oldServiceName);
+      if (serviceIndex !== -1) {
+        services[serviceIndex].name = newServiceName;
+      }
+      const newServiceConnections = _.map(
+        serviceConnections,
+        (connection) => {
+          const newConnection = { ...connection };
+          if (connection.source === oldServiceName) {
+            newConnection.source = newServiceName;
+          }
+          if (connection.target === oldServiceName) {
+            newConnection.target = newServiceName;
+          }
+
+          return newConnection;
+        },
+      );
+
+      servicesNode.nodes = services;
+      servicesNode.connections = newServiceConnections;
+      newNodes[1] = servicesNode;
+
+      return {
+        ...state,
+        nodes: newNodes,
+        updated: Date.now(),
+      };
+    }
 
     case actionTypes.DELETE_MACHINE: {
       const deletedMachine = _.get(action, 'payload.machine');

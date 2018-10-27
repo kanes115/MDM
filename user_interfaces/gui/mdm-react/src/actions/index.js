@@ -91,11 +91,12 @@ export function updateMachine(newMachine, oldMachine) {
 
 export const UPDATE_SERVICE = 'UPDATE_SERVICE';
 
-export function updateService(service) {
+export function updateService(newService, oldService) {
   return {
     type: UPDATE_SERVICE,
     payload: {
-      service,
+      newService,
+      oldService,
     },
   };
 }
