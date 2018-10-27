@@ -42,6 +42,10 @@ defmodule MDMMinion.Deployer do
                                       [name, prepared_dir, start_script_path]})
     {:reply, :ok, update_run_services(s, name, pid)}
   end
+  def handle_call({:get_service_id, service_name}, _, %{run_services: services} = s) do
+    {:reply, {:ok, services[service_name]}, s}
+  end
+
 
   defp update_services_here(%{services_here: sh0} = state, s_name, file),
   do: %{state | services_here: Map.put(sh0, s_name, file)}

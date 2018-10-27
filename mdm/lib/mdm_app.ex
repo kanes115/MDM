@@ -6,7 +6,6 @@ defmodule MDM.MDMApp do
   alias MDM.InfoGatherer
   alias MDM.ServiceUploader
   alias MDM.CorrectnessChecker
-  alias MDM.Monitor
   alias MDM.MonitorTasksSup
 
 
@@ -38,10 +37,6 @@ defmodule MDM.MDMApp do
       %{
         id: InfoGatherer,
         start: {InfoGatherer, :start_link, []}
-      },
-      %{
-        id: Monitor,
-        start: {Monitor, :start_link, []}
       },
       {Task.Supervisor, name: MonitorTasksSup}
     ]

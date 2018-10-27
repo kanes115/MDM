@@ -1,5 +1,6 @@
 defmodule MDMMinion.Service do
   use GenServer
+  require Logger
 
   alias MDMMinion.BackendNif
 
@@ -27,10 +28,17 @@ defmodule MDMMinion.Service do
 
   def init(state) do
     log_path = get_log_path(state.name)
-    id = BackendNif.run_service(state.service_dir |> to_charlist,
+    {:ok, id} = BackendNif.run_service(state.service_dir |> to_charlist,
                                 state.exec_path |> to_charlist,
                                 log_path |> to_charlist)
+    Logger.info("Service started with session id #{id}")
     {:ok, %__MODULE__{state | id: id}}
+  end
+
+  def handle_call(:get_metrics, _, state) do
+    # TODO implement proper nif
+    metric = %{cpu: {:all, 45, 50, :ignore_for_now}, mem: {321932, 3829, :ignore_for_now}, net: {54, 23}}
+    {:reply, {:ok, metric}, state}
   end
 
   defp get_log_path(service_name) do
