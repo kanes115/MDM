@@ -102,6 +102,40 @@ const trafficData = (state = initialState, action) => {
       };
     }
 
+    case actionTypes.UPDATE_MACHINE: {
+      const newMachineName = _.get(action, 'payload.newMachine.name', '');
+      const oldMachineName = _.get(action, 'payload.oldMachine.name', '');
+      const newNodes = [...state.nodes];
+      const newConnections = [...state.connections];
+
+      if (newMachineName !== oldMachineName) {
+        const nodeIndex = _.findIndex(newNodes, node => node.name === oldMachineName);
+        const connectionIndex = _.findIndex(
+          newConnections,
+          connection => connection.source === oldMachineName
+            || connection.target === oldMachineName,
+        );
+        if (nodeIndex !== -1) {
+          newNodes[nodeIndex].name = newMachineName;
+        }
+        if (connectionIndex !== -1) {
+          if (newConnections[connectionIndex].source === oldMachineName) {
+            newConnections[connectionIndex].source = newMachineName;
+          }
+          if (newConnections[connectionIndex].target === oldMachineName) {
+            newConnections[connectionIndex].target = newMachineName;
+          }
+        }
+      }
+
+      return {
+        ...state,
+        updated: Date.now(),
+        nodes: newNodes,
+        connections: newConnections,
+      };
+    }
+
     case actionTypes.DELETE_MACHINE: {
       const deletedMachine = _.get(action, 'payload.machine');
 

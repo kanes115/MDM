@@ -79,11 +79,12 @@ export function updateSystemConfig(config) {
 
 export const UPDATE_MACHINE = 'UPDATE_MACHINE';
 
-export function updateMachine(machine) {
+export function updateMachine(newMachine, oldMachine) {
   return {
     type: UPDATE_MACHINE,
     payload: {
-      machine,
+      newMachine,
+      oldMachine,
     },
   };
 }

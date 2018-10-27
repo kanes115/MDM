@@ -46,7 +46,7 @@ const jmmsr = (state = initialState, action) => {
         },
       };
 
-    case actionTypes.CREATE_NEW_SYSTEM:
+    case actionTypes.CREATE_NEW_SYSTEM: {
       const newSystems = { ...state.systems };
       const createdSystem = _.cloneDeep(system);
       _.set(createdSystem, 'name', action.payload.systemId);
@@ -63,6 +63,7 @@ const jmmsr = (state = initialState, action) => {
         },
         systems: newSystems,
       };
+    }
 
     case actionTypes.CREATE_NEW_SERVICE:
       return {
@@ -150,10 +151,10 @@ const jmmsr = (state = initialState, action) => {
       };
     case actionTypes.UPDATE_MACHINE: {
       const machines = [...state.systems[state.activeSystemId].machines];
-      const updatedMachineId = _.get(action, 'payload.machine.id');
+      const updatedMachineId = _.get(action, 'payload.newMachine.id');
       const index = _.findIndex(machines, machine => machine.id === updatedMachineId);
 
-      machines[index] = _.get(action, 'payload.machine');
+      machines[index] = _.get(action, 'payload.newMachine');
 
       return {
         ...state,
