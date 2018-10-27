@@ -1,7 +1,7 @@
 {"command_name": "collect_data", "body": {
     "services": [
         {"name": "some_server",
-         "service_dir": "/examples/pinger_system/some_server/",
+         "service_dir": "/examples/pingers_system/some_server/",
          "service_executable": "start.sh",
          "containerized": false,
          "requirements": {
@@ -12,7 +12,7 @@
          }
         },
         {"name": "some_server2",
-         "service_dir": "/examples/pinger_system/some_server2/",
+         "service_dir": "/examples/pingers_system/some_server2/",
          "service_executable": "start.sh",
          "containerized": false,
          "requirements": {
