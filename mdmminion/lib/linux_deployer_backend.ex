@@ -1,5 +1,6 @@
 defmodule MDMMinion.LinuxDeployerBackend do
   @behaviour MDMMinion.Deployer
+  @behaviour MDMMinion.Service
   require Logger
 
   ## Deployer callbacks
@@ -20,16 +21,6 @@ defmodule MDMMinion.LinuxDeployerBackend do
     File.mkdir(service_dir)
     :ok = :erl_tar.extract(file, cwd: service_dir)
     service_dir
-  end
-
-  def run_service(service_dir, start_script_relative_path) do
-    # TODO for now we don't get ready for monitoring here
-    # TODO use System.at_exit/1 later
-    spawn fn ->
-      service_runner_script = MDMMinion.ScriptProvider.get(:service_runner, :unix)
-      cmd = "#{service_runner_script} #{start_script_relative_path} /logs"
-      System.cmd("bash", ["-c", cmd], cd: service_dir) end
-    :ok
   end
 
   ## Private

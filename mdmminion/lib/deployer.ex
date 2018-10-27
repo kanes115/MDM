@@ -2,6 +2,9 @@ defmodule MDMMinion.Deployer do
   use GenServer
   require Logger
 
+  alias MDMMinion.ServiceSup
+  alias MDMMinion.Service
+
   @type reason :: atom() # TODO be more specific
 
   @callback save_file(File.io_device(), prefix :: String.t) ::
@@ -19,7 +22,7 @@ defmodule MDMMinion.Deployer do
     b = get_backend()
     # TODO what if unknown backend?
     b.start()
-    {:ok, %{backend: b, services_here: %{}}}
+    {:ok, %{backend: b, services_here: %{}, run_services: %{}}}
   end
 
   def handle_call({:save_file, file, service_name}, _from, %{backend: b} = s) do
@@ -33,12 +36,18 @@ defmodule MDMMinion.Deployer do
   def handle_call({:run_service, name, start_script_path}, _from, %{backend: b} = s) do
     service_file = get_service_file(s, name)
     prepared_dir = b.prepare_service_files(service_file, name)
-    b.run_service(prepared_dir, start_script_path)
-    {:reply, :ok, s}
+    {:ok, pid}
+    = DynamicSupervisor.start_child(ServiceSup,
+                                    {Service,
+                                      [name, prepared_dir, start_script_path]})
+    {:reply, :ok, update_run_services(s, name, pid)}
   end
 
   defp update_services_here(%{services_here: sh0} = state, s_name, file),
   do: %{state | services_here: Map.put(sh0, s_name, file)}
+
+  defp update_run_services(%{run_services: sh0} = state, s_name, pid),
+  do: %{state | run_services: Map.put(sh0, s_name, pid)}
 
   defp get_service_file(%{services_here: sh}, s_name),
   do: sh[s_name]

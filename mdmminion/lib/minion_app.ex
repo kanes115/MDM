@@ -5,8 +5,10 @@ defmodule MDMMinion.MDMMinionApp do
   alias MDMMinion.Deployer
   alias MDMMinion.Router
   alias MDMMinion.NetworkInfo
+  alias MDMMinion.ServiceSup
 
   def start(_type, _args) do
+    System.cwd! |> IO.inspect
     Application.ensure_all_started(:os_mon)
     Supervisor.start_link(children(), strategy: :one_for_one)
   end
@@ -14,6 +16,9 @@ defmodule MDMMinion.MDMMinionApp do
 
   defp children do
     [
+      {DynamicSupervisor,
+        strategy: :one_for_one,
+        name: ServiceSup},
       %{
         id: NetworkInfo,
         start: {NetworkInfo, :start_link, []}
