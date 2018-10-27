@@ -8,20 +8,23 @@ import ServiceList from './ServiceList';
 
 class AppDetailsContent extends Component {
   render() {
-    const { activeSystem, onEditClick } = this.props;
+    const { activeSystem, onDeleteClick, onEditClick } = this.props;
 
     return (
       <div>
         <MachineList
           machines={_.get(activeSystem, 'machines', [])}
+          onDeleteClick={onDeleteClick}
           onEditClick={onEditClick}
         />
         <ServiceList
           services={_.get(activeSystem, 'services', [])}
+          onDeleteClick={onDeleteClick}
           onEditClick={onEditClick}
         />
         <ConnectionList
           connections={_.get(activeSystem, 'connections', [])}
+          onDeleteClick={onDeleteClick}
           onEditClick={onEditClick}
         />
       </div>
@@ -36,6 +39,7 @@ AppDetailsContent.propTypes = {
     machines: PropTypes.array,
     services: PropTypes.array,
   }),
+  onDeleteClick: PropTypes.func.isRequired,
   onEditClick: PropTypes.func.isRequired,
 };
 AppDetailsContent.defaultProps = {

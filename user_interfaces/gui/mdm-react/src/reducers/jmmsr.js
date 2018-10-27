@@ -46,7 +46,7 @@ const jmmsr = (state = initialState, action) => {
         },
       };
 
-    case actionTypes.CREATE_NEW_SYSTEM:
+    case actionTypes.CREATE_NEW_SYSTEM: {
       const newSystems = { ...state.systems };
       const createdSystem = _.cloneDeep(system);
       _.set(createdSystem, 'name', action.payload.systemId);
@@ -63,6 +63,7 @@ const jmmsr = (state = initialState, action) => {
         },
         systems: newSystems,
       };
+    }
 
     case actionTypes.CREATE_NEW_SERVICE:
       return {
@@ -150,10 +151,10 @@ const jmmsr = (state = initialState, action) => {
       };
     case actionTypes.UPDATE_MACHINE: {
       const machines = [...state.systems[state.activeSystemId].machines];
-      const updatedMachineId = _.get(action, 'payload.machine.id');
+      const updatedMachineId = _.get(action, 'payload.newMachine.id');
       const index = _.findIndex(machines, machine => machine.id === updatedMachineId);
 
-      machines[index] = _.get(action, 'payload.machine');
+      machines[index] = _.get(action, 'payload.newMachine');
 
       return {
         ...state,
@@ -174,10 +175,25 @@ const jmmsr = (state = initialState, action) => {
     }
     case actionTypes.UPDATE_SERVICE: {
       const services = [...state.systems[state.activeSystemId].services];
-      const updatedServiceName = _.get(action, 'payload.service.name');
-      const index = _.findIndex(services, service => service.name === updatedServiceName);
+      const connections = [...state.systems[state.activeSystemId].connections];
+      const newServiceName = _.get(action, 'payload.newService.name');
+      const oldServiceName = _.get(action, 'payload.oldService.name');
+      const index = _.findIndex(services, service => service.name === oldServiceName);
 
-      services[index] = _.get(action, 'payload.service');
+      services[index] = _.get(action, 'payload.newService');
+      const newConnections = _.map(
+        connections,
+        (connection) => {
+          const newConnection = { ...connection };
+          if (newConnection.service_from === oldServiceName) {
+            newConnection.service_from = newServiceName;
+          }
+          if (newConnection.service_to === oldServiceName) {
+            newConnection.service_to = newServiceName;
+          }
+          return newConnection;
+        },
+      );
 
       return {
         ...state,
@@ -192,13 +208,14 @@ const jmmsr = (state = initialState, action) => {
           [state.activeSystemId]: {
             ...state.systems[state.activeSystemId],
             services,
+            connections: newConnections,
           },
         },
       };
     }
     case actionTypes.UPDATE_CONNECTION: {
       const connections = [...state.systems[state.activeSystemId].connections];
-      const newConnection = _.get(action, 'payload.connection');
+      const newConnection = _.get(action, 'payload.newConnection');
       const oldConnection = _.get(action, 'payload.oldConnection');
       const index = _.findIndex(connections, con => _.isEqual(con, oldConnection));
 
@@ -220,6 +237,105 @@ const jmmsr = (state = initialState, action) => {
           },
         },
       };
+    }
+
+    case actionTypes.DELETE_MACHINE: {
+      const deletedMachine = _.get(action, 'payload.machine');
+
+      const activeSystem = { ...state.systems[state.activeSystemId] };
+      const newMachines = [...activeSystem.machines];
+      const newServices = [...activeSystem.services];
+
+      const index = _.findIndex(newMachines, machine => _.isEqual(machine, deletedMachine));
+      if (index !== -1) {
+        newMachines.splice(index, 1);
+        _.forEach(
+          newServices,
+          (service) => {
+            const newAvailableMachines = _.filter(
+              _.get(service, 'requirements.available_machines', []),
+              availableMachine => availableMachine === _.get(deletedMachine, 'id'),
+            );
+            _.set(service, 'requirements.available_machines', newAvailableMachines);
+          },
+        );
+
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [state.activeSystemId]: {
+              ...state.systems[state.activeSystemId],
+              machines: newMachines,
+              services: newServices,
+            },
+          },
+        };
+      }
+      return state;
+    }
+
+    case actionTypes.DELETE_SERVICE: {
+      const deletedService = _.get(action, 'payload.service');
+      const deletedServiceName = _.get(deletedService, 'name');
+
+      const activeSystem = { ...state.systems[state.activeSystemId] };
+      const newServices = [...activeSystem.services];
+
+      const index = _.findIndex(
+        newServices,
+        service => _.isEqual(_.get(service, 'name'), deletedServiceName),
+      );
+      if (index !== -1) {
+        newServices.splice(index, 1);
+        const newConnections = _.filter(
+          activeSystem.connections,
+          connection => (
+            (_.get(connection, 'service_from') !== deletedServiceName)
+            && (_.get(connection, 'service_to') !== deletedServiceName)
+          ),
+        );
+
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [state.activeSystemId]: {
+              ...state.systems[state.activeSystemId],
+              services: newServices,
+              connections: newConnections,
+            },
+          },
+        };
+      }
+      return state;
+    }
+
+    case actionTypes.DELETE_CONNECTION: {
+      const deletedConnection = _.get(action, 'payload.connection');
+
+      const activeSystem = { ...state.systems[state.activeSystemId] };
+      const newConnections = [...activeSystem.connections];
+
+      const index = _.findIndex(
+        newConnections,
+        connection => _.isEqual(connection, deletedConnection),
+      );
+      if (index !== -1) {
+        newConnections.splice(index, 1);
+
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [state.activeSystemId]: {
+              ...state.systems[state.activeSystemId],
+              connections: newConnections,
+            },
+          },
+        };
+      }
+      return state;
     }
 
     case deploymentActionTypes.SYSTEM_DATA_COLLECTED: {

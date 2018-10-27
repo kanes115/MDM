@@ -79,34 +79,69 @@ export function updateSystemConfig(config) {
 
 export const UPDATE_MACHINE = 'UPDATE_MACHINE';
 
-export function updateMachine(machine) {
+export function updateMachine(newMachine, oldMachine) {
   return {
     type: UPDATE_MACHINE,
     payload: {
-      machine,
+      newMachine,
+      oldMachine,
     },
   };
 }
 
 export const UPDATE_SERVICE = 'UPDATE_SERVICE';
 
-export function updateService(service) {
+export function updateService(newService, oldService) {
   return {
     type: UPDATE_SERVICE,
     payload: {
-      service,
+      newService,
+      oldService,
     },
   };
 }
 
 export const UPDATE_CONNECTION = 'UPDATE_CONNECTION';
 
-export function updateConnection(connection, oldConnection) {
+export function updateConnection(newConnection, oldConnection) {
   return {
     type: UPDATE_CONNECTION,
     payload: {
-      connection,
+      newConnection,
       oldConnection,
+    },
+  };
+}
+
+export const DELETE_MACHINE = 'DELETE_MACHINE';
+
+export function deleteMachine(machine) {
+  return {
+    type: DELETE_MACHINE,
+    payload: {
+      machine,
+    },
+  };
+}
+
+export const DELETE_SERVICE = 'DELETE_SERVICE';
+
+export function deleteService(service) {
+  return {
+    type: DELETE_SERVICE,
+    payload: {
+      service,
+    },
+  };
+}
+
+export const DELETE_CONNECTION = 'DELETE_CONNECTION';
+
+export function deleteConnection(connection) {
+  return {
+    type: DELETE_CONNECTION,
+    payload: {
+      connection,
     },
   };
 }

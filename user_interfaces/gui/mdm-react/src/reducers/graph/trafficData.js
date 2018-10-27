@@ -102,6 +102,209 @@ const trafficData = (state = initialState, action) => {
       };
     }
 
+    case actionTypes.UPDATE_MACHINE: {
+      const newMachineName = _.get(action, 'payload.newMachine.name', '');
+      const oldMachineName = _.get(action, 'payload.oldMachine.name', '');
+      const newNodes = [...state.nodes];
+      const newConnections = [...state.connections];
+
+      if (newMachineName !== oldMachineName) {
+        const nodeIndex = _.findIndex(newNodes, node => node.name === oldMachineName);
+        const connectionIndex = _.findIndex(
+          newConnections,
+          connection => connection.source === oldMachineName
+            || connection.target === oldMachineName,
+        );
+        if (nodeIndex !== -1) {
+          newNodes[nodeIndex].name = newMachineName;
+        }
+        if (connectionIndex !== -1) {
+          if (newConnections[connectionIndex].source === oldMachineName) {
+            newConnections[connectionIndex].source = newMachineName;
+          }
+          if (newConnections[connectionIndex].target === oldMachineName) {
+            newConnections[connectionIndex].target = newMachineName;
+          }
+        }
+      }
+
+      return {
+        ...state,
+        updated: Date.now(),
+        nodes: newNodes,
+        connections: newConnections,
+      };
+    }
+    case actionTypes.UPDATE_SERVICE: {
+      const newServiceName = _.get(action, 'payload.newService.name', '');
+      const oldServiceName = _.get(action, 'payload.oldService.name', '');
+
+      const newNodes = [...state.nodes];
+      const servicesNode = { ...newNodes[1] };
+
+      const services = [...servicesNode.nodes];
+      const serviceConnections = [...servicesNode.connections];
+
+      const serviceIndex = _.findIndex(services, service => service.name === oldServiceName);
+      if (serviceIndex !== -1) {
+        services[serviceIndex].name = newServiceName;
+      }
+      const newServiceConnections = _.map(
+        serviceConnections,
+        (connection) => {
+          const newConnection = { ...connection };
+          if (connection.source === oldServiceName) {
+            newConnection.source = newServiceName;
+          }
+          if (connection.target === oldServiceName) {
+            newConnection.target = newServiceName;
+          }
+
+          return newConnection;
+        },
+      );
+
+      servicesNode.nodes = services;
+      servicesNode.connections = newServiceConnections;
+      newNodes[1] = servicesNode;
+
+      return {
+        ...state,
+        nodes: newNodes,
+        updated: Date.now(),
+      };
+    }
+    case actionTypes.UPDATE_CONNECTION: {
+      const oldConnection = _.get(action, 'payload.oldConnection');
+      const newConnection = _.get(action, 'payload.newConnection');
+      const newNodes = [...state.nodes];
+      const servicesNode = newNodes[1];
+      const serviceConnections = [...servicesNode.connections];
+
+      servicesNode.connections = _.map(
+        serviceConnections,
+        (connection) => {
+          if (
+            connection.source === oldConnection.service_from
+            && connection.target === oldConnection.service_to
+          ) {
+            return {
+              ...connection,
+              source: newConnection.service_from,
+              target: newConnection.service_to,
+            };
+          }
+          return connection;
+        },
+      );
+
+      newNodes[1] = servicesNode;
+
+      return {
+        ...state,
+        nodes: newNodes,
+        updated: Date.now(),
+      };
+    }
+
+    case actionTypes.DELETE_MACHINE: {
+      const deletedMachine = _.get(action, 'payload.machine');
+
+      const newNodes = [...state.nodes];
+      const newConnections = [...state.connections];
+
+      const nodeIndex = _.findIndex(
+        newNodes,
+        node => node.name === deletedMachine.name,
+      );
+      const connectionIndex = _.findIndex(
+        newConnections,
+        connection => connection.target === deletedMachine.name,
+      );
+
+      if (nodeIndex !== -1) {
+        newNodes.splice(nodeIndex, 1);
+      }
+      if (connectionIndex !== -1) {
+        newConnections.splice(connectionIndex, 1);
+      }
+
+      return {
+        ...state,
+        nodes: newNodes,
+        connections: newConnections,
+        updated: Date.now(),
+      };
+    }
+
+    case actionTypes.DELETE_SERVICE: {
+      const deletedService = _.get(action, 'payload.service');
+
+      const newNodes = [...state.nodes];
+      const newServiceNode = { ...newNodes[1] };
+      const newServices = [...newServiceNode.nodes];
+
+      const serviceIndex = _.findIndex(
+        newServices,
+        service => service.name === deletedService.name,
+      );
+      const newConnections = _.reduce(
+        newServiceNode.connections,
+        (connections, connection) => {
+          if (
+            connection.target === deletedService.name
+            || connection.source === deletedService.name
+          ) {
+            return connections;
+          }
+          connections.push(connection);
+          return connections;
+        },
+        [],
+      );
+
+      if (serviceIndex !== -1) {
+        newServices.splice(serviceIndex, 1);
+      }
+
+      newServiceNode.nodes = newServices;
+      newServiceNode.connections = newConnections;
+      newNodes[1] = newServiceNode;
+
+      return {
+        ...state,
+        nodes: newNodes,
+        updated: Date.now(),
+      };
+    }
+
+    case actionTypes.DELETE_CONNECTION: {
+      const deletedConnection = _.get(action, 'payload.connection');
+
+      const newNodes = [...state.nodes];
+      const newServiceNode = { ...newNodes[1] };
+      const newConnections = [...newServiceNode.connections];
+
+      const connectionIndex = _.findIndex(
+        newConnections,
+        connection => connection.source === deletedConnection.service_from
+        && connection.target === deletedConnection.service_to,
+      );
+
+      if (connectionIndex !== -1) {
+        newConnections.splice(connectionIndex, 1);
+      }
+
+      newServiceNode.connections = newConnections;
+      newNodes[1] = newServiceNode;
+
+      return {
+        ...state,
+        nodes: newNodes,
+        updated: Date.now(),
+      };
+    }
+
     case actionTypes.INITIALIZE_LOADED_SYSTEM: {
       const system = _.get(action, 'payload.system');
       const machines = _.get(system, 'machines');

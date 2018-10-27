@@ -45,7 +45,7 @@ class ConnectionList extends Component {
   };
 
   render() {
-    const { connections, onEditClick } = this.props;
+    const { connections, onDeleteClick, onEditClick } = this.props;
 
     return connections.length > 0 && (
       <div>
@@ -59,7 +59,7 @@ class ConnectionList extends Component {
               canModify={true}
               isExpanded={this.isExpanded(connection)}
               connection={connection}
-              onDeleteClick={() => console.log('delete', connection)}
+              onDeleteClick={() => onDeleteClick('connection', connection)}
               onEditClick={() => onEditClick('connection', connection)}
               toggleConnectionExpanded={this.toggleConnectionExpanded}
             />
@@ -72,6 +72,7 @@ class ConnectionList extends Component {
 
 ConnectionList.propTypes = {
   connections: PropTypes.arrayOf(PropTypes.object).isRequired,
+  onDeleteClick: PropTypes.func.isRequired,
   onEditClick: PropTypes.func.isRequired,
 };
 ConnectionList.defaultProps = {};

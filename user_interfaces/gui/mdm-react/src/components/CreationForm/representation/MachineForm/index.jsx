@@ -27,10 +27,10 @@ class MachineFormWrapper extends Component {
 
   onSubmit = () => {
     const { createMachine, formObject, updateMachine } = this.props;
-    const {values: machine} = this.machineCreationFormAPI.getState();
+    const { values: machine } = this.machineCreationFormAPI.getState();
 
     if (formObject) {
-      updateMachine(machine);
+      updateMachine(machine, formObject);
     } else {
       createMachine(machine);
     }
@@ -57,7 +57,7 @@ function mapStateToProps({
 function mapDispatchToProps(dispatch) {
   return {
     createMachine: (machine) => dispatch(createNewMachine(machine)),
-    updateMachine: (machine) => dispatch(updateMachine(machine)),
+    updateMachine: (newMachine, oldMachine) => dispatch(updateMachine(newMachine, oldMachine)),
   };
 }
 
