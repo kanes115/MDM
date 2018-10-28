@@ -52,7 +52,7 @@ class ConnectionList extends Component {
         <h3>
           {'Connections'}
         </h3>
-        <ul>
+        <ul className="element-list">
           {connections.map(connection => (
             <ConnectionListElement
               key={`${connection.service_from}-${connection.service_to}`}

@@ -1,36 +1,57 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
+import ElementField from '../ElementField';
 
 const Machine = ({ machine }) => (
-  <div>
-    <div>
-      {'IP Address: '}
-      {machine.ip}
-    </div>
-    <div>
-      {'Domain: '}
-      {machine.domain}
-    </div>
-    <div>
-      {'SSH Host: '}
-      {machine.ssh_host}
-    </div>
-    <div>
-      {'OS: '}
-      {machine.os}
-    </div>
-    {!_.isEmpty(machine.resources) && (
-      <div>
+  <div className="element-details">
+    <ElementField
+      hide={!machine.name}
+      label="Name:"
+      value={machine.name}
+    />
+    <ElementField
+      hide={!machine.ip}
+      label="IP Address:"
+      value={machine.ip}
+    />
+    <ElementField
+      hide={!machine.domain}
+      label="Domain:"
+      value={machine.domain}
+    />
+    <ElementField
+      hide={!machine.ssh_host}
+      label="SSH Host:"
+      value={machine.ssh_host}
+    />
+    <ElementField
+      hide={!machine.os}
+      label="OS:"
+      value={machine.os}
+    />
+    <div className="element-field">
+      <span className="key">
         {'Resources:'}
-        <br />
-        {'CPU: '}
-        {`${machine.resources.cpu.val} ${machine.resources.cpu.unit}`}
-        <br />
-        {'Memory: '}
-        {`${machine.resources.mem.val} ${machine.resources.mem.unit}`}
-      </div>
-    )}
+      </span>
+      {_.isEmpty(machine.resources) && (
+        <span className="value">
+          {'Not gathered yet'}
+        </span>
+      )}
+      <ElementField
+        hide={_.isEmpty(machine.resources)}
+        label="CPU:"
+        nested
+        value={`${_.get(machine, 'resources.cpu.val')} ${_.get(machine, 'resources.cpu.unit')}`}
+      />
+      <ElementField
+        hide={_.isEmpty(machine.resources)}
+        label="Memory:"
+        nested
+        value={`${_.get(machine, 'resources.mem.val')} ${_.get(machine, 'resources.mem.unit')}`}
+      />
+    </div>
   </div>
 );
 

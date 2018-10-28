@@ -9,4 +9,10 @@
     width: 224px;
     padding: 20px 8px 20px 8px;
     color: white;
+    overflow-y: scroll;
+}
+
+.mdm-details .element-list {
+    padding-left: 0;
+    list-style: none;
 }

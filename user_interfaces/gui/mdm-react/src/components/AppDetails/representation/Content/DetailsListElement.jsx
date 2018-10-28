@@ -15,6 +15,7 @@ const DetailsListElement = ({
   <li>
     <div className="mdm-details-element">
       <div className="title">
+        <div className="element-indicator" />
         {title}
       </div>
       <div className="options">
