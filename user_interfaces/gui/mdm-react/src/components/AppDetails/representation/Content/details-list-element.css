@@ -5,9 +5,53 @@
     align-items: center;
 }
 
+.mdm-details-element .title {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 145px;
+}
+
+.mdm-details-element .title .element-indicator {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 6px solid #ffbf00;
+    padding-right: 4px;
+}
+
 .mdm-details-element .options .mdm-details-element-option {
     border: none;
     background-color: transparent;
     color: white;
-    padding: 4px;
+    padding: 1px;
+}
+
+.mdm-details .element-list .element-details {
+    padding-left: 4px;
+    border-left: 1px solid #ffbf00;
+    overflow-wrap: break-word;
+    font-size: 0.9rem;
+}
+
+.mdm-details .element-list .element-details .element-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.mdm-details .element-list .element-details .element-field.nested {
+    padding-left: 4px;
+}
+
+.mdm-details .element-list .element-details .element-field .key {
+
+}
+
+.mdm-details .element-list .element-details .element-field .value {
+    padding-left: 4px;
+    color: #aaaaaa;
 }

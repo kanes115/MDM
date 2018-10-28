@@ -30,7 +30,7 @@ class MachineList extends Component {
         <h3>
           {'Machines'}
         </h3>
-        <ul>
+        <ul className="element-list">
           {machines.map(machine => (
             <MachineListElement
               key={machine.id}

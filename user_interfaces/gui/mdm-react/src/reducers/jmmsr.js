@@ -372,6 +372,9 @@ const jmmsr = (state = initialState, action) => {
           file: null,
           loading: true,
           progress: 0,
+          valid: false,
+          validating: false,
+          validationError: null,
         },
       };
     }

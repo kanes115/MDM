@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import DropZone from 'react-dropzone';
+import c from 'classnames';
 
 import { EmptyState } from '../../../../components';
 
@@ -29,20 +30,32 @@ const ModelEmpty = ({
       <div>
         <span className="action">Drop</span> file to load modelled system
       </div>
-      <div>
-        Error: {`${error}`}
-      </div>
-      <div>
-        Loading: {`${loading}`}
-      </div>
-      <div>
-        Progress: {progress}
-      </div>
-      <div>
-        Validating: {`${validating}`}
-      </div>
-      <div>
-        Validation error: {`${JSON.stringify(validationError)}`}
+      {(loading || validating || error || validationError) && (
+        <div className="loader-progress-wrapper">
+          <span
+            className={c(
+              'loader-progress-status',
+              {
+                error: progress === 1 && (error || validationError),
+                complete: progress === 1 && !error && !validationError,
+              },
+            )}
+            style={{ width: `${progress * 100}%` }}
+          />
+        </div>
+      )}
+      {validating && (
+        <div>
+          Validating...
+        </div>
+      )}
+      <div className="loader-error">
+        {error && (
+          JSON.stringify(error)
+        )}
+        {validationError && (
+          JSON.stringify(validationError)
+        )}
       </div>
     </DropZone>
   </EmptyState>
