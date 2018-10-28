@@ -10,6 +10,9 @@ import {
 import {
   systemCheckSuccess,
 } from '../actions';
+import {
+  machineMetricsReceived,
+} from '../actions/metrics';
 
 export function onSocketOpen(emit) {
   return () => {
@@ -48,7 +51,18 @@ function mapErrorToAction(message) {
 }
 
 export function mapMessageToAction(message) {
-  const { body, msg: type } = message;
+  const { body, msg: type, event_name: eventType } = message;
+
+  if (eventType) {
+    switch (eventType) {
+      case 'machine_metrics': {
+        return machineMetricsReceived(body);
+      }
+      default:
+        break;
+    }
+  }
+
   switch (type) {
     case 'collected': {
       return systemDataCollected(body);

@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import * as actionTypes from '../actions';
 import * as deploymentActionTypes from '../actions/graph/deployment';
+import * as metricsActionTypes from '../actions/metrics';
 
 import { system } from '../utils/jmmsr/schema';
 
@@ -457,6 +458,29 @@ const jmmsr = (state = initialState, action) => {
           validationError: body,
         },
       };
+    }
+
+    case metricsActionTypes.MACHINE_METRICS_RECEIVED: {
+      const systemId = state.activeSystemId;
+      const activeSystem = state.systems[systemId];
+      const machines = _.get(action, 'payload.eventBody.machines', []);
+
+      if (systemId && activeSystem) {
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [systemId]: {
+              ...activeSystem,
+              live_metrics: {
+                ...state.systems[systemId].live_metrics,
+                machines,
+              },
+            },
+          },
+        };
+      }
+      return state;
     }
 
     default:

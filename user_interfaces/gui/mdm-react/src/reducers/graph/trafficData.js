@@ -2,6 +2,7 @@ import _ from 'lodash';
 
 import * as actionTypes from '../../actions';
 import * as deploymentActionTypes from '../../actions/graph/deployment';
+import * as metricsActionTypes from '../../actions/metrics';
 
 import {
   machineToTrafficData,
@@ -23,8 +24,7 @@ const initialState = {
       class: 'normal',
       metadata: {},
       data: {
-        connected: 1,
-        deployed: 1,
+        classPercents: {},
       },
     },
     {
@@ -42,8 +42,7 @@ const initialState = {
       class: 'normal',
       metadata: {},
       data: {
-        connected: 0,
-        deployed: 0,
+        classPercents: {},
       },
     },
   ],
@@ -395,6 +394,61 @@ const trafficData = (state = initialState, action) => {
         updated: Date.now(),
       };
     }
+
+    case metricsActionTypes.MACHINE_METRICS_RECEIVED: {
+      const machines = _.get(action, 'payload.eventBody.machines', []);
+      const newNodes = [...state.nodes];
+      const newConnections = [...state.connections];
+
+      machines.forEach((machine) => {
+        const index = _.findIndex(newNodes, node => node.name === machine.machine_name);
+        if (index !== -1) {
+          const cpu = _.get(machine, 'metrics.cpu.val', 0);
+          const mem = _.get(machine, 'metrics.mem.val', 0);
+
+          newNodes[index].metadata = {
+            ...newNodes[index].metadata,
+            cpu: cpu / 100,
+            mem: mem / 100,
+          };
+        }
+
+        const connection1Index = _.findIndex(
+          newConnections,
+          connection => connection.target === machine.machine_name,
+        );
+        if (connection1Index !== -1) {
+          const net = _.get(machine, 'metrics.net_in.val', 0);
+
+          newConnections[connection1Index].metrics = {
+            danger: 0,
+            normal: net * 1000,
+            warning: 0,
+          };
+        }
+        const connection2Index = _.findIndex(
+          newConnections,
+          connection => connection.source === machine.machine_name,
+        );
+        if (connection2Index !== -1) {
+          const net = _.get(machine, 'metrics.net_out.val', 0);
+
+          newConnections[connection2Index].metrics = {
+            danger: 0,
+            normal: net * 1000,
+            warning: 0,
+          };
+        }
+      });
+
+      return {
+        ...state,
+        nodes: newNodes,
+        connections: newConnections,
+        updated: Date.now(),
+      };
+    }
+
     default:
       return state;
   }
