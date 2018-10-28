@@ -10,3 +10,26 @@
     border-radius: 5px;
     border: 2px dashed black;
 }
+
+.mdm-drop-zone .loader-progress-wrapper {
+    height: 20px;
+    position: relative;
+    background: #555;
+    padding: 10px;
+}
+
+.mdm-drop-zone .loader-progress-wrapper .loader-progress-status {
+    display: block;
+    height: 100%;
+    background: #ffbf00;
+    position: relative;
+    overflow: hidden;
+}
+
+.mdm-drop-zone .loader-progress-wrapper .loader-progress-status.complete {
+    background: greenyellow;
+}
+
+.mdm-drop-zone .loader-progress-wrapper .loader-progress-status.error {
+    background: crimson;
+}
