@@ -1,0 +1,65 @@
+{
+    "services": [
+        {"name": "service1",
+         "service_dir": "/examples/forker_pinger_system/server1/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 25,
+            "hdd": 200,
+            "available_machines": [38]
+         }
+        },
+        {"name": "service2",
+         "service_dir": "/examples/forker_pinger_system/server2/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 8324,
+            "hdd": 201,
+            "available_machines": [39]
+         }
+        },
+        {"name": "service3",
+         "service_dir": "/examples/forker_pinger_system/server3/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 8324,
+            "hdd": 201,
+            "available_machines": [40]
+         }
+        }
+    ],
+"machines": [
+           {"id": 38,
+            "name": "pecet1",
+            "ip": "172.31.0.5",
+            "ssh_host": "LocalVM",
+            "os": "linux"
+           },
+            {"id": 39,
+            "name": "pecet2",
+            "domain": "minion2.com",
+            "ssh_host": "unknown",
+            "os": "linux"
+           },
+            {"id": 40,
+            "name": "pecet3",
+            "domain": "minion3.com",
+            "ssh_host": "unknown",
+            "os": "linux"
+           }
+          ],
+"connections": [
+             ],
+"config": {"metrics": ["cpuUsage"],
+          "persist": true,
+          "persist_machine": 34,
+          "pilot_machine": 34
+        },
+"live_metrics": []
+}

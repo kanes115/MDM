@@ -36,3 +36,13 @@ services:
       context: ..
       args:
           - DOMAIN=minion2.com
+  minion3:
+    networks:
+        default:
+            aliases:
+                - minion3.com
+    build:
+      dockerfile: ./big_tests/Dockerfile.minion
+      context: ..
+      args:
+          - DOMAIN=minion3.com
