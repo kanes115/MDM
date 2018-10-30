@@ -5,6 +5,7 @@ defmodule MDMMinion.MDMMinionApp do
   alias MDMMinion.Deployer
   alias MDMMinion.Router
   alias MDMMinion.NetworkInfo
+  alias MDMMinion.CPUInfo
   alias MDMMinion.ServiceSup
 
   def start(_type, _args) do
@@ -22,6 +23,10 @@ defmodule MDMMinion.MDMMinionApp do
       %{
         id: NetworkInfo,
         start: {NetworkInfo, :start_link, []}
+      },
+      %{
+        id: CPUInfo,
+        start: {CPUInfo, :start_link, []}
       },
       %{
         id: InfoGatherer,
