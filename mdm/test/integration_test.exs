@@ -150,8 +150,10 @@ defmodule IntegrationTests do
     ^ping_res = MDMRpc.call(:minion2, File, :read, ["/ping.txt"])
     # logs are created
     IO.puts "---- logs ----"
-    MDMRpc.call(:minion1, File, :read, ["/logs"])
+    MDMRpc.call(:minion1, File, :read, ["/mdm_logs/some_server_log.log"])
     |> IO.inspect
+    WebSocket.receive() |> IO.inspect
+    WebSocket.receive() |> IO.inspect
   end
 
 
