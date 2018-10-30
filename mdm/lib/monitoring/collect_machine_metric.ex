@@ -1,7 +1,7 @@
 defmodule MDM.CollectMachineMetric do
   # TODO change file name
   require Logger
-  @interval 10_000 #ms
+  @interval 2_000 #ms
   @behaviour MDM.Monitor
 
   @moduledoc """
