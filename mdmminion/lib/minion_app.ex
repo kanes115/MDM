@@ -9,7 +9,6 @@ defmodule MDMMinion.MDMMinionApp do
   alias MDMMinion.ServiceSup
 
   def start(_type, _args) do
-    System.cwd! |> IO.inspect
     Application.ensure_all_started(:os_mon)
     Supervisor.start_link(children(), strategy: :one_for_one)
   end
