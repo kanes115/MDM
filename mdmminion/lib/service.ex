@@ -9,17 +9,20 @@ defmodule MDMMinion.Service do
 
   @log_dir "/mdm_logs"
 
-  @callback run_service(dir(), dir()) :: id()
+  @callback get_cpu_usage(id()) :: integer()
 
-  defstruct [:name,
+  defstruct [:backend,
+             :name,
              :service_dir,
              :exec_path,
              :id]
 
   @doc "Exec path is relative to service dir"
   def start_link([name, service_dir, exec_path]) do
+    b = get_backend()
     File.mkdir!(@log_dir)
-    state = %__MODULE__{name: name,
+    state = %__MODULE__{backend: b,
+                        name: name,
                         service_dir: service_dir,
                         exec_path: exec_path}
     GenServer.start_link(__MODULE__, state)
@@ -36,13 +39,22 @@ defmodule MDMMinion.Service do
   end
 
   def handle_call(:get_metrics, _, state) do
-    # TODO implement proper nif
-    metric = %{cpu: {:all, 45, 50, :ignore_for_now}, mem: {321932, 3829, :ignore_for_now}, net: {54, 23}}
+    cpu_usage = state.backend.get_cpu_usage(state.id)
+    metric = %{cpu: cpu_usage, mem: {321932, 3829, :ignore_for_now}, net: {54, 23}}
     {:reply, {:ok, metric}, state}
   end
 
   defp get_log_path(service_name) do
     log_file_name = service_name <> "_log.log"
     Path.join(@log_dir, log_file_name)
+  end
+
+  def backend(%__MODULE__{backend: b}), do: b
+
+  def get_backend() do
+    case :os.type do
+      {:unix, :linux} -> MDMMinion.LinuxDeployerBackend
+      _ -> :undefined
+    end
   end
 end
