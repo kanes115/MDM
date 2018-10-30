@@ -72,16 +72,7 @@ defmodule MDM.CollectServicesMetric do
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end
 
-  defp parse_mem({:badrpc, reason}) do
-    %{"is_ok" => false, "reason" => inspect(reason)}
-  end
-  defp parse_mem({0, _allocated, _worst}) do
-    Logger.warn("Got total memory 0 bytes. Is memsup turned on on minions?")
-    %{"is_ok" => false, "reason" => "internal server error (is memsup turned on on minions?)"}
-  end
-  defp parse_mem({total, allocated, _worst}) do
-    {total, allocated} |> IO.inspect
-    percent = allocated * 100 / total
+  defp parse_mem(percent) do
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end
 

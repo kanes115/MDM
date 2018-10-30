@@ -26,18 +26,32 @@ defmodule MDMMinion.LinuxDeployerBackend do
     Logger.info "collecting cpu usage..."
     res = get_processes(session_id)
     |> Enum.map(&get_cpu_of_pid/1)
-    |> IO.inspect
     |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
     |> Enum.sum
     Logger.info "Cpu usage for session #{session_id |> to_string} is #{res |> to_string} %"
     res
   end
 
+  def get_mem_usage(session_id) do
+    Logger.info "collecting mem usage..."
+    res = get_processes(session_id)
+    |> Enum.map(&get_mem_of_pid/1)
+    |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
+    |> Enum.sum
+    Logger.info "Mem usage for session #{session_id |> to_string} is #{res |> to_string} %"
+    res
+  end
+
+
   ## Private
   
   defp get_cpu_of_pid(pid) do
     cores_no = get_cores_no()
     get_resource_of_pid(pid, "cpu") / cores_no
+  end
+
+  defp get_mem_of_pid(pid) do
+    get_resource_of_pid(pid, "mem")
   end
   
   defp get_processes(session_id) do
