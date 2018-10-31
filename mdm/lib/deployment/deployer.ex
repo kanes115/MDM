@@ -63,6 +63,7 @@ defmodule MDM.Deployer do
     do
       resp = req |> answer("deployed", 200, %{})
       MDM.Monitor.start_monitoring_machines(jmmsr |> MDM.Jmmsr.get_machines)
+      MDM.Monitor.start_monitoring_services(decision)
       {:reply, resp, state}
     else
       error ->

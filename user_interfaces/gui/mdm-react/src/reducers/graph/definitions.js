@@ -3,27 +3,29 @@ const initialState = {
     volume: {
       default: {
         top: {
-          header: 'Connected',
-          data: 'data.connected',
-          format: '0',
+          header: '% CPU',
+          data: 'metadata.cpu',
+          format: '0.00%',
         },
         bottom: {
-          header: 'Deployed',
-          data: 'data.deployed',
-          format: '0',
+          header: '% Memory',
+          data: 'metadata.mem',
+          format: '0.00%',
         },
+        donut: {},
+        arc: {},
+      },
+      entry: {
+        top: {},
+        bottom: {},
+        donut: {},
+        arc: {},
       },
       region: {
-        top: {
-          header: 'Connected',
-          data: 'data.connected',
-          format: '0',
-        },
-        bottom: {
-          header: 'Deployed',
-          data: 'data.deployed',
-          format: '0',
-        },
+        top: {},
+        bottom: {},
+        donut: {},
+        arc: {},
       },
     },
   },

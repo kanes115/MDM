@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
 
 RUN mix local.hex --force
 
+RUN mix compile_c
 RUN mix do compile
 
 ARG DOMAIN

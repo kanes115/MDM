@@ -5,6 +5,8 @@ defmodule MDMMinion.MDMMinionApp do
   alias MDMMinion.Deployer
   alias MDMMinion.Router
   alias MDMMinion.NetworkInfo
+  alias MDMMinion.CPUInfo
+  alias MDMMinion.ServiceSup
 
   def start(_type, _args) do
     Application.ensure_all_started(:os_mon)
@@ -14,9 +16,16 @@ defmodule MDMMinion.MDMMinionApp do
 
   defp children do
     [
+      {DynamicSupervisor,
+        strategy: :one_for_one,
+        name: ServiceSup},
       %{
         id: NetworkInfo,
         start: {NetworkInfo, :start_link, []}
+      },
+      %{
+        id: CPUInfo,
+        start: {CPUInfo, :start_link, []}
       },
       %{
         id: InfoGatherer,

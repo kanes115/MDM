@@ -8,5 +8,4 @@ export default {
     persist_machine: null,
     pilot_machine: null,
   },
-  live_metrics: [],
 };

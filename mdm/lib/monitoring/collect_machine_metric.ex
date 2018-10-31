@@ -1,7 +1,7 @@
 defmodule MDM.CollectMachineMetric do
   # TODO change file name
   require Logger
-  @interval 10_000 #ms
+  @interval 2_000 #ms
   @behaviour MDM.Monitor
 
   @moduledoc """
@@ -34,11 +34,15 @@ defmodule MDM.CollectMachineMetric do
     |> Enum.map(fn machine ->
       {
         machine.name,
-        :rpc.call(Machine.node_name(machine), :cpu_sup, :util, [[]]),
+        get_cpu(Machine.node_name(machine)),
         :rpc.call(Machine.node_name(machine), :memsup, :get_memory_data, []),
         get_network(Machine.node_name(machine))
       }
       end)
+  end
+
+  defp get_cpu(node_name) do
+    GenServer.call({MDMMinion.CPUInfo, node_name}, :get_cpu_usage)
   end
 
   defp send_metrics(metrics) do
@@ -61,11 +65,8 @@ defmodule MDM.CollectMachineMetric do
      | acc]
   end
 
-  defp parse_cpu({:badrpc, reason}) do
-    %{"is_ok" => false, "reason" => inspect(reason)}
-  end
-  defp parse_cpu({:all, busy, non_busy, _}) do
-    percent = busy * 100 / non_busy
+  defp parse_cpu(percent) do
+    Logger.info "CPU usage is #{percent |> to_string}%"
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end
 
@@ -77,7 +78,6 @@ defmodule MDM.CollectMachineMetric do
     %{"is_ok" => false, "reason" => "internal server error (is memsup turned on on minions?)"}
   end
   defp parse_mem({total, allocated, _worst}) do
-    {total, allocated} |> IO.inspect
     percent = allocated * 100 / total
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end

@@ -13,11 +13,12 @@ defmodule MDM.Service do
       ram: non_neg_integer() | nil,
       hdd: non_neg_integer() | nil,
       available_machines: [integer()] # empty means "every machine"
-    }
+    },
+    pid: pid() | nil
   }
 
   defstruct [:name, :service_dir, :service_executable, :containerized,
-             :requirements]
+             :requirements, :pid]
 
 
   ## JmmsrElement callbacks
@@ -32,6 +33,10 @@ defmodule MDM.Service do
   def list?, do: true
 
   ## API
+  
+  def add_pid(service, pid), do: %{service | pid: pid}
+  
+  def get_pid(%__MODULE__{pid: pid}), do: pid
   
   def get_available_machines(%__MODULE__{requirements: %{available_machines: a}}),
   do: a

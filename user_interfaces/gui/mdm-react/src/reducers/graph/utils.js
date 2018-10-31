@@ -15,13 +15,27 @@ export function machineToTrafficData(state, newMachine) {
         maxVolume: 100000,
       },
     ],
+    maxVolume: 10000,
     connections: [],
     class: 'danger',
-    metadata: {},
+    data: {
+      classPercents: {},
+    },
+    metadata: {
+      cpu: 0,
+      mem: 0,
+    },
   });
   newConnections.push({
     source: 'INTERNET',
     target: _.get(newMachine, 'name'),
+    metrics: {},
+    notices: [],
+    class: 'normal',
+  });
+  newConnections.push({
+    source: _.get(newMachine, 'name'),
+    target: 'INTERNET',
     metrics: {},
     notices: [],
     class: 'normal',
