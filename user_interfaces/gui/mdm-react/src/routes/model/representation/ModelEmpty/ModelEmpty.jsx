@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import DropZone from 'react-dropzone';
 import c from 'classnames';
 
-import { EmptyState } from '../../../../components';
+import { EmptyState } from '../../../../components/index';
 
 import './model-empty.css';
 

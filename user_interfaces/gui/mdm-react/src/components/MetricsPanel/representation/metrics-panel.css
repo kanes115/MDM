@@ -1,0 +1,11 @@
+.mdm-metrics-panel {
+    position: absolute;
+    top: 0px;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+
+    width: 240px;
+    color: aliceblue;
+    background: #111111;
+}

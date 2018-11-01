@@ -5,6 +5,7 @@ import CloseIcon from './CloseIcon/index';
 import CreationButton from './CreationButton';
 import CreationForm from './CreationForm';
 import EmptyState from './EmptyState';
+import MetricsPanel from './MetricsPanel/index';
 
 export {
   AppHeader,
@@ -14,4 +15,5 @@ export {
   CreationButton,
   CreationForm,
   EmptyState,
+  MetricsPanel,
 };

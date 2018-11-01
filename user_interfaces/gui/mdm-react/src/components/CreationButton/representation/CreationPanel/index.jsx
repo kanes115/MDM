@@ -6,6 +6,7 @@ import CancelButton from './CancelButton';
 import ConfigurationButton from './ConfigurationButton';
 import CreationButtons from './CreationButtons';
 import DeploymentButton from './DeploymentButton';
+import MetricsButtons from './MetricsButtons';
 
 import './creation-panel.css';
 
@@ -43,6 +44,7 @@ const CreationPanel = ({
       isSystemActive={isSystemActive}
       modelling={modelling}
     />
+    <MetricsButtons />
     <ul>
       <CancelButton />
     </ul>

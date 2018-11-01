@@ -21,6 +21,10 @@ const initialState = {
     formOpen: false,
     formType: '',
   },
+  metricsPanel: {
+    panelOpen: false,
+    panelType: '',
+  },
   systems: {},
 };
 
@@ -481,6 +485,40 @@ const jmmsr = (state = initialState, action) => {
         };
       }
       return state;
+    }
+
+    case actionTypes.OPEN_METRICS_PANEL: {
+      return {
+        ...state,
+        metricsPanel: {
+          ...state.metricsPanel,
+          panelOpen: true,
+          panelType: '',
+        },
+      };
+    }
+
+    case actionTypes.CLOSE_METRICS_PANEL: {
+      return {
+        ...state,
+        metricsPanel: {
+          ...state.metricsPanel,
+          panelOpen: false,
+          panelType: '',
+        },
+      };
+    }
+
+    case actionTypes.CHANGE_METRICS_PANEL_TYPE: {
+      const { payload: { panelType } } = action;
+
+      return {
+        ...state,
+        metricsPanel: {
+          ...state.metricsPanel,
+          panelType,
+        },
+      };
     }
 
     default:
