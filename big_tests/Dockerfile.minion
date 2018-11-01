@@ -8,7 +8,8 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     util-linux \
     python3 \
-    ifstat
+    ifstat \
+    nethogs
 
 RUN mix local.hex --force
 
