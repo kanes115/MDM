@@ -41,7 +41,8 @@ defmodule MDMMinion.Service do
   def handle_call(:get_metrics, _, state) do
     cpu_usage = state.backend.get_cpu_usage(state.id)
     mem_usage = state.backend.get_mem_usage(state.id)
-    metric = %{cpu: cpu_usage, mem: mem_usage, net: {54, 23}}
+    net_usage = state.backend.get_net_usage(state.id)
+    metric = %{cpu: cpu_usage, mem: mem_usage, net: net_usage}
     {:reply, {:ok, metric}, state}
   end
 

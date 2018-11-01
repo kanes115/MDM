@@ -1,4 +1,3 @@
 ping -c 5 server1
 
-gcc forker.c -o forker
-./forker
+wget http://ipv4.download.thinkbroadband.com/1GB.zip
