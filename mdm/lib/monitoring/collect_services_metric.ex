@@ -5,14 +5,21 @@ defmodule MDM.CollectServicesMetric do
 
   @moduledoc """
   This is a module to monitor resources of the whole target machine.
-
-  Because we only use erlang function to get needed data, we don't need
-  to have any backends on mdmminion side and can simply do an rpc call.
   """
 
   alias MDM.Machine
   alias MDM.Event
   alias MDM.WSCommunicator
+
+  defmodule Parallel do
+    # TODO extract and use in different places probably
+    def map(collection, func) do
+      collection
+      |> Enum.map(&(Task.async(fn -> func.(&1) end)))
+      |> Enum.map(fn t -> Task.await(t) end)
+    end
+  end
+
 
   def get_task_fun(decision) do
     # if we want to have fresher pids, move it to per push function
@@ -41,8 +48,8 @@ defmodule MDM.CollectServicesMetric do
 
   defp get_metrics(decision) do
     decision
-    |> Enum.map(&get_metric/1)
-    |> Enum.map(&parse_metric/1)
+    |> Parallel.map(&get_metric/1)
+    |> Parallel.map(&parse_metric/1)
   end
 
   defp get_metric({service, _}) do
@@ -84,6 +91,7 @@ defmodule MDM.CollectServicesMetric do
     {%{"is_ok" => true, "val" => net_in, "unit" => "KB/s"},
      %{"is_ok" => true, "val" => net_out, "unit" => "KB/s"}}
   end
+
 end
 
 
