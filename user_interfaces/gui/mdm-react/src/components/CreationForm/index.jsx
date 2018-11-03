@@ -2,19 +2,19 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 
-import { closeForm } from '../../actions/index';
+import { closeForm } from '../../actions';
 
-import CreationForm from './representation/index';
+import CreationForm from './representation';
 
 class CreationFormWrapper extends Component {
   render() {
-    const { formOpen, formType } = this.props;
+    const { closeCreationForm, formOpen, formType } = this.props;
 
     return (
       <CreationForm
         formOpen={formOpen}
         formType={formType}
-        onClose={this.props.closeCreationForm}
+        onClose={closeCreationForm}
       />
     );
   }

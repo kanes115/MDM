@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import './App.css';
 
-import { AppContent, AppHeader, AppNavigation } from '../components';
+import { AppContent, AppHeader, AppNavigation } from '../components/index';
 import { initializeWebSocketChannel } from '../actions/websocketActions';
 
 class App extends Component {

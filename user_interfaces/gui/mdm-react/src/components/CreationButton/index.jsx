@@ -13,7 +13,7 @@ class CreationButtonWrapper extends Component {
         active: false,
     };
 
-    toggleCreationPanel = () => {
+    togglePanel = () => {
         this.setState(prevState => ({
             active: !prevState.active,
         }));
@@ -53,12 +53,12 @@ class CreationButtonWrapper extends Component {
 
     render() {
       const { active } = this.state;
-      const { formOpen, isSystemActive, modelling } = this.props;
+      const { formOpen, isSystemActive, modelling, panelOpen } = this.props;
 
       return (
         <CreationButton
           active={active}
-          formActive={formOpen}
+          formOpen={formOpen}
           handleConnectionCreation={this.handleConnectionCreation}
           handleMachineCreation={this.handleMachineCreation}
           handleServiceCreation={this.handleServiceCreation}
@@ -68,7 +68,8 @@ class CreationButtonWrapper extends Component {
           handleSystemDeployment={this.handleSystemDeployment}
           isSystemActive={isSystemActive}
           modelling={modelling}
-          toggleCreation={this.toggleCreationPanel}
+          panelOpen={panelOpen}
+          togglePanel={this.togglePanel}
         />
       );
     }
@@ -83,7 +84,12 @@ function mapStateToProps({
      gatheringData,
    },
  },
- jmmsr: { activeSystemId, form: { formOpen }, systems }
+ jmmsr: {
+   activeSystemId,
+   form: { formOpen },
+   metricsPanel: { panelOpen },
+   systems,
+ }
 }) {
   const activeSystem = systems[activeSystemId];
   const isSystemActive = activeSystemId.length > 0;
@@ -94,15 +100,16 @@ function mapStateToProps({
     formOpen,
     isSystemActive,
     modelling,
+    panelOpen,
   };
 }
 
 function mapDispatchToProps(dispatch) {
-    return {
-        deploy: () => dispatch(startDeploying()),
-        gatherData: activeSystem => dispatch(startGatheringData(activeSystem)),
-        openCreationForm: formType => dispatch(openForm(formType)),
-    };
+  return {
+    deploy: () => dispatch(startDeploying()),
+    gatherData: activeSystem => dispatch(startGatheringData(activeSystem)),
+    openCreationForm: formType => dispatch(openForm(formType)),
+  };
 }
 
 CreationButtonWrapper.propTypes = {
@@ -113,6 +120,7 @@ CreationButtonWrapper.propTypes = {
   isSystemActive: PropTypes.bool.isRequired,
   modelling: PropTypes.bool.isRequired,
   openCreationForm: PropTypes.func.isRequired,
+  panelOpen: PropTypes.bool.isRequired,
 };
 CreationButtonWrapper.defaultProps = {};
 

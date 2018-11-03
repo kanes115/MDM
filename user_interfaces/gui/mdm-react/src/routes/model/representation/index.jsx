@@ -1,7 +1,12 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
-import { CreationButton, CreationForm, EmptyState } from '../../../components';
+import {
+  CreationButton,
+  CreationForm,
+  EmptyState,
+  MetricsPanel,
+} from '../../../components/index';
 
 import ModelContent from './ModelContent';
 
@@ -31,6 +36,7 @@ class ModelPage extends Component {
                 }
         <CreationButton />
         <CreationForm />
+        <MetricsPanel />
       </div>
     );
   }

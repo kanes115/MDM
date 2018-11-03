@@ -8,12 +8,12 @@ import ModelPage from './representation/index';
 
 class ModelPageWrapper extends Component {
   render() {
-    const { isSystemActive } = this.props;
+    const { isSystemActive, openSystemCreationForm } = this.props;
 
     return (
       <ModelPage
         isSystemActive={isSystemActive}
-        openSystemCreationForm={this.props.openSystemCreationForm}
+        openSystemCreationForm={openSystemCreationForm}
       />
     );
   }

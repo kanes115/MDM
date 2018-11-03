@@ -1,14 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import CreationIcon from './CreationIcon/index';
-import CreationPanel from './CreationPanel/index';
+import CreationIcon from './CreationIcon';
+import CreationPanel from './CreationPanel';
 
 import './creation-button.css';
 
 const CreationButton = ({
   active,
-  formActive,
+  formOpen,
   handleConnectionCreation,
   handleMachineCreation,
   handleServiceCreation,
@@ -18,35 +18,33 @@ const CreationButton = ({
   handleSystemDeployment,
   isSystemActive,
   modelling,
-  toggleCreation,
-}) => (
-  !formActive
-    && (
-    <div className="mdm-creation-button">
-      {active
-        ? (
-          <CreationPanel
-            deactivate={toggleCreation}
-            handleConnectionCreation={handleConnectionCreation}
-            handleMachineCreation={handleMachineCreation}
-            handleServiceCreation={handleServiceCreation}
-            handleSystemConfiguration={handleSystemConfiguration}
-            handleSystemCreation={handleSystemCreation}
-            handleSystemDataCollection={handleSystemDataCollection}
-            handleSystemDeployment={handleSystemDeployment}
-            isSystemActive={isSystemActive}
-            modelling={modelling}
-          />
-        )
-        : (<CreationIcon activate={toggleCreation} />)
-        }
-    </div>
-    )
+  panelOpen,
+  togglePanel,
+}) => (!formOpen && !panelOpen) && (
+  <div className="mdm-creation-button">
+    {active
+      ? (
+        <CreationPanel
+          deactivate={togglePanel}
+          handleConnectionCreation={handleConnectionCreation}
+          handleMachineCreation={handleMachineCreation}
+          handleServiceCreation={handleServiceCreation}
+          handleSystemConfiguration={handleSystemConfiguration}
+          handleSystemCreation={handleSystemCreation}
+          handleSystemDataCollection={handleSystemDataCollection}
+          handleSystemDeployment={handleSystemDeployment}
+          isSystemActive={isSystemActive}
+          modelling={modelling}
+        />
+      )
+      : (<CreationIcon activate={togglePanel}/>)
+    }
+  </div>
 );
 
 CreationButton.propTypes = {
   active: PropTypes.bool.isRequired,
-  formActive: PropTypes.bool.isRequired,
+  formOpen: PropTypes.bool.isRequired,
   handleConnectionCreation: PropTypes.func.isRequired,
   handleMachineCreation: PropTypes.func.isRequired,
   handleServiceCreation: PropTypes.func.isRequired,
@@ -56,7 +54,8 @@ CreationButton.propTypes = {
   handleSystemDeployment: PropTypes.func.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
   modelling: PropTypes.bool.isRequired,
-  toggleCreation: PropTypes.func.isRequired,
+  panelOpen: PropTypes.bool.isRequired,
+  togglePanel: PropTypes.func.isRequired,
 };
 CreationButton.defaultProps = {};
 

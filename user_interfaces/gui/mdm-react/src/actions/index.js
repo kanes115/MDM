@@ -212,3 +212,30 @@ export function initializeLoadedSystem(system) {
     },
   };
 }
+
+export const OPEN_METRICS_PANEL = 'OPEN_METRICS_PANEL';
+
+export function openMetricsPanel() {
+  return {
+    type: OPEN_METRICS_PANEL,
+  };
+}
+
+export const CLOSE_METRICS_PANEL = 'CLOSE_METRICS_PANEL';
+
+export function closeMetricsPanel() {
+  return {
+    type: CLOSE_METRICS_PANEL,
+  };
+}
+
+export const CHANGE_METRICS_PANEL_TYPE = 'CHANGE_METRICS_PANEL_TYPE';
+
+export function changeMetricsPanelType(panelType) {
+  return {
+    type: CHANGE_METRICS_PANEL_TYPE,
+    payload: {
+      panelType,
+    },
+  };
+}
