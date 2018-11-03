@@ -5,6 +5,7 @@ import { CloseIcon } from '../..';
 import TypeChooser from './TypeChooser';
 
 import MachineMetrics from './MachineMetrics';
+import ServiceMetrics from './ServiceMetrics';
 
 import './metrics-panel.css';
 
@@ -21,6 +22,10 @@ const MetricsPanel = ({
     {panelType}
     <MachineMetrics
       metrics={metrics.machines}
+      panelType={panelType}
+    />
+    <ServiceMetrics
+      metrics={metrics.services}
       panelType={panelType}
     />
   </div>

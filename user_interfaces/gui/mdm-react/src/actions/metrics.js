@@ -8,3 +8,14 @@ export function machineMetricsReceived(eventBody) {
     },
   };
 }
+
+export const SERVICE_METRICS_RECEIVED = 'SERVICE_METRICS_RECEIVED';
+
+export function serviceMetricsReceived(eventBody) {
+  return {
+    type: SERVICE_METRICS_RECEIVED,
+    payload: {
+      eventBody,
+    },
+  };
+}
