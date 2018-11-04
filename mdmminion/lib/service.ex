@@ -20,7 +20,7 @@ defmodule MDMMinion.Service do
   @doc "Exec path is relative to service dir"
   def start_link([name, service_dir, exec_path]) do
     b = get_backend()
-    File.mkdir!(@log_dir)
+    File.mkdir(@log_dir)
     state = %__MODULE__{backend: b,
                         name: name,
                         service_dir: service_dir,

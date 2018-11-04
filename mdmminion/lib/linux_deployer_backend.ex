@@ -5,7 +5,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
 
   ## Deployer callbacks
   
-  def start, do: create_tmp_dir()
+  def start, do: ensure_tmp_dir_exists_and_empty()
 
   def save_file(file, prefix) do
     case File.copy(file, tmp_file_path(prefix)) do
@@ -27,7 +27,6 @@ defmodule MDMMinion.LinuxDeployerBackend do
     |> Enum.map(&get_cpu_of_pid/1)
     |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
     |> Enum.sum
-    Logger.info "Cpu usage for session #{session_id |> to_string} is #{res |> to_string} %"
     res
   end
 
@@ -36,7 +35,6 @@ defmodule MDMMinion.LinuxDeployerBackend do
     |> Enum.map(&get_mem_of_pid/1)
     |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
     |> Enum.sum
-    Logger.info "Mem usage for session #{session_id |> to_string} is #{res |> to_string} %"
     res
   end
 
@@ -48,7 +46,6 @@ defmodule MDMMinion.LinuxDeployerBackend do
               |> Enum.map(fn pid -> get_net_of_pid(stats, pid) end)
               |> Enum.reduce({0, 0},
                              fn({inn, out}, {in_acc, out_acc}) -> {inn + in_acc, out + out_acc} end)
-                               Logger.info "Net usage for session #{session_id |> to_string} is #{inspect(res)}"
                                res
       false ->
         {:error, :nethogs_not_installed}
@@ -160,7 +157,10 @@ defmodule MDMMinion.LinuxDeployerBackend do
   defp services_dir, do: "~/mdm_services/" |> Path.expand
 
 
-  defp create_tmp_dir, do: File.mkdir!(tmp_dir())
+  defp ensure_tmp_dir_exists_and_empty do
+    File.rm_rf(tmp_dir())
+    File.mkdir!(tmp_dir())
+  end
 
 
 end
