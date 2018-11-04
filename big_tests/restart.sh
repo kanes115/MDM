@@ -6,6 +6,10 @@ print_usage(){
 if [[ $# == 1 ]] && [[ "$1" == "rebuild" ]]; then
     echo "=============== Rebuilding ==============="
     docker-compose build
+    if [[ $? != 0 ]]; then
+        echo "Build failed!"
+        exit 1;
+    fi
     echo "=========================================="
 elif (( $# >= 1 )); then
     print_usage
