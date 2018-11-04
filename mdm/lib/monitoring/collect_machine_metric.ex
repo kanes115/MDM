@@ -13,7 +13,7 @@ defmodule MDM.CollectMachineMetric do
 
   alias MDM.Machine
   alias MDM.Event
-  alias MDM.WSCommunicator
+  alias MDM.EventPusher
 
   def get_task_fun(machines) do
     fn -> collect_loop(machines) end
@@ -50,7 +50,7 @@ defmodule MDM.CollectMachineMetric do
                      |> Enum.reduce([], &parse_metric/2)
     payload = %{"machines" => parsed_metrics}
     Event.new_event(:machine_metrics, payload)
-    |> WSCommunicator.push_event()
+    |> EventPusher.push()
   end
 
   defp parse_metric({name, cpu, memory, net}, acc) do
@@ -66,7 +66,6 @@ defmodule MDM.CollectMachineMetric do
   end
 
   defp parse_cpu(percent) do
-    Logger.info "CPU usage is #{percent |> to_string}%"
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end
 

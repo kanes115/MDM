@@ -9,7 +9,7 @@ defmodule MDM.CollectServicesMetric do
 
   alias MDM.Machine
   alias MDM.Event
-  alias MDM.WSCommunicator
+  alias MDM.EventPusher
 
   defmodule Parallel do
     # TODO extract and use in different places probably
@@ -61,7 +61,7 @@ defmodule MDM.CollectServicesMetric do
   defp send_metrics(metrics) do
     payload = %{"services" => metrics}
     Event.new_event(:service_metrics, payload)
-    |> WSCommunicator.push_event()
+    |> EventPusher.push()
   end
 
   defp parse_metric({service, %{cpu: cpu, mem: mem, net: net}}) do

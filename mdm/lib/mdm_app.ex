@@ -7,6 +7,8 @@ defmodule MDM.MDMApp do
   alias MDM.ServiceUploader
   alias MDM.CorrectnessChecker
   alias MDM.MonitorTasksSup
+  alias MDM.Monitor
+  alias MDM.EventPusher
 
 
   def start(_type, _args) do
@@ -16,6 +18,10 @@ defmodule MDM.MDMApp do
 
   defp children do
     [
+      %{
+        id: EventPusher,
+        start: {EventPusher, :start_link, []}
+      },
       %{
         id: WSCommunicator,
         start: {WSCommunicator, :start_link,
@@ -29,6 +35,10 @@ defmodule MDM.MDMApp do
       %{
         id: Deployer,
         start: {Deployer, :start_link, []}
+      },
+      %{
+        id: Monitor,
+        start: {Monitor, :start_link, []}
       },
       %{
         id: ServiceUploader,
