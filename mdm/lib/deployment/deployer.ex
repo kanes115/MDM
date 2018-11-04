@@ -53,8 +53,7 @@ defmodule MDM.Deployer do
         {:reply, resp, %{state | state: :waiting_for_reqest}}
     end
   end
-  def handle_call(%Request{command_name: :deploy} = req, _, %__MODULE__{state: fsm, jmmsr: jmmsr} = state)
-  when fsm == :collected_data do
+  def handle_call(%Request{command_name: :deploy} = req, _, %__MODULE__{state: :collected_data, jmmsr: jmmsr} = state) do
     Logger.info("Deploying the system...")
     with {:ok, decision} <- MDM.DeployDecider.decide(jmmsr),
          :ok <- MDM.ServiceUploader.upload_services(decision),
@@ -64,19 +63,28 @@ defmodule MDM.Deployer do
       resp = req |> answer("deployed", 200, %{})
       MDM.Monitor.start_monitoring_machines(jmmsr |> MDM.Jmmsr.get_machines)
       MDM.Monitor.start_monitoring_services(decision)
-      {:reply, resp, state}
+      {:reply, resp, %{state | state: :deployed}}
     else
       error ->
-        Logger.error("Error when deploying:")
-        IO.inspect error
+        Logger.error("Error when deploying: #{inspect(error)}")
         # TODO create a general error form for multi node errors
         # and parse it to json in one place
         resp = req |> error_answer(500, %{"reason" => inspect(error)})
         {:reply, resp, state}
     end
   end
+  def handle_call(%Request{command_name: :stop_system} = req, _, %{state: :deplyed} = state) do
+    MDM.Monitor.stop_monitoring()
+    #    MDM.ServiceUploader.stop_services() # might return fault nodes(?)
+    #    MDM.ServiceUploader.clean_service_files()
+    resp = req |> answer("stopped", 200, %{})
+    {:reply, resp, %{state | state: :collected_data}}
+  end
   def handle_call(:get_state, _from, %{state: fsm} = state), do: {:reply, fsm, state}
-  def handle_call(_, _, state), do: {:reply, :ok, state}
+  def handle_call(%Request{command_name: :collect_data} = req, _, %{state: :deployed} = state) do
+    resp = req |> error_answer(423, %{"reason" => "System is already deployed. Can't collect data now."})
+    {:reply, resp, state}
+  end
 
 
   def handle_info({:nodedown, _}, state) do
