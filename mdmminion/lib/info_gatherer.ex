@@ -12,7 +12,10 @@ defmodule MDMMinion.InfoGatherer do
   @callback machine_cpu_max :: single_resource()
   @callback machine_mem_max :: single_resource()
 
-  def start_link(), do: GenServer.start_link(__MODULE__, :ignored, name: __MODULE__)
+  def start_link() do
+    Logger.info "Starting #{__MODULE__}"
+    GenServer.start_link(__MODULE__, :ignored, name: __MODULE__)
+  end
 
   def init(_) do
     {:ok, %{gatherer_backend: get_backend()}}
@@ -23,6 +26,10 @@ defmodule MDMMinion.InfoGatherer do
     data = collect_data(gatherer_backend)
     {:reply, {:ok, data}, state}
   end
+
+
+  def terminate(reason, state),
+    do: Logger.info "Stopping #{__MODULE__}. Reason: #{inspect(reason)}"
 
   @spec collect_data(gatherer_backend()) :: %{cpu: single_resource(),
                                               mem: single_resource()}

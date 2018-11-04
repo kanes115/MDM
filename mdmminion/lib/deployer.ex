@@ -13,6 +13,7 @@ defmodule MDMMinion.Deployer do
 
 
   def start_link() do
+    Logger.info "Starting #{__MODULE__}"
     GenServer.start_link(__MODULE__, :ignore, name: __MODULE__)
   end
 
@@ -46,6 +47,8 @@ defmodule MDMMinion.Deployer do
     {:reply, {:ok, services[service_name]}, s}
   end
 
+  def terminate(reason, state),
+    do: Logger.info "Stopping #{__MODULE__}. Reason: #{inspect(reason)}"
 
   defp update_services_here(%{services_here: sh0} = state, s_name, file),
   do: %{state | services_here: Map.put(sh0, s_name, file)}

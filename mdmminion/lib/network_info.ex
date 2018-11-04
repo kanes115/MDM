@@ -1,11 +1,13 @@
 defmodule MDMMinion.NetworkInfo do
   use GenServer
 
+  require Logger
   @type reason :: atom
 
   @callback get_traffic_for_machine() :: {float(), float()} | {:error, reason} # KB/s
 
   def start_link do
+    Logger.info "Starting #{__MODULE__}"
     GenServer.start_link(__MODULE__, :ignored, name: __MODULE__)
   end
 
@@ -17,6 +19,9 @@ defmodule MDMMinion.NetworkInfo do
     traffic = b.get_traffic_for_machine()
     {:reply, traffic, state}
   end
+
+  def terminate(reason, state),
+    do: Logger.info "Stopping #{__MODULE__}. Reason: #{inspect(reason)}"
 
   defp get_backend do
     case :os.type do

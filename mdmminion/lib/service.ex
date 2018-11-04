@@ -34,7 +34,7 @@ defmodule MDMMinion.Service do
     {:ok, id} = BackendNif.run_service(state.service_dir |> to_charlist,
                                 state.exec_path |> to_charlist,
                                 log_path |> to_charlist)
-    Logger.info("Service started with session id #{id}")
+    Logger.info("Service #{state.name} started with id #{id}")
     {:ok, %__MODULE__{state | id: id}}
   end
 
@@ -45,6 +45,9 @@ defmodule MDMMinion.Service do
     metric = %{cpu: cpu_usage, mem: mem_usage, net: net_usage}
     {:reply, {:ok, metric}, state}
   end
+
+  def terminate(reason, state),
+    do: Logger.info "Stopping #{__MODULE__} for service #{state.name} with id #{state.id}. Reason: #{inspect(reason)}"
 
   defp get_log_path(service_name) do
     log_file_name = service_name <> "_log.log"

@@ -1,9 +1,11 @@
 defmodule MDMMinion.CPUInfo do
   use GenServer
+  require Logger
 
   @probe_time 200 #ms
 
   def start_link do
+    Logger.info "Starting #{__MODULE__}"
     GenServer.start_link(__MODULE__, :ignored, name: __MODULE__)
   end
 
@@ -19,4 +21,8 @@ defmodule MDMMinion.CPUInfo do
     :timer.sleep(@probe_time)
     {:reply, :cpu_sup.util(), state}
   end
+
+  def terminate(reason, state),
+    do: Logger.info "Stopping #{__MODULE__}. Reason: #{inspect(reason)}"
+
 end
