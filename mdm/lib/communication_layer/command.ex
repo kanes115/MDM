@@ -18,7 +18,7 @@ defmodule MDM.Command do
     @spec from_json(%{"command_name": String.t, "body": map()}) :: t
     def from_json(%{"command_name" => command, "body" => body}) do
       case to_command_name(command) do
-        :error -> :error
+        {:error, :unknown_command} -> :unknown_command
         command_name -> new_req(command_name, body)
       end
     end
@@ -32,7 +32,7 @@ defmodule MDM.Command do
     defp to_command_name("deploy"), do: :deploy
     defp to_command_name("collect_data"), do: :collect_data
     defp to_command_name("check_correctness"), do: :check_correctness
-    defp to_command_name(_), do: :error
+    defp to_command_name(_), do: {:error, :unknown_command}
 
   end
 
