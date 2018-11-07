@@ -17,7 +17,7 @@ defmodule MDM.Deployer do
   end
 
   def commands do
-    [:collect_data, :deploy]
+    [:collect_data, :deploy, :stop_system]
   end
 
   # Test API
@@ -57,7 +57,7 @@ defmodule MDM.Deployer do
     Logger.info("Deploying the system...")
     with {:ok, decision} <- MDM.DeployDecider.decide(jmmsr),
          :ok <- MDM.ServiceUploader.upload_services(decision),
-         :ok <- MDM.ServiceUploader.prepare_routes(decision),
+         :ok <- MDM.ServiceUploader.prepare_routes(),
          :ok <- MDM.ServiceUploader.run_services()
     do
       resp = req |> answer("deployed", 200, %{})
@@ -73,14 +73,14 @@ defmodule MDM.Deployer do
         {:reply, resp, state}
     end
   end
-  def handle_call(%Request{command_name: :stop_system} = req, _, %{state: :deplyed} = state) do
-    MDM.Monitor.stop_monitoring()
-    #    MDM.ServiceUploader.stop_services() # might return fault nodes(?)
-    #    MDM.ServiceUploader.clean_service_files()
-    resp = req |> answer("stopped", 200, %{})
+  def handle_call(%Request{command_name: :stop_system} = req, _, %{state: :deployed} = state) do
+    Logger.info "Stopping the system"
+    MDM.Monitor.stop_monitoring() |> IO.inspect
+    resp = req |> answer("to_implement", 200, %{})
+    #MDM.ServiceUploader.stop_services() # might return fault nodes(?)
+    #    MDM.ServiceUploader.clean_service_files() resp = req |> answer("stopped", 200, %{})
     {:reply, resp, %{state | state: :collected_data}}
   end
-  def handle_call(:get_state, _from, %{state: fsm} = state), do: {:reply, fsm, state}
   def handle_call(%Request{command_name: :collect_data} = req, _, %{state: :deployed} = state) do
     resp = req |> error_answer(423, %{"reason" => "System is already deployed. Can't collect data now."})
     {:reply, resp, state}

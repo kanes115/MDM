@@ -39,8 +39,9 @@ defmodule MDM.Monitor do
     {:reply, :ok, %{state | service_monitor: pid}}
   end
   def handle_call(:stop_monitoring, _, %{machines_monitor: m_pid, service_monitor: s_pid}) do
-    !m_pid and Task.Supervisor.terminate_child(MDM.MonitorTasksSup, m_pid)
-    !s_pid and Task.Supervisor.terminate_child(MDM.MonitorTasksSup, s_pid)
+    Logger.info "Stopping monitoring"
+    is_pid(m_pid) and Task.Supervisor.terminate_child(MDM.MonitorTasksSup, m_pid) |> IO.inspect
+    is_pid(s_pid) and Task.Supervisor.terminate_child(MDM.MonitorTasksSup, s_pid) |> IO.inspect
     {:reply, :ok, %__MODULE__{}}
   end
 

@@ -7,7 +7,6 @@ defmodule MDM.CollectServicesMetric do
   This is a module to monitor resources of the whole target machine.
   """
 
-  alias MDM.Machine
   alias MDM.Event
   alias MDM.EventPusher
 
@@ -29,11 +28,7 @@ defmodule MDM.CollectServicesMetric do
   end
 
   defp get_pid({service, machine}) do
-    node_name = Machine.node_name(machine)
-    service_name = MDM.Service.get_name(service)
-    {:ok, pid} = GenServer.call({MDMMinion.Deployer, node_name},
-                                {:get_service_id, service_name})
-    {MDM.Service.add_pid(service, pid), machine}
+    {MDM.Service.fetch_pid(machine, service), machine}
   end
 
   defp collect_loop(decision) do

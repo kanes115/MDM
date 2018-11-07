@@ -35,7 +35,15 @@ defmodule MDM.Service do
   ## API
   
   def add_pid(service, pid), do: %{service | pid: pid}
-  
+
+  def fetch_pid(%MDM.Machine{} = machine, %MDM.Service{} = service) do
+    node_name = MDM.Machine.node_name(machine)
+    service_name = MDM.Service.get_name(service)
+    {:ok, pid} = GenServer.call({MDMMinion.Deployer, node_name},
+                                {:get_service_id, service_name})
+    add_pid(service, pid)
+  end
+
   def get_pid(%__MODULE__{pid: pid}), do: pid
   
   def get_available_machines(%__MODULE__{requirements: %{available_machines: a}}),
