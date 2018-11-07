@@ -57,7 +57,9 @@ defmodule MDM.WSCommunicator do
         send_json(client, resp |> Response.to_json)
       command ->
         Logger.info "Got command #{inspect(command.command_name)}"
-        get_subscribers(subs, command.command_name)
+        subs = get_subscribers(subs, command.command_name)
+        subs == [] and Logger.warn "Nothing is subscribed to command #{inspect(command.command_name)}. Ignoring it"
+        subs
         |> Enum.each(fn({comm_type, subscriber}) ->
           handle_request(client, subscriber, comm_type, command) end)
     end
