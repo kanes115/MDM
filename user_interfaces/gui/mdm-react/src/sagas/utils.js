@@ -12,6 +12,7 @@ import {
 } from '../actions';
 import {
   machineMetricsReceived,
+  serviceMetricsReceived,
 } from '../actions/metrics';
 
 export function onSocketOpen(emit) {
@@ -57,6 +58,9 @@ export function mapMessageToAction(message) {
     switch (eventType) {
       case 'machine_metrics': {
         return machineMetricsReceived(body);
+      }
+      case 'service_metrics': {
+        return serviceMetricsReceived(body);
       }
       default:
         break;

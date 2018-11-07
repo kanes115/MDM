@@ -229,13 +229,13 @@ export function closeMetricsPanel() {
   };
 }
 
-export const CHANGE_METRICS_PANEL_TYPE = 'CHANGE_METRICS_PANEL_TYPE';
+export const REORGANIZE_MACHINES = 'REORGANIZE_MACHINES';
 
-export function changeMetricsPanelType(panelType) {
+export function reorganizeMachines(activeSystem) {
   return {
-    type: CHANGE_METRICS_PANEL_TYPE,
+    type: REORGANIZE_MACHINES,
     payload: {
-      panelType,
+      activeSystem,
     },
   };
 }

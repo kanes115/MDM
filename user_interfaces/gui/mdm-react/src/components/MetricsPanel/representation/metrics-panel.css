@@ -9,3 +9,12 @@
     color: aliceblue;
     background: #111111;
 }
+
+.mdm-metrics-panel .mdm-metrics-list {
+    padding: 0 8px;
+}
+
+.mdm-metrics-panel .element-list {
+    padding-left: 0;
+    list-style: none;
+}

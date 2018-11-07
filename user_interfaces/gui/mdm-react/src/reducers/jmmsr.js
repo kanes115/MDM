@@ -23,7 +23,6 @@ const initialState = {
   },
   metricsPanel: {
     panelOpen: false,
-    panelType: '',
   },
   systems: {},
 };
@@ -487,6 +486,29 @@ const jmmsr = (state = initialState, action) => {
       return state;
     }
 
+    case metricsActionTypes.SERVICE_METRICS_RECEIVED: {
+      const systemId = state.activeSystemId;
+      const activeSystem = state.systems[systemId];
+      const services = _.get(action, 'payload.eventBody.services', []);
+
+      if (systemId && activeSystem) {
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [systemId]: {
+              ...activeSystem,
+              live_metrics: {
+                ...state.systems[systemId].live_metrics,
+                services,
+              },
+            },
+          },
+        };
+      }
+      return state;
+    }
+
     case actionTypes.OPEN_METRICS_PANEL: {
       return {
         ...state,
@@ -509,17 +531,6 @@ const jmmsr = (state = initialState, action) => {
       };
     }
 
-    case actionTypes.CHANGE_METRICS_PANEL_TYPE: {
-      const { payload: { panelType } } = action;
-
-      return {
-        ...state,
-        metricsPanel: {
-          ...state.metricsPanel,
-          panelType,
-        },
-      };
-    }
 
     default:
       return state;

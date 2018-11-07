@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import _ from 'lodash';
 
-import { closeMetricsPanel, changeMetricsPanelType } from '../../actions';
+import { closeMetricsPanel } from '../../actions';
 
 import MetricsPanel from './representation/index';
 
@@ -13,8 +13,6 @@ class MetricsPanelWrapper extends Component {
       closePanel,
       metrics,
       panelOpen,
-      panelType,
-      selectMetricsType,
     } = this.props;
 
     return (
@@ -22,8 +20,6 @@ class MetricsPanelWrapper extends Component {
         closePanel={closePanel}
         metrics={metrics}
         panelOpen={panelOpen}
-        panelType={panelType}
-        selectMetricsType={selectMetricsType}
       />
     );
   }
@@ -33,8 +29,6 @@ MetricsPanelWrapper.propTypes = {
   closePanel: PropTypes.func.isRequired,
   metrics: PropTypes.shape(),
   panelOpen: PropTypes.bool.isRequired,
-  panelType: PropTypes.oneOf(['', 'machine', 'service', 'connection']).isRequired,
-  selectMetricsType: PropTypes.func.isRequired,
 };
 MetricsPanelWrapper.defaultProps = {
   metrics: {},
@@ -45,7 +39,6 @@ function mapStateToProps({
     activeSystemId,
     metricsPanel: {
       panelOpen,
-      panelType,
     },
     systems,
   },
@@ -55,14 +48,12 @@ function mapStateToProps({
   return {
     metrics: _.get(activeSystem, 'live_metrics'),
     panelOpen,
-    panelType,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     closePanel: () => dispatch(closeMetricsPanel()),
-    selectMetricsType: (metricsType) => dispatch(changeMetricsPanelType(metricsType)),
   };
 }
 

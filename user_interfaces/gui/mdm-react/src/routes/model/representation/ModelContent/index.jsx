@@ -5,15 +5,26 @@ import PropTypes from 'prop-types';
 import ModelEmpty from '../ModelEmpty';
 import ModelGraph from '../ModelGraph';
 import ModelHeader from '../ModelHeader';
-import { initializeLoadedSystem } from '../../../../actions';
+import { initializeLoadedSystem, reorganizeMachines } from '../../../../actions';
 
 class ModelContent extends Component {
   componentDidUpdate(prevProps) {
-    const { valid: previouslyValid } = prevProps;
-    const { valid: nowValid, file, initializeSystem } = this.props;
+    const { deployed: previouslyDeployed, valid: previouslyValid } = prevProps;
+    const {
+      activeSystem,
+      deployed: nowDeployed,
+      valid: nowValid,
+      file,
+      initializeSystem,
+      mapServicesToMachines,
+    } = this.props;
 
     if (!previouslyValid && nowValid) {
       initializeSystem(file);
+    }
+
+    if (!previouslyDeployed && nowDeployed) {
+      mapServicesToMachines(activeSystem);
     }
   }
 
@@ -37,6 +48,11 @@ class ModelContent extends Component {
 
 function mapStateToProps(state) {
   const {
+    graph: {
+      deployment: {
+        deployed,
+      },
+    },
     jmmsr: {
       activeSystemId,
       fileLoader: {
@@ -52,6 +68,8 @@ function mapStateToProps(state) {
     && activeSystem.services.length === 0;
 
   return {
+    activeSystem,
+    deployed,
     file,
     isModelEmpty,
     valid,
@@ -61,16 +79,21 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     initializeSystem: file => dispatch(initializeLoadedSystem(file)),
+    mapServicesToMachines: system => dispatch(reorganizeMachines(system)),
   };
 }
 
 ModelContent.propTypes = {
+  activeSystem: PropTypes.shape({}),
+  deployed: PropTypes.bool.isRequired,
   file: PropTypes.shape({}),
   initializeSystem: PropTypes.func.isRequired,
   isModelEmpty: PropTypes.bool.isRequired,
+  mapServicesToMachines: PropTypes.func.isRequired,
   valid: PropTypes.bool.isRequired,
 };
 ModelContent.defaultProps = {
+  activeSystem: null,
   file: null,
 };
 

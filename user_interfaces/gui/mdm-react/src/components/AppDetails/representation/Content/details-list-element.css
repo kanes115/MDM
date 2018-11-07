@@ -31,27 +31,27 @@
     padding: 1px;
 }
 
-.mdm-details .element-list .element-details {
+.element-list .element-details {
     padding-left: 4px;
     border-left: 1px solid #ffbf00;
     overflow-wrap: break-word;
     font-size: 0.9rem;
 }
 
-.mdm-details .element-list .element-details .element-field {
+.element-list .element-details .element-field {
     display: flex;
     flex-direction: column;
 }
 
-.mdm-details .element-list .element-details .element-field.nested {
+.element-list .element-details .element-field.nested {
     padding-left: 4px;
 }
 
-.mdm-details .element-list .element-details .element-field .key {
+.element-list .element-details .element-field .key {
 
 }
 
-.mdm-details .element-list .element-details .element-field .value {
+.element-list .element-details .element-field .value {
     padding-left: 4px;
     color: #aaaaaa;
 }
