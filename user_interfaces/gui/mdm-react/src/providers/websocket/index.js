@@ -23,8 +23,16 @@ function validateModel(model) {
   }));
 }
 
+function stopSystem() {
+  dispatcher.sendMessage(JSON.stringify({
+    command_name: 'stop_system',
+    body: {},
+  }));
+}
+
 export {
   collectSystemData,
   deploySystem,
+  stopSystem,
   validateModel,
 };
