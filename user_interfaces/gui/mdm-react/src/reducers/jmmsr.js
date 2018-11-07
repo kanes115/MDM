@@ -23,7 +23,6 @@ const initialState = {
   },
   metricsPanel: {
     panelOpen: false,
-    panelType: '',
   },
   systems: {},
 };
@@ -532,17 +531,6 @@ const jmmsr = (state = initialState, action) => {
       };
     }
 
-    case actionTypes.CHANGE_METRICS_PANEL_TYPE: {
-      const { payload: { panelType } } = action;
-
-      return {
-        ...state,
-        metricsPanel: {
-          ...state.metricsPanel,
-          panelType,
-        },
-      };
-    }
 
     default:
       return state;

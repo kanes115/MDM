@@ -229,17 +229,6 @@ export function closeMetricsPanel() {
   };
 }
 
-export const CHANGE_METRICS_PANEL_TYPE = 'CHANGE_METRICS_PANEL_TYPE';
-
-export function changeMetricsPanelType(panelType) {
-  return {
-    type: CHANGE_METRICS_PANEL_TYPE,
-    payload: {
-      panelType,
-    },
-  };
-}
-
 export const REORGANIZE_MACHINES = 'REORGANIZE_MACHINES';
 
 export function reorganizeMachines(activeSystem) {
