@@ -5,9 +5,8 @@ import * as deploymentActionTypes from '../../actions/graph/deployment';
 import * as metricsActionTypes from '../../actions/metrics';
 
 import {
+  serviceToNodeAndConnection,
   machineToTrafficData,
-  serviceToTrafficData,
-  connectionToTrafficData,
 } from './utils';
 
 const initialState = {
@@ -27,34 +26,8 @@ const initialState = {
         classPercents: {},
       },
     },
-    {
-      renderer: 'region',
-      maxVolume: 100000,
-      name: 'Services',
-      nodes: [
-        {
-          nodes: [],
-          name: 'INTERNET',
-          renderer: 'focusedChild',
-        },
-      ],
-      connections: [],
-      class: 'normal',
-      metadata: {},
-      data: {
-        classPercents: {},
-      },
-    },
   ],
-  connections: [
-    {
-      source: 'INTERNET',
-      target: 'Services',
-      metrics: {},
-      notices: [],
-      class: 'normal',
-    },
-  ],
+  connections: [],
   updated: Date.now(),
 };
 
@@ -78,26 +51,6 @@ const trafficData = (state = initialState, action) => {
         updated: Date.now(),
         nodes: newNodes,
         connections: newConnections,
-      };
-    }
-    case actionTypes.CREATE_NEW_SERVICE: {
-      const newService = _.get(action, 'payload.service', {});
-      const { nodes } = serviceToTrafficData(state, newService);
-
-      return {
-        ...state,
-        nodes,
-        updated: Date.now(),
-      };
-    }
-    case actionTypes.CREATE_NEW_CONNECTION: {
-      const newConnection = _.get(action, 'payload.connection', {});
-      const { nodes } = connectionToTrafficData(state, newConnection);
-
-      return {
-        ...state,
-        nodes,
-        updated: Date.now(),
       };
     }
 
@@ -134,77 +87,6 @@ const trafficData = (state = initialState, action) => {
         connections: newConnections,
       };
     }
-    case actionTypes.UPDATE_SERVICE: {
-      const newServiceName = _.get(action, 'payload.newService.name', '');
-      const oldServiceName = _.get(action, 'payload.oldService.name', '');
-
-      const newNodes = [...state.nodes];
-      const servicesNode = { ...newNodes[1] };
-
-      const services = [...servicesNode.nodes];
-      const serviceConnections = [...servicesNode.connections];
-
-      const serviceIndex = _.findIndex(services, service => service.name === oldServiceName);
-      if (serviceIndex !== -1) {
-        services[serviceIndex].name = newServiceName;
-      }
-      const newServiceConnections = _.map(
-        serviceConnections,
-        (connection) => {
-          const newConnection = { ...connection };
-          if (connection.source === oldServiceName) {
-            newConnection.source = newServiceName;
-          }
-          if (connection.target === oldServiceName) {
-            newConnection.target = newServiceName;
-          }
-
-          return newConnection;
-        },
-      );
-
-      servicesNode.nodes = services;
-      servicesNode.connections = newServiceConnections;
-      newNodes[1] = servicesNode;
-
-      return {
-        ...state,
-        nodes: newNodes,
-        updated: Date.now(),
-      };
-    }
-    case actionTypes.UPDATE_CONNECTION: {
-      const oldConnection = _.get(action, 'payload.oldConnection');
-      const newConnection = _.get(action, 'payload.newConnection');
-      const newNodes = [...state.nodes];
-      const servicesNode = newNodes[1];
-      const serviceConnections = [...servicesNode.connections];
-
-      servicesNode.connections = _.map(
-        serviceConnections,
-        (connection) => {
-          if (
-            connection.source === oldConnection.service_from
-            && connection.target === oldConnection.service_to
-          ) {
-            return {
-              ...connection,
-              source: newConnection.service_from,
-              target: newConnection.service_to,
-            };
-          }
-          return connection;
-        },
-      );
-
-      newNodes[1] = servicesNode;
-
-      return {
-        ...state,
-        nodes: newNodes,
-        updated: Date.now(),
-      };
-    }
 
     case actionTypes.DELETE_MACHINE: {
       const deletedMachine = _.get(action, 'payload.machine');
@@ -236,79 +118,9 @@ const trafficData = (state = initialState, action) => {
       };
     }
 
-    case actionTypes.DELETE_SERVICE: {
-      const deletedService = _.get(action, 'payload.service');
-
-      const newNodes = [...state.nodes];
-      const newServiceNode = { ...newNodes[1] };
-      const newServices = [...newServiceNode.nodes];
-
-      const serviceIndex = _.findIndex(
-        newServices,
-        service => service.name === deletedService.name,
-      );
-      const newConnections = _.reduce(
-        newServiceNode.connections,
-        (connections, connection) => {
-          if (
-            connection.target === deletedService.name
-            || connection.source === deletedService.name
-          ) {
-            return connections;
-          }
-          connections.push(connection);
-          return connections;
-        },
-        [],
-      );
-
-      if (serviceIndex !== -1) {
-        newServices.splice(serviceIndex, 1);
-      }
-
-      newServiceNode.nodes = newServices;
-      newServiceNode.connections = newConnections;
-      newNodes[1] = newServiceNode;
-
-      return {
-        ...state,
-        nodes: newNodes,
-        updated: Date.now(),
-      };
-    }
-
-    case actionTypes.DELETE_CONNECTION: {
-      const deletedConnection = _.get(action, 'payload.connection');
-
-      const newNodes = [...state.nodes];
-      const newServiceNode = { ...newNodes[1] };
-      const newConnections = [...newServiceNode.connections];
-
-      const connectionIndex = _.findIndex(
-        newConnections,
-        connection => connection.source === deletedConnection.service_from
-        && connection.target === deletedConnection.service_to,
-      );
-
-      if (connectionIndex !== -1) {
-        newConnections.splice(connectionIndex, 1);
-      }
-
-      newServiceNode.connections = newConnections;
-      newNodes[1] = newServiceNode;
-
-      return {
-        ...state,
-        nodes: newNodes,
-        updated: Date.now(),
-      };
-    }
-
     case actionTypes.INITIALIZE_LOADED_SYSTEM: {
       const system = _.get(action, 'payload.system');
       const machines = _.get(system, 'machines');
-      const services = _.get(system, 'services');
-      const connections = _.get(system, 'connections');
 
       const newState = { ...state };
       _.forEach(machines, (machine) => {
@@ -319,16 +131,6 @@ const trafficData = (state = initialState, action) => {
 
         newState.nodes = newNodes;
         newState.connections = newConnections;
-      });
-      _.forEach(services, (service) => {
-        const { nodes: newNodes } = serviceToTrafficData(newState, service);
-
-        newState.nodes = newNodes;
-      });
-      _.forEach(connections, (connection) => {
-        const { nodes } = connectionToTrafficData(newState, connection);
-
-        newState.nodes = nodes;
       });
       newState.updated = Date.now();
 
@@ -341,7 +143,7 @@ const trafficData = (state = initialState, action) => {
       const { nodes } = state;
 
       const newNodes = nodes.map((node, index) => {
-        if (index === 0 || index === 1) {
+        if (index === 0) {
           return node;
         }
         return {
@@ -360,7 +162,7 @@ const trafficData = (state = initialState, action) => {
       const { nodes } = state;
 
       const newNodes = nodes.map((node, index) => {
-        if (index === 0 || index === 1) {
+        if (index === 0) {
           return node;
         }
         return {
@@ -379,7 +181,7 @@ const trafficData = (state = initialState, action) => {
       const { nodes } = state;
 
       const newNodes = nodes.map((node, index) => {
-        if (index === 0 || index === 1) {
+        if (index === 0) {
           return node;
         }
         return {
@@ -391,6 +193,40 @@ const trafficData = (state = initialState, action) => {
       return {
         ...state,
         nodes: newNodes,
+        updated: Date.now(),
+      };
+    }
+
+    case actionTypes.REORGANIZE_MACHINES: {
+      const activeSystemServices = _.get(action, 'payload.activeSystem.services', []);
+      const newNodes = [...state.nodes];
+      const newConnections = [...state.connections];
+
+      const groupedServices = _.groupBy(
+        activeSystemServices,
+        service => _.get(service, 'requirements.available_machines.0'),
+      );
+      newNodes.forEach((node, index) => {
+        if (index > 0) {
+          const machineId = _.get(node, 'metadata.id');
+          const servicesForMachine = _.get(groupedServices, `${machineId}`, []);
+          servicesForMachine.forEach((service) => {
+            const {
+              node: serviceAsNode,
+              connectionFrom,
+              connectionTo,
+            } = serviceToNodeAndConnection(service);
+            node.nodes.push(serviceAsNode);
+            node.connections.push(connectionFrom);
+            node.connections.push(connectionTo);
+          });
+        }
+      });
+
+      return {
+        ...state,
+        nodes: newNodes,
+        connections: newConnections,
         updated: Date.now(),
       };
     }
@@ -422,7 +258,7 @@ const trafficData = (state = initialState, action) => {
 
           newConnections[connection1Index].metrics = {
             danger: 0,
-            normal: net * 1000,
+            normal: net,
             warning: 0,
           };
         }
@@ -435,7 +271,7 @@ const trafficData = (state = initialState, action) => {
 
           newConnections[connection2Index].metrics = {
             danger: 0,
-            normal: net * 1000,
+            normal: net,
             warning: 0,
           };
         }
@@ -445,6 +281,42 @@ const trafficData = (state = initialState, action) => {
         ...state,
         nodes: newNodes,
         connections: newConnections,
+        updated: Date.now(),
+      };
+    }
+
+    case metricsActionTypes.SERVICE_METRICS_RECEIVED: {
+      const services = _.get(action, 'payload.eventBody.services', []);
+      const newNodes = [...state.nodes];
+
+      services.forEach((service) => {
+        const serviceName = _.get(service, 'service_name');
+        const netIn = _.get(service, 'metrics.net_in.val', 0);
+        const netOut = _.get(service, 'metrics.net_out.val', 0);
+
+        newNodes.forEach((machine) => {
+          machine.connections.forEach((connection) => {
+            if (connection.source === serviceName && connection.target === 'INTERNET') {
+              _.set(connection, 'metrics', {
+                danger: 0,
+                normal: netOut,
+                warning: 0,
+              });
+            }
+            if (connection.target === serviceName && connection.source === 'INTERNET') {
+              _.set(connection, 'metrics', {
+                danger: 0,
+                normal: netIn,
+                warning: 0,
+              });
+            }
+          });
+        });
+      });
+
+      return {
+        ...state,
+        nodes: newNodes,
         updated: Date.now(),
       };
     }

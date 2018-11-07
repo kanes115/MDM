@@ -1,5 +1,30 @@
 import _ from 'lodash';
 
+export function serviceToNodeAndConnection(service) {
+  return {
+    node: {
+      nodes: [],
+      name: _.get(service, 'name'),
+      renderer: 'focusedChild',
+      maxVolume: 100000,
+    },
+    connectionTo: {
+      source: 'INTERNET',
+      target: _.get(service, 'name'),
+      metrics: {},
+      notices: [],
+      class: 'normal',
+    },
+    connectionFrom: {
+      source: _.get(service, 'name'),
+      target: 'INTERNET',
+      metrics: {},
+      notices: [],
+      class: 'normal',
+    },
+  };
+}
+
 export function machineToTrafficData(state, newMachine) {
   const newNodes = [...state.nodes];
   const newConnections = [...state.connections];
@@ -22,6 +47,7 @@ export function machineToTrafficData(state, newMachine) {
       classPercents: {},
     },
     metadata: {
+      id: _.get(newMachine, 'id'),
       cpu: 0,
       mem: 0,
     },
@@ -44,58 +70,5 @@ export function machineToTrafficData(state, newMachine) {
   return {
     nodes: newNodes,
     connections: newConnections,
-  };
-}
-
-export function serviceToTrafficData(state, newService) {
-  const servicesNode = { ...state.nodes[1] };
-  const services = [...servicesNode.nodes];
-  const connections = [...servicesNode.connections];
-
-  services.push({
-    nodes: [],
-    name: _.get(newService, 'name'),
-    renderer: 'focusedChild',
-    maxVolume: 100000,
-  });
-  connections.push({
-    source: 'INTERNET',
-    target: _.get(newService, 'name'),
-    metrics: {},
-    notices: [],
-    class: 'normal',
-  });
-
-  servicesNode.nodes = services;
-  servicesNode.connections = connections;
-  const nodes = [...state.nodes];
-  nodes[1] = servicesNode;
-
-  return {
-    nodes,
-  };
-}
-
-export function connectionToTrafficData(state, newConnection) {
-  const servicesNode = { ...state.nodes[1] };
-  const connections = [...servicesNode.connections];
-
-  connections.push({
-    source: _.get(newConnection, 'service_from'),
-    target: _.get(newConnection, 'service_to'),
-    metrics: {},
-    notices: [],
-    class: 'normal',
-    metadata: {
-      port: _.get(newConnection, 'port'),
-    },
-  });
-
-  servicesNode.connections = connections;
-  const nodes = [...state.nodes];
-  nodes[1] = servicesNode;
-
-  return {
-    nodes,
   };
 }

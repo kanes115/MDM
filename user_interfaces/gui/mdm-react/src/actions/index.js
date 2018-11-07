@@ -239,3 +239,14 @@ export function changeMetricsPanelType(panelType) {
     },
   };
 }
+
+export const REORGANIZE_MACHINES = 'REORGANIZE_MACHINES';
+
+export function reorganizeMachines(activeSystem) {
+  return {
+    type: REORGANIZE_MACHINES,
+    payload: {
+      activeSystem,
+    },
+  };
+}
