@@ -13,7 +13,7 @@ defmodule MDM.ServiceUploader do
 
   @tmp_dir "/tmp/"
   
-  defstruct uploaded_to: [], decision: nil
+  defstruct uploaded_to: [], decision: nil, decision: nil
 
   ## API
 
@@ -23,9 +23,12 @@ defmodule MDM.ServiceUploader do
 
   @spec upload_services(MDM.DeployDecider.decision()) :: :ok |
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
-  def upload_services(decision), do: GenServer.call(__MODULE__, {:upload_services, decision})
+  def upload_services(decision),
+  do: GenServer.call(__MODULE__, {:upload_services, decision})
 
-  def prepare_routes(decision), do: GenServer.call(__MODULE__, :prepare_routes)
+  def prepare_routes, do: GenServer.call(__MODULE__, :prepare_routes)
+
+  def stop_services, do: GenServer.call(__MODULE__, :stop_services)
 
   @spec run_services() ::  :ok |
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
@@ -43,6 +46,8 @@ defmodule MDM.ServiceUploader do
   do: {:reply, do_prepare_routes(d), s}
   def handle_call(:run_services, _from, %__MODULE__{decision: d} = s),
   do: {:reply, do_run_services(d), s}
+  def handle_call(:stop_services, _from, %__MODULE__{decision: d} = s),
+  do: {:reply, do_stop_services(d), s}
   
   def terminate(_, _state) do
     # TODO clean files
@@ -72,6 +77,14 @@ defmodule MDM.ServiceUploader do
     |> foreach_service(&run_service/2)
   end
 
+  @spec do_stop_services(DeployDecider.decision) :: :ok |
+            {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
+  def do_stop_services(decision) do
+    decision
+    |> foreach_service(&MDM.Service.fetch_pid/2)
+    |> foreach_service(&stop_service/2)
+  end
+
   @spec do_upload_services(DeployDecider.decision) :: :ok |
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
   defp do_upload_services(decision) do
@@ -79,6 +92,7 @@ defmodule MDM.ServiceUploader do
     foreach_service(&upload_service/2)
   end
 
+  # TODO paralleize
   defp foreach_service(decision, action) do
     res = decision
     |> Enum.map(fn {service, machine} -> action.(machine, service) end)
@@ -96,9 +110,15 @@ defmodule MDM.ServiceUploader do
     service_start_script_path = Service.get_service_executable(service)
     case GenServer.call({MDMMinion.Deployer, dest_node},
                         {:run_service, service_name, service_start_script_path}) do
-                          :ok -> {:ok, machine}
+      :ok -> {:ok, machine}
       err -> err
-                        end
+    end
+  end
+
+  defp stop_service(machine, service) do
+    service_pid = MDM.Service.get_pid(service)
+    # TODO here send some message to this pid
+    :ok
   end
 
   defp upload_service(machine, service) do
