@@ -9,16 +9,7 @@ defmodule MDM.CollectServicesMetric do
 
   alias MDM.Event
   alias MDM.EventPusher
-
-  defmodule Parallel do
-    # TODO extract and use in different places probably
-    def map(collection, func) do
-      collection
-      |> Enum.map(&(Task.async(fn -> func.(&1) end)))
-      |> Enum.map(fn t -> Task.await(t) end)
-    end
-  end
-
+  alias MDM.Utils.Parallel
 
   def get_task_fun(decision) do
     # if we want to have fresher pids, move it to per push function

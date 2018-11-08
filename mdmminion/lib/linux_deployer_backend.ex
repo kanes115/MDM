@@ -18,10 +18,11 @@ defmodule MDMMinion.LinuxDeployerBackend do
     service_dir_name = generate_service_dir_name(service_name)
     service_dir = services_dir() |> Path.join(service_dir_name)
     File.mkdir(service_dir)
-    :ok = :erl_tar.extract(file, cwd: service_dir)
+    {:ok, _} = :zip.extract(file |> to_charlist,
+                            cwd: service_dir |> to_charlist)
     service_dir
   end
-
+  
   def get_cpu_usage(session_id) do
     res = get_processes(session_id)
     |> Enum.map(&get_cpu_of_pid/1)

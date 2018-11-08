@@ -29,18 +29,19 @@ defmodule MDMMinion.Deployer do
   def handle_call({:save_file, file, service_name}, _from, %{backend: b} = s) do
     case b.save_file(file, service_name) do
       {:ok, file_path} ->
-        {:reply, :ok, update_services_here(s, service_name, file_path)}
+        prepared_dir = b.prepare_service_files(file_path, service_name)
+        {:reply, :ok, update_services_here(s, service_name, prepared_dir)}
       {:error, reason} ->
+        Logger.error "Error when saving file for service #{service_name} for reason #{reason}"
         {:reply, {:error, reason}, s}
     end
   end
   def handle_call({:run_service, name, start_script_path}, _from, %{backend: b} = s) do
     service_file = get_service_file(s, name)
-    prepared_dir = b.prepare_service_files(service_file, name)
     {:ok, pid}
     = DynamicSupervisor.start_child(ServiceSup,
                                     {Service,
-                                      [name, prepared_dir, start_script_path]})
+                                      [name, service_file, start_script_path]})
     {:reply, :ok, update_run_services(s, name, pid)}
   end
   def handle_call({:get_service_id, service_name}, _, %{run_services: services} = s) do
@@ -58,6 +59,7 @@ defmodule MDMMinion.Deployer do
 
   defp get_service_file(%{services_here: sh}, s_name),
   do: sh[s_name]
+
 
   defp get_backend do
     case :os.type do

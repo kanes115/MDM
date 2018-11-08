@@ -10,6 +10,7 @@ defmodule MDM.ServiceUploader do
 
   alias MDM.Machine
   alias MDM.Service
+  alias MDM.Utils.Parallel
 
   @tmp_dir "/tmp/"
   
@@ -92,10 +93,9 @@ defmodule MDM.ServiceUploader do
     foreach_service(&upload_service/2)
   end
 
-  # TODO paralleize
   defp foreach_service(decision, action) do
     res = decision
-    |> Enum.map(fn {service, machine} -> action.(machine, service) end)
+    |> Parallel.map(fn {service, machine} -> action.(machine, service) end)
     |> Enum.filter(fn r -> elem(r, 0) == :error end)
     case res do
       [] -> :ok
@@ -115,8 +115,8 @@ defmodule MDM.ServiceUploader do
     end
   end
 
-  defp stop_service(machine, service) do
-    service_pid = MDM.Service.get_pid(service)
+  defp stop_service(_machine, service) do
+    _service_pid = MDM.Service.get_pid(service)
     # TODO here send some message to this pid
     :ok
   end
@@ -137,16 +137,15 @@ defmodule MDM.ServiceUploader do
     path = Service.get_service_path(service)
     suffix = service
              |> Service.get_name
-    with {:ok, filenames0} <- File.ls(path),
-         filenames <- filenames0,# |> Enum.map(&Path.join(path, &1)),
-         _ <- File.cd(path),
+    with {:ok, filenames} <- File.ls(path),
          tmp_file = tmp_file_path(suffix),
-         :ok <- :erl_tar.create(tmp_file,
-                                 Enum.map(filenames, &to_charlist/1)),
+         :ok <- :zip.create(tmp_file,
+                            Enum.map(filenames, &to_charlist/1),
+                            [{:cwd, path |> to_charlist}]),
     do: {:ok, tmp_file}
   end
 
-  defp tmp_file_path(suffix), do: @tmp_dir <> "service" <> suffix <> ".tar"
+  defp tmp_file_path(suffix), do: @tmp_dir <> "service" <> suffix <> ".zip"
 
   defp send_file_to_node(dest_node, path, service_name) do
     file = File.open! path, [:read]
