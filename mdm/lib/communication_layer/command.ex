@@ -15,7 +15,7 @@ defmodule MDM.Command do
 
     @type t :: %Request{command_name: atom(), body: map()}
 
-    @spec from_json(%{"command_name": String.t, "body": map()}) :: t
+    @spec from_json(%{command_name: String.t, body: map()}) :: t
     def from_json(%{"command_name" => command, "body" => body}) do
       case to_command_name(command) do
         {:error, :unknown_command} -> :unknown_command
