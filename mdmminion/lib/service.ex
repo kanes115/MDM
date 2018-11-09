@@ -31,9 +31,17 @@ defmodule MDMMinion.Service do
 
   def init(state) do
     log_path = get_log_path(state.name)
-    {:ok, id} = BackendNif.run_service(state.service_dir |> to_charlist,
-                                state.exec_path |> to_charlist,
-                                log_path |> to_charlist)
+    id = :rand.uniform(1000)
+    :exec.run_link(state.exec_path |> to_charlist,
+                   [
+                    {:cd, state.service_dir |> to_charlist},
+                    {:group, id}, # TODO
+                    {:stdout, log_path |> to_charlist, []},
+                    {:stderr, log_path |> to_charlist, []}
+                   ])
+                   #    {:ok, id} = BackendNif.run_service(state.service_dir |> to_charlist,
+                   #                                state.exec_path |> to_charlist,
+                   #                                log_path |> to_charlist)
     Logger.info("Service #{state.name} started with id #{id}")
     {:ok, %__MODULE__{state | id: id}}
   end

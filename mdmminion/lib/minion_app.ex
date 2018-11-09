@@ -10,6 +10,8 @@ defmodule MDMMinion.MDMMinionApp do
 
   def start(_type, _args) do
     Application.ensure_all_started(:os_mon)
+    Application.ensure_all_started(:exec_app)
+    #:exec.start([])
     Supervisor.start_link(children(), strategy: :one_for_one)
   end
 
