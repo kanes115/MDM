@@ -1,11 +1,23 @@
 print_usage(){
     echo "Usage:"
-    echo "$0 [rebuild]"
+    echo "$0 [minions | pilot | all] [build_opts]"
 }
 
-if [[ $# == 1 ]] && [[ "$1" == "rebuild" ]]; then
+if [[ $# > 0 ]]; then
     echo "=============== Rebuilding ==============="
-    docker-compose build
+    build_opts=$2
+    services=""
+    if [[ $1 == "minions" ]]; then
+        services="minion1 minion2 minion3"
+    elif [[ $1 == "pilot" ]]; then
+        services="pilot"
+    elif [[ $1 == "all" ]]; then
+        services=""
+    else
+        print_usage
+        exit 1
+    fi
+    docker-compose build $build_opts $services
     if [[ $? != 0 ]]; then
         echo "Build failed!"
         exit 1;
