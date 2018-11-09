@@ -37,7 +37,8 @@ defmodule MDMMinion.Deployer do
     end
   end
   def handle_call({:run_service, name, start_script_path}, _from, %{backend: b} = s) do
-    service_file = get_service_file(s, name)
+    service_file = get_service_file(s, name) #TODO it's service dir not file (be more specific)
+    ensure_service_permissions(service_file, start_script_path)
     {:ok, pid}
     = DynamicSupervisor.start_child(ServiceSup,
                                     {Service,
@@ -59,6 +60,9 @@ defmodule MDMMinion.Deployer do
 
   defp get_service_file(%{services_here: sh}, s_name),
   do: sh[s_name]
+
+  defp ensure_service_permissions(service_file, start_script_path),
+  do: File.chmod(Path.join(service_file, start_script_path), 755)
 
 
   defp get_backend do
