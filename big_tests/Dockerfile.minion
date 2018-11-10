@@ -11,6 +11,7 @@ RUN apt-get update && apt-get install -y \
     ifstat \
     nethogs
 
+RUN mix local.rebar --force
 RUN mix local.hex --force
 
 RUN mix compile_c
@@ -20,4 +21,4 @@ ARG DOMAIN
 ENV DOMAIN=${DOMAIN}
 # Script checks if DOMAIN variable is empty
 # If so it uses IP
-CMD DOMAIN=${DOMAIN} ./start_minion.sh
+CMD SHELL=/bin/sh DOMAIN=${DOMAIN} ./start_minion.sh

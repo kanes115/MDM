@@ -21,6 +21,10 @@ use Mix.Config
 #     config :logger, level: :info
 #
 
+# We enabled running as root in erlexec lib
+config :erlexec, user: :root
+config :erlexec, root: true
+
 # It is also possible to import configuration files, relative to this
 # directory. For example, you can emulate configuration per environment
 # by uncommenting the line below and defining dev.exs, test.exs and such.
