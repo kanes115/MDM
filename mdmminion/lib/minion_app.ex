@@ -19,6 +19,8 @@ defmodule MDMMinion.MDMMinionApp do
   defp children do
     [
       {DynamicSupervisor,
+        max_restarts: 3,
+        max_seconds: 60, # practically infinity
         strategy: :one_for_one,
         name: ServiceSup},
       %{

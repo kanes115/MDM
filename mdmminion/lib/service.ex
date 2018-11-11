@@ -31,20 +31,20 @@ defmodule MDMMinion.Service do
 
   def init(state) do
     log_path = get_log_path(state.name)
-    id = :rand.uniform(1000)
-    :exec.run_link(state.exec_path |> to_charlist,
+    {:ok, _pid, os_pid} = :exec.run_link(state.exec_path |> bash_execution |> to_charlist,
                    [
                     {:cd, state.service_dir |> to_charlist},
-                    {:group, id}, # TODO
                     {:stdout, log_path |> to_charlist, []},
-                    {:stderr, log_path |> to_charlist, []}
+                    {:stderr, log_path |> to_charlist, []},
+                    {:group, 0},
+                    :monitor
                    ])
-                   #    {:ok, id} = BackendNif.run_service(state.service_dir |> to_charlist,
-                   #                                state.exec_path |> to_charlist,
-                   #                                log_path |> to_charlist)
-    Logger.info("Service #{state.name} started with id #{id}")
-    {:ok, %__MODULE__{state | id: id}}
+                   #:exec.setpgid(os_pid, id) |> IO.inspect
+    Logger.info("Service #{state.name} started with os pid #{os_pid}")
+    {:ok, %__MODULE__{state | id: os_pid}}
   end
+
+  def bash_execution(script_path), do: "./#{script_path}"
 
   def handle_call(:get_metrics, _, state) do
     cpu_usage = state.backend.get_cpu_usage(state.id)
@@ -54,8 +54,14 @@ defmodule MDMMinion.Service do
     {:reply, {:ok, metric}, state}
   end
 
-  def terminate(reason, state),
-    do: Logger.info "Stopping #{__MODULE__} for service #{state.name} with id #{state.id}. Reason: #{inspect(reason)}"
+  def handle_info(reason, state) do
+    Logger.warn "Service #{state.name} (id #{state.id}) stopping..."
+    {:noreply, state}
+  end
+
+  def terminate(reason, state) do
+    Logger.info "Stopping #{__MODULE__} for service #{state.name} with id #{state.id}. Reason: #{inspect(reason)}"
+  end
 
   defp get_log_path(service_name) do
     log_file_name = service_name <> "_log.log"
