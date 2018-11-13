@@ -11,7 +11,6 @@ defmodule MDMMinion.MDMMinionApp do
   def start(_type, _args) do
     Application.ensure_all_started(:os_mon)
     Application.ensure_all_started(:exec_app)
-    #:exec.start([])
     Supervisor.start_link(children(), strategy: :one_for_one)
   end
 
@@ -19,9 +18,9 @@ defmodule MDMMinion.MDMMinionApp do
   defp children do
     [
       {DynamicSupervisor,
-        max_restarts: 3,
-        max_seconds: 60, # practically infinity
         strategy: :one_for_one,
+        restart: :temporary, # we don't need it probably, it's ignored
+        max_restarts: 0,
         name: ServiceSup},
       %{
         id: NetworkInfo,

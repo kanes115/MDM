@@ -64,8 +64,6 @@ defmodule MDM.InfoGatherer do
 
   ## Helpers
 
-  defp update_machine_with_info(_, _, _), do: [] # TODO
-
   defp connect_to_minions_nodes(addresses) do
     nodes = for a <- addresses, do: Node.connect(node_name(a))
     nodes_results = nodes

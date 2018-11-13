@@ -104,7 +104,12 @@ defmodule MDMMinion.LinuxDeployerBackend do
 
   defp get_cpu_of_pid(pid) do
     cores_no = get_cores_no()
-    get_resource_of_pid(pid, "cpu") / cores_no
+    case get_resource_of_pid(pid, "cpu") do
+      {:error, _} = e ->
+        e
+      cpu ->
+        cpu / cores_no
+    end
   end
 
   defp get_mem_of_pid(pid) do

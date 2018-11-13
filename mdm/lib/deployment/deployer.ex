@@ -76,9 +76,11 @@ defmodule MDM.Deployer do
   def handle_call(%Request{command_name: :stop_system} = req, _, %{state: :deployed} = state) do
     Logger.info "Stopping the system"
     MDM.Monitor.stop_monitoring() |> IO.inspect
-    resp = req |> answer("to_implement", 200, %{})
-    #MDM.ServiceUploader.stop_services() # might return fault nodes(?)
+    body = 
+      MDM.ServiceUploader.stop_services() # might return fault nodes(?)
+      |> stop_result_to_body()
     #    MDM.ServiceUploader.clean_service_files() resp = req |> answer("stopped", 200, %{})
+    resp = req |> answer("stopped", 200, %{"stopped_services" => body})
     {:reply, resp, %{state | state: :collected_data}}
   end
   def handle_call(%Request{command_name: :collect_data} = req, _, %{state: :deployed} = state) do
@@ -86,6 +88,14 @@ defmodule MDM.Deployer do
     {:reply, resp, state}
   end
 
+  defp handle_cast({:service_down, name}, state) do
+    # TODO if gui is not connected we have to create
+    # an API for gathering information after reconnection
+    # Now information about down services is not available
+    # on connecting
+    MDM.Event.new_event(:service_down, %{service_name: name})
+    |> MDM.EventPusher.push
+  end
 
   def handle_info({:nodedown, _}, state) do
     {:noreply, %{state | state: :waiting_for_reqest}}
@@ -93,6 +103,20 @@ defmodule MDM.Deployer do
   def handle_info(msg, state) do
     IO.inspect msg
     {:noreply, state}
+  end
+
+  defp stop_result_to_body(service_results) do
+    stop_result_to_body(service_results, [])
+  end
+
+  defp stop_result_to_body([], acc), do: acc
+  defp stop_result_to_body([{service, {:ok, :forced}} | rest], acc) do
+    [%{"service_name" => MDM.Service.get_name(service), "status" => "forced"} | acc]
+    ++ stop_result_to_body(rest)
+  end
+  defp stop_result_to_body([{service, {:ok, status}} | rest], acc) do
+    [%{"service_name" => MDM.Service.get_name(service), "status" => status} | acc]
+    ++ stop_result_to_body(rest)
   end
 
   defp parse_collecting_result({:error, machine}), do: %{"machine" => machine, "ok?" => false}

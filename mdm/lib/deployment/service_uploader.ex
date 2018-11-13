@@ -82,8 +82,8 @@ defmodule MDM.ServiceUploader do
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
   def do_stop_services(decision) do
     decision
-    |> foreach_service(&MDM.Service.fetch_pid/2)
-    |> foreach_service(&stop_service/2)
+    |> Parallel.map(fn {service, machine} -> {MDM.Service.fetch_pid(machine, service), machine} end)
+    |> Parallel.map(&stop_service/1)
   end
 
   @spec do_upload_services(DeployDecider.decision) :: :ok |
@@ -115,10 +115,10 @@ defmodule MDM.ServiceUploader do
     end
   end
 
-  defp stop_service(_machine, service) do
-    _service_pid = MDM.Service.get_pid(service)
-    # TODO here send some message to this pid
-    :ok
+  @spec stop_service({MDM.Machine.t, MDM.Service.t}) :: {MDM.Service.t, {:ok, status :: integer() | :forced}}
+  defp stop_service({service, machine}) do
+    service_pid = MDM.Service.get_pid(service)
+    {service, GenServer.call(service_pid, :stop)}
   end
 
   defp upload_service(machine, service) do

@@ -38,6 +38,7 @@ defmodule MDM.WSCommunicator do
     Logger.info("Got connection...")
     EventPusher.subscribe(:service_metrics)
     EventPusher.subscribe(:machine_metrics)
+    EventPusher.subscribe(:service_down)
     me = self()
     spawn_link(fn -> spawn_receiver_fun(me, client) end)
     {:noreply, %{state | client: client}}
@@ -45,6 +46,7 @@ defmodule MDM.WSCommunicator do
   def handle_cast(:close, state) do
     EventPusher.unsubscribe(:service_metrics)
     EventPusher.unsubscribe(:machine_metrics)
+    EventPusher.unsubscribe(:service_down)
     Logger.info("Closed connection...")
     Web.close(state.client)
     GenServer.cast(self(), :wait_for_conn)

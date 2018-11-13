@@ -40,8 +40,12 @@ defmodule MDM.CollectServicesMetric do
 
   defp get_metric({service, _}) do
     pid = MDM.Service.get_pid(service)
-    {:ok, metrics} = GenServer.call(pid, :get_metrics)
-    {service, metrics}
+    case GenServer.call(pid, :get_metrics) do
+      {:ok, metrics} ->
+        {service, metrics}
+      {:error, :service_down} ->
+        {:error, service, :service_down}
+    end
   end
 
   defp send_metrics(metrics) do
@@ -50,6 +54,9 @@ defmodule MDM.CollectServicesMetric do
     |> EventPusher.push()
   end
 
+  defp parse_metric({:error, service, :service_down}) do
+    %{"service_name" => MDM.Service.get_name(service), "is_down" => true}
+  end
   defp parse_metric({service, %{cpu: cpu, mem: mem, net: net}}) do
     cpu_m = parse_cpu(cpu)
     mem_m = parse_mem(mem)
@@ -58,7 +65,7 @@ defmodule MDM.CollectServicesMetric do
                 "mem" => mem_m,
                 "net_in" => net_in,
                 "net_out" => net_out}
-    %{"service_name" => MDM.Service.get_name(service), "metrics" => metrics}
+    %{"service_name" => MDM.Service.get_name(service), "metrics" => metrics, "is_down" => false}
   end
 
   defp parse_cpu(percent) do
