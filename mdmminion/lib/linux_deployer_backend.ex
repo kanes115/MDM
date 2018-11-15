@@ -136,7 +136,6 @@ defmodule MDMMinion.LinuxDeployerBackend do
       true ->
         cmd = "pstree -p #{ppid} | grep -o '([0-9]\\+)' | grep -o '[0-9]\\+'"
         :os.cmd(cmd |> String.to_atom)
-        |> IO.inspect
         |> to_string
         |> String.split("\n")
         |> Enum.filter(fn e -> e != "" end)

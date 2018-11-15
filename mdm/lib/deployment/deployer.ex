@@ -75,7 +75,7 @@ defmodule MDM.Deployer do
   end
   def handle_call(%Request{command_name: :stop_system} = req, _, %{state: :deployed} = state) do
     Logger.info "Stopping the system"
-    MDM.Monitor.stop_monitoring() |> IO.inspect
+    MDM.Monitor.stop_monitoring()
     body = 
       MDM.ServiceUploader.stop_services() # might return fault nodes(?)
       |> stop_result_to_body()
