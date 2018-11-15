@@ -11,6 +11,28 @@
             "available_machines": [38]
          }
         },
+        {"name": "mad_forker",
+         "service_dir": "/examples/failing_example/mad_forker/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 25,
+            "hdd": 200,
+            "available_machines": [38]
+         }
+        },
+        {"name": "fancy_exit_status",
+         "service_dir": "/examples/failing_example/fancy_exit_status/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 25,
+            "hdd": 200,
+            "available_machines": [40]
+         }
+        },
         {"name": "postgres",
          "service_dir": "/examples/failing_example/postgres/",
          "service_executable": "start.sh",
@@ -30,7 +52,7 @@
             "os": ["linux"], 
             "ram": 8324,
             "hdd": 201,
-            "available_machines": [40]
+            "available_machines": [38]
          }
         }
     ],
