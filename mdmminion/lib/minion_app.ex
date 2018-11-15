@@ -17,10 +17,14 @@ defmodule MDMMinion.MDMMinionApp do
 
   defp children do
     [
+      # It is a bit of a hack, but we won't ever
+      # restart service processes now so we don't link
+      # it to the supervisor. We could say they are almost
+      # not supervised. We only kill them if the whole
+      # application goes down. DyamicSupervisor does
+      # not allow restart strategy :temporary :(
       {DynamicSupervisor,
         strategy: :one_for_one,
-        restart: :temporary, # we don't need it probably, it's ignored
-        max_restarts: 0,
         name: ServiceSup},
       %{
         id: NetworkInfo,

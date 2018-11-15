@@ -20,19 +20,18 @@ defmodule MDMMinion.Service do
              :exit_status]
 
   @doc "Exec path is relative to service dir"
-  def start_link([name, service_dir, exec_path]) do
+  def start(name, service_dir, exec_path) do
     b = get_backend()
     File.mkdir(@log_dir)
     state = %__MODULE__{backend: b,
                         name: name,
                         service_dir: service_dir,
                         exec_path: exec_path}
-    GenServer.start_link(__MODULE__, state)
+    GenServer.start(__MODULE__, state)
   end
 
 
   def init(state) do
-    #Process.flag(:trap_exit, true)
     log_path = get_log_path(state.name)
     {:ok, _pid, os_pid} = :exec.run(state.exec_path |> bash_execution |> to_charlist,
                    [
@@ -40,14 +39,15 @@ defmodule MDMMinion.Service do
                     {:stdout, log_path |> to_charlist, []},
                     {:stderr, log_path |> to_charlist, []},
                     {:group, 0},
-                    :monitor
+                    :monitor,
+                    :kill_group,
+                    {:kill_timeout, 5}
                    ])
-    # os_pid is the same as pgid so we treat it as id
     Logger.info("Service #{state.name} started with os pid #{os_pid}")
     {:ok, %__MODULE__{state | alive?: true, id: os_pid}}
   end
 
-  def bash_execution(script_path), do: "./#{script_path}"
+  def bash_execution(script_path), do: ". ./#{script_path}"
 
   def handle_call(:get_metrics, _, %{alive?: true} = state) do
     cpu_usage = state.backend.get_cpu_usage(state.id)
@@ -60,11 +60,13 @@ defmodule MDMMinion.Service do
     {:reply, {:error, :service_down}, state}
   end
   def handle_call(:stop, _, %{alive?: true} = state) do
-    case :exec.stop_and_wait(state.id, 4800) do
+    case :exec.stop_and_wait(state.id, 6000) do
       {:error, :timeout} ->
+        Logger.info "Service #{state.name} (id #{state.id}) is being stopped... (killed)"
         {:stop, :normal, {:ok, :forced}, %{state | alive?: false}}
       status ->
-        {:stop, :normal, {:ok, status2int(status)},  %{state | alive?: false}}
+        Logger.info "Service #{state.name} (os_pid #{state.id}) is being stopped... (exit_status: #{inspect(status_parse(status))})"
+        {:stop, :normal, {:ok, status_parse(status)},  %{state | alive?: false}}
     end
   end
   def handle_call(:stop, _, state) do
@@ -72,17 +74,28 @@ defmodule MDMMinion.Service do
   end
 
   def handle_info({:DOWN, _, :process, _, status}, state) do
-    code = status2int(status)
-    Logger.warn "Service #{state.name} (id #{state.id}) stopping... (exit_status: #{code})"
+    code = status_parse(status)
+    Logger.info "Service #{state.name} (id #{state.id}) stopping... (exit_status: #{inspect(code)})"
     {:noreply, %{state | alive?: false, exit_status: code}}
   end
 
-  defp status2int(:normal), do: 0
-  defp status2int({:exit_status, code}), do: code
-  defp status2int(code) when is_integer(code), do: code
+  defp status_parse(:normal), do: {:status, 0}
+  defp status_parse({:exit_status, code}) do
+    status_parse(code)
+  end
+  defp status_parse(code) when is_integer(code) do
+    case :exec.status(code) do
+      {:status, status} ->
+        {:status, status}
+      {:signal, signal, _} ->
+        {:signal, signal}
+    end
+  end
 
   def terminate(:normal, state),
-  do: Logger.warn "Service #{state.name} (id #{state.id}) stopping... (reason: normal"
+  do: Logger.warn "Service #{state.name} process is terminating (id #{state.id}) with reason :normal"
+  def terminate(reason, state),
+  do: Logger.warn "Service #{state.name} process is terminating (id #{state.id}) with reason #{inspect(reason)}"
 
   defp get_log_path(service_name) do
     log_file_name = service_name <> "_log.log"

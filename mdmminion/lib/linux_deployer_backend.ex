@@ -23,33 +23,43 @@ defmodule MDMMinion.LinuxDeployerBackend do
     service_dir
   end
   
-  def get_cpu_usage(session_id) do
-    res = get_processes(session_id)
-    |> Enum.map(&get_cpu_of_pid/1)
-    |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
-    |> Enum.sum
-    res
+  def get_cpu_usage(ppid) do
+    case pstree_installed? do
+      true ->
+        res = get_processes(ppid)
+              |> Enum.map(&get_cpu_of_pid/1)
+              |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
+              |> Enum.sum
+              res
+      false ->
+        {:error, :pstree_not_intalled}
+    end
   end
 
-  def get_mem_usage(session_id) do
-    res = get_processes(session_id)
-    |> Enum.map(&get_mem_of_pid/1)
-    |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
-    |> Enum.sum
-    res
+  def get_mem_usage(ppid) do
+    case pstree_installed?() do
+      true ->
+        res = get_processes(ppid)
+              |> Enum.map(&get_mem_of_pid/1)
+              |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
+              |> Enum.sum
+              res
+      false ->
+        {:error, :pstree_not_intalled}
+    end
   end
 
-  def get_net_usage(session_id) do
-    case nethogs_installed?() do
+  def get_net_usage(ppid) do
+    case pstree_installed?() and nethogs_installed?() do
       true ->
         stats = get_per_pid_net_stats()
-        res = get_processes(session_id)
+        res = get_processes(ppid)
               |> Enum.map(fn pid -> get_net_of_pid(stats, pid) end)
               |> Enum.reduce({0, 0},
                              fn({inn, out}, {in_acc, out_acc}) -> {inn + in_acc, out + out_acc} end)
                                res
       false ->
-        {:error, :nethogs_not_installed}
+        {:error, :nethogs_or_pstree_not_installed}
     end
   end
 
@@ -93,10 +103,14 @@ defmodule MDMMinion.LinuxDeployerBackend do
     {pid, in_f, out_f}
   end
 
-  defp nethogs_installed? do
-    case System.find_executable("nethogs") do
+  defp nethogs_installed?, do: installed?("nethogs")
+
+  defp pstree_installed?, do: installed?("pstree")
+
+  defp installed?(program) do
+    case System.find_executable(program) do
       nil ->
-        Logger.warn "nethogs is not installed. Network statistics for services won't be available"
+        Logger.warn "#{program} is not installed. Some metrics might not be available."
         false
       _ -> true
     end
@@ -116,14 +130,21 @@ defmodule MDMMinion.LinuxDeployerBackend do
     get_resource_of_pid(pid, "mem")
   end
   
-  defp get_processes(session_id) do
-    cmd = "ps -e -o pgid,pid | awk -v p=#{session_id} '$1 == p {print $2}'"
-    :os.cmd(cmd |> String.to_atom)
-    |> to_string
-    |> String.split("\n")
-    |> Enum.filter(fn e -> e != "" end)
-    |> Enum.map(&Integer.parse/1)
-    |> Enum.map(fn e -> e |> elem(0) end)
+  defp get_processes(ppid) do
+    #cmd = "ps -e -o pgid,pid | awk -v p=#{session_id} '$1 == p {print $2}'" # uncomment to get back to session id concept
+    case pstree_installed? do
+      true ->
+        cmd = "pstree -p #{ppid} | grep -o '([0-9]\\+)' | grep -o '[0-9]\\+'"
+        :os.cmd(cmd |> String.to_atom)
+        |> IO.inspect
+        |> to_string
+        |> String.split("\n")
+        |> Enum.filter(fn e -> e != "" end)
+        |> Enum.map(&Integer.parse/1)
+        |> Enum.map(fn e -> e |> elem(0) end)
+      false ->
+        {:error, :pstree_not_installed}
+    end
   end
 
   defp get_resource_of_pid(pid, resource) do

@@ -115,7 +115,8 @@ defmodule MDM.ServiceUploader do
     end
   end
 
-  @spec stop_service({MDM.Machine.t, MDM.Service.t}) :: {MDM.Service.t, {:ok, status :: integer() | :forced}}
+  @spec stop_service({MDM.Service.t, MDM.Machine.t})
+  :: {MDM.Service.t, {:ok, :forced | {:status, integer()} | {:signal, integer()}}}
   defp stop_service({service, machine}) do
     service_pid = MDM.Service.get_pid(service)
     {service, GenServer.call(service_pid, :stop)}
@@ -149,7 +150,6 @@ defmodule MDM.ServiceUploader do
 
   defp send_file_to_node(dest_node, path, service_name) do
     file = File.open! path, [:read]
-    Logger.info("sending message..")
     GenServer.call({MDMMinion.Deployer, dest_node},
                    {:save_file, file, service_name})
     :ok = File.close(file)

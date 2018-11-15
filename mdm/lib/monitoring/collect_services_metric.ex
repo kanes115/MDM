@@ -68,10 +68,16 @@ defmodule MDM.CollectServicesMetric do
     %{"service_name" => MDM.Service.get_name(service), "metrics" => metrics, "is_down" => false}
   end
 
+  defp parse_cpu({:error, reason}) do
+    %{"is_ok" => false, "reason" => inspect(reason)}
+  end
   defp parse_cpu(percent) do
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end
 
+  defp parse_mem({:error, reason}) do
+    %{"is_ok" => false, "reason" => inspect(reason)}
+  end
   defp parse_mem(percent) do
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end

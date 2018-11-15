@@ -39,10 +39,10 @@ defmodule MDMMinion.Deployer do
   def handle_call({:run_service, name, start_script_path}, _from, %{backend: b} = s) do
     service_file = get_service_file(s, name) #TODO it's service dir not file (be more specific)
     ensure_service_permissions(service_file, start_script_path)
+    child_spec = %{id: Service,
+      start: {Service, :start, [name, service_file, start_script_path]}}
     {:ok, pid}
-    = DynamicSupervisor.start_child(ServiceSup,
-                                    {Service,
-                                      [name, service_file, start_script_path]})
+    = DynamicSupervisor.start_child(ServiceSup, child_spec)
     {:reply, :ok, update_run_services(s, name, pid)}
   end
   def handle_call({:get_service_id, service_name}, _, %{run_services: services} = s) do

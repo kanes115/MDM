@@ -79,7 +79,7 @@ defmodule MDM.Deployer do
     body = 
       MDM.ServiceUploader.stop_services() # might return fault nodes(?)
       |> stop_result_to_body()
-    #    MDM.ServiceUploader.clean_service_files() resp = req |> answer("stopped", 200, %{})
+    #    MDM.ServiceUploader.clean_service_files()
     resp = req |> answer("stopped", 200, %{"stopped_services" => body})
     {:reply, resp, %{state | state: :collected_data}}
   end
@@ -93,6 +93,7 @@ defmodule MDM.Deployer do
     # an API for gathering information after reconnection
     # Now information about down services is not available
     # on connecting
+    Logger.warn "Service #{name} went down"
     MDM.Event.new_event(:service_down, %{service_name: name})
     |> MDM.EventPusher.push
   end
@@ -114,8 +115,12 @@ defmodule MDM.Deployer do
     [%{"service_name" => MDM.Service.get_name(service), "status" => "forced"} | acc]
     ++ stop_result_to_body(rest)
   end
-  defp stop_result_to_body([{service, {:ok, status}} | rest], acc) do
+  defp stop_result_to_body([{service, {:ok, {:status, status}}} | rest], acc) do
     [%{"service_name" => MDM.Service.get_name(service), "status" => status} | acc]
+    ++ stop_result_to_body(rest)
+  end
+  defp stop_result_to_body([{service, {:ok, {:signal, signal}}} | rest], acc) do
+    [%{"service_name" => MDM.Service.get_name(service), "signal" => signal} | acc]
     ++ stop_result_to_body(rest)
   end
 
