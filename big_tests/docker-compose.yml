@@ -26,6 +26,8 @@ services:
     build:
       dockerfile: ./big_tests/Dockerfile.minion
       context: ..
+      args:
+          - DOMAIN=minion1.com
   minion2:
     networks:
         default:

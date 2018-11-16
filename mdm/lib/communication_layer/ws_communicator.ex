@@ -6,6 +6,7 @@ defmodule MDM.WSCommunicator do
   alias Socket.Web
   alias MDM.Command.Request
   alias MDM.Command.Response
+  alias MDM.EventPusher
 
   @type comm_type :: :cast | :call
 
@@ -23,10 +24,6 @@ defmodule MDM.WSCommunicator do
                          name: __MODULE__)
   end
 
-  def push_event(event) do
-    GenServer.call(__MODULE__, {:push_event, event})
-  end
-
   ## GenServer callbacks
 
   def init(state) do
@@ -39,11 +36,18 @@ defmodule MDM.WSCommunicator do
     client = server |> Web.accept!
     client |> Web.accept! # we always accept for now
     Logger.info("Got connection...")
+    EventPusher.subscribe(:service_metrics)
+    EventPusher.subscribe(:machine_metrics)
+    EventPusher.subscribe(:service_down)
     me = self()
     spawn_link(fn -> spawn_receiver_fun(me, client) end)
     {:noreply, %{state | client: client}}
   end
   def handle_cast(:close, state) do
+    EventPusher.unsubscribe(:service_metrics)
+    EventPusher.unsubscribe(:machine_metrics)
+    EventPusher.unsubscribe(:service_down)
+    Logger.info("Closed connection...")
     Web.close(state.client)
     GenServer.cast(self(), :wait_for_conn)
     {:noreply, %{state | client: :no_client}}
@@ -54,12 +58,21 @@ defmodule MDM.WSCommunicator do
         resp = Response.response_command_malformed(%{reason: inspect(reason)})
         send_json(client, resp |> Response.to_json)
       command ->
-        get_subscribers(subs, command.command_name)
+        Logger.info "Got command #{inspect(command.command_name)}"
+        subs = get_subscribers(subs, command.command_name)
+        subs == [] and Logger.warn "Nothing is subscribed to command #{inspect(command.command_name)}. Ignoring it"
+        subs
         |> Enum.each(fn({comm_type, subscriber}) ->
           handle_request(client, subscriber, comm_type, command) end)
     end
     {:noreply, state}
   end
+  def handle_cast({:push_event, event}, %{client: client} = state) do
+    json = MDM.Event.to_json(event)
+    client |> send_json(json)
+    {:noreply, state}
+  end
+
 
   defp get_subscribers(subscriptions, command) do
     subscriptions
@@ -74,16 +87,10 @@ defmodule MDM.WSCommunicator do
     do_send_answer(client, resp)
   end
 
-  def handle_call({:push_event, event}, _from, %{client: client} = state) do
-    json = MDM.Event.to_json(event)
-    client |> send_json(json)
-    {:reply, :ok, state}
-  end
-
+  
   defp spawn_receiver_fun(forward_dest, client) do
     case client |> Socket.Web.recv do
       e when e == {:ok, :close} or e == {:ok, {:close, :going_away, ""}} ->
-        Logger.info("Closed connection...")
         GenServer.cast(forward_dest, :close)
       {:ok, msg} ->
         GenServer.cast(forward_dest, {:handle_msg, msg})

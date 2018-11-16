@@ -7,19 +7,9 @@ defmodule MDM.CollectServicesMetric do
   This is a module to monitor resources of the whole target machine.
   """
 
-  alias MDM.Machine
   alias MDM.Event
-  alias MDM.WSCommunicator
-
-  defmodule Parallel do
-    # TODO extract and use in different places probably
-    def map(collection, func) do
-      collection
-      |> Enum.map(&(Task.async(fn -> func.(&1) end)))
-      |> Enum.map(fn t -> Task.await(t) end)
-    end
-  end
-
+  alias MDM.EventPusher
+  alias MDM.Utils.Parallel
 
   def get_task_fun(decision) do
     # if we want to have fresher pids, move it to per push function
@@ -29,11 +19,7 @@ defmodule MDM.CollectServicesMetric do
   end
 
   defp get_pid({service, machine}) do
-    node_name = Machine.node_name(machine)
-    service_name = MDM.Service.get_name(service)
-    {:ok, pid} = GenServer.call({MDMMinion.Deployer, node_name},
-                                {:get_service_id, service_name})
-    {MDM.Service.add_pid(service, pid), machine}
+    {MDM.Service.fetch_pid(machine, service), machine}
   end
 
   defp collect_loop(decision) do
@@ -54,16 +40,23 @@ defmodule MDM.CollectServicesMetric do
 
   defp get_metric({service, _}) do
     pid = MDM.Service.get_pid(service)
-    {:ok, metrics} = GenServer.call(pid, :get_metrics)
-    {service, metrics}
+    case GenServer.call(pid, :get_metrics) do
+      {:ok, metrics} ->
+        {service, metrics}
+      {:error, :service_down} ->
+        {:error, service, :service_down}
+    end
   end
 
   defp send_metrics(metrics) do
     payload = %{"services" => metrics}
     Event.new_event(:service_metrics, payload)
-    |> WSCommunicator.push_event()
+    |> EventPusher.push()
   end
 
+  defp parse_metric({:error, service, :service_down}) do
+    %{"service_name" => MDM.Service.get_name(service), "is_down" => true}
+  end
   defp parse_metric({service, %{cpu: cpu, mem: mem, net: net}}) do
     cpu_m = parse_cpu(cpu)
     mem_m = parse_mem(mem)
@@ -72,13 +65,19 @@ defmodule MDM.CollectServicesMetric do
                 "mem" => mem_m,
                 "net_in" => net_in,
                 "net_out" => net_out}
-    %{"service_name" => MDM.Service.get_name(service), "metrics" => metrics}
+    %{"service_name" => MDM.Service.get_name(service), "metrics" => metrics, "is_down" => false}
   end
 
+  defp parse_cpu({:error, reason}) do
+    %{"is_ok" => false, "reason" => inspect(reason)}
+  end
   defp parse_cpu(percent) do
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end
 
+  defp parse_mem({:error, reason}) do
+    %{"is_ok" => false, "reason" => inspect(reason)}
+  end
   defp parse_mem(percent) do
     %{"is_ok" => true, "val" => percent, "unit" => "%"}
   end

@@ -10,10 +10,11 @@ defmodule MDM.ServiceUploader do
 
   alias MDM.Machine
   alias MDM.Service
+  alias MDM.Utils.Parallel
 
   @tmp_dir "/tmp/"
   
-  defstruct uploaded_to: [], decision: nil
+  defstruct uploaded_to: [], decision: nil, decision: nil
 
   ## API
 
@@ -23,9 +24,12 @@ defmodule MDM.ServiceUploader do
 
   @spec upload_services(MDM.DeployDecider.decision()) :: :ok |
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
-  def upload_services(decision), do: GenServer.call(__MODULE__, {:upload_services, decision})
+  def upload_services(decision),
+  do: GenServer.call(__MODULE__, {:upload_services, decision})
 
-  def prepare_routes(decision), do: GenServer.call(__MODULE__, :prepare_routes)
+  def prepare_routes, do: GenServer.call(__MODULE__, :prepare_routes)
+
+  def stop_services, do: GenServer.call(__MODULE__, :stop_services)
 
   @spec run_services() ::  :ok |
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
@@ -43,6 +47,8 @@ defmodule MDM.ServiceUploader do
   do: {:reply, do_prepare_routes(d), s}
   def handle_call(:run_services, _from, %__MODULE__{decision: d} = s),
   do: {:reply, do_run_services(d), s}
+  def handle_call(:stop_services, _from, %__MODULE__{decision: d} = s),
+  do: {:reply, do_stop_services(d), s}
   
   def terminate(_, _state) do
     # TODO clean files
@@ -72,6 +78,14 @@ defmodule MDM.ServiceUploader do
     |> foreach_service(&run_service/2)
   end
 
+  @spec do_stop_services(DeployDecider.decision) :: :ok |
+            {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
+  def do_stop_services(decision) do
+    decision
+    |> Parallel.map(fn {service, machine} -> {MDM.Service.fetch_pid(machine, service), machine} end)
+    |> Parallel.map(&stop_service/1)
+  end
+
   @spec do_upload_services(DeployDecider.decision) :: :ok |
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
   defp do_upload_services(decision) do
@@ -81,7 +95,7 @@ defmodule MDM.ServiceUploader do
 
   defp foreach_service(decision, action) do
     res = decision
-    |> Enum.map(fn {service, machine} -> action.(machine, service) end)
+    |> Parallel.map(fn {service, machine} -> action.(machine, service) end)
     |> Enum.filter(fn r -> elem(r, 0) == :error end)
     case res do
       [] -> :ok
@@ -96,9 +110,16 @@ defmodule MDM.ServiceUploader do
     service_start_script_path = Service.get_service_executable(service)
     case GenServer.call({MDMMinion.Deployer, dest_node},
                         {:run_service, service_name, service_start_script_path}) do
-                          :ok -> {:ok, machine}
+      :ok -> {:ok, machine}
       err -> err
-                        end
+    end
+  end
+
+  @spec stop_service({MDM.Service.t, MDM.Machine.t})
+  :: {MDM.Service.t, {:ok, :forced | {:status, integer()} | {:signal, integer()}}}
+  defp stop_service({service, machine}) do
+    service_pid = MDM.Service.get_pid(service)
+    {service, GenServer.call(service_pid, :stop)}
   end
 
   defp upload_service(machine, service) do
@@ -117,20 +138,18 @@ defmodule MDM.ServiceUploader do
     path = Service.get_service_path(service)
     suffix = service
              |> Service.get_name
-    with {:ok, filenames0} <- File.ls(path),
-         filenames <- filenames0,# |> Enum.map(&Path.join(path, &1)),
-         _ <- File.cd(path),
+    with {:ok, filenames} <- File.ls(path),
          tmp_file = tmp_file_path(suffix),
-         :ok <- :erl_tar.create(tmp_file,
-                                 Enum.map(filenames, &to_charlist/1)),
+         :ok <- :zip.create(tmp_file,
+                            Enum.map(filenames, &to_charlist/1),
+                            [{:cwd, path |> to_charlist}]),
     do: {:ok, tmp_file}
   end
 
-  defp tmp_file_path(suffix), do: @tmp_dir <> "service" <> suffix <> ".tar"
+  defp tmp_file_path(suffix), do: @tmp_dir <> "service" <> suffix <> ".zip"
 
   defp send_file_to_node(dest_node, path, service_name) do
     file = File.open! path, [:read]
-    Logger.info("sending message..")
     GenServer.call({MDMMinion.Deployer, dest_node},
                    {:save_file, file, service_name})
     :ok = File.close(file)

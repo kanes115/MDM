@@ -1,0 +1,87 @@
+{
+    "services": [
+        {"name": "mongooseim",
+         "service_dir": "/examples/failing_example/mongooseim/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 25,
+            "hdd": 200,
+            "available_machines": [38]
+         }
+        },
+        {"name": "mad_forker",
+         "service_dir": "/examples/failing_example/mad_forker/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 25,
+            "hdd": 200,
+            "available_machines": [38]
+         }
+        },
+        {"name": "fancy_exit_status",
+         "service_dir": "/examples/failing_example/fancy_exit_status/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 25,
+            "hdd": 200,
+            "available_machines": [40]
+         }
+        },
+        {"name": "postgres",
+         "service_dir": "/examples/failing_example/postgres/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 8324,
+            "hdd": 201,
+            "available_machines": [39]
+         }
+        },
+        {"name": "failing_service",
+         "service_dir": "/examples/failing_example/failing_service/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 8324,
+            "hdd": 201,
+            "available_machines": [38]
+         }
+        }
+    ],
+"machines": [
+           {"id": 38,
+            "name": "pecet1",
+            "ip": "minion1.com",
+            "ssh_host": "LocalVM",
+            "os": "linux"
+           },
+            {"id": 39,
+            "name": "pecet2",
+            "domain": "minion2.com",
+            "ssh_host": "unknown",
+            "os": "linux"
+           },
+            {"id": 40,
+            "name": "pecet3",
+            "domain": "minion3.com",
+            "ssh_host": "unknown",
+            "os": "linux"
+           }
+          ],
+"connections": [
+             ],
+"config": {"metrics": ["cpuUsage"],
+          "persist": true,
+          "persist_machine": 34,
+          "pilot_machine": 34
+        },
+"live_metrics": []
+}

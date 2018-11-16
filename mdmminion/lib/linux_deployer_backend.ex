@@ -5,7 +5,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
 
   ## Deployer callbacks
   
-  def start, do: create_tmp_dir()
+  def start, do: ensure_tmp_dir_exists_and_empty()
 
   def save_file(file, prefix) do
     case File.copy(file, tmp_file_path(prefix)) do
@@ -18,40 +18,48 @@ defmodule MDMMinion.LinuxDeployerBackend do
     service_dir_name = generate_service_dir_name(service_name)
     service_dir = services_dir() |> Path.join(service_dir_name)
     File.mkdir(service_dir)
-    :ok = :erl_tar.extract(file, cwd: service_dir)
+    {:ok, _} = :zip.extract(file |> to_charlist,
+                            cwd: service_dir |> to_charlist)
     service_dir
   end
-
-  def get_cpu_usage(session_id) do
-    res = get_processes(session_id)
-    |> Enum.map(&get_cpu_of_pid/1)
-    |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
-    |> Enum.sum
-    Logger.info "Cpu usage for session #{session_id |> to_string} is #{res |> to_string} %"
-    res
+  
+  def get_cpu_usage(ppid) do
+    case pstree_installed? do
+      true ->
+        res = get_processes(ppid)
+              |> Enum.map(&get_cpu_of_pid/1)
+              |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
+              |> Enum.sum
+              res
+      false ->
+        {:error, :pstree_not_intalled}
+    end
   end
 
-  def get_mem_usage(session_id) do
-    res = get_processes(session_id)
-    |> Enum.map(&get_mem_of_pid/1)
-    |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
-    |> Enum.sum
-    Logger.info "Mem usage for session #{session_id |> to_string} is #{res |> to_string} %"
-    res
+  def get_mem_usage(ppid) do
+    case pstree_installed?() do
+      true ->
+        res = get_processes(ppid)
+              |> Enum.map(&get_mem_of_pid/1)
+              |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
+              |> Enum.sum
+              res
+      false ->
+        {:error, :pstree_not_intalled}
+    end
   end
 
-  def get_net_usage(session_id) do
-    case nethogs_installed?() do
+  def get_net_usage(ppid) do
+    case pstree_installed?() and nethogs_installed?() do
       true ->
         stats = get_per_pid_net_stats()
-        res = get_processes(session_id)
+        res = get_processes(ppid)
               |> Enum.map(fn pid -> get_net_of_pid(stats, pid) end)
               |> Enum.reduce({0, 0},
                              fn({inn, out}, {in_acc, out_acc}) -> {inn + in_acc, out + out_acc} end)
-                               Logger.info "Net usage for session #{session_id |> to_string} is #{inspect(res)}"
                                res
       false ->
-        {:error, :nethogs_not_installed}
+        {:error, :nethogs_or_pstree_not_installed}
     end
   end
 
@@ -95,10 +103,14 @@ defmodule MDMMinion.LinuxDeployerBackend do
     {pid, in_f, out_f}
   end
 
-  defp nethogs_installed? do
-    case System.find_executable("nethogs") do
+  defp nethogs_installed?, do: installed?("nethogs")
+
+  defp pstree_installed?, do: installed?("pstree")
+
+  defp installed?(program) do
+    case System.find_executable(program) do
       nil ->
-        Logger.warn "nethogs is not installed. Network statistics for services won't be available"
+        Logger.warn "#{program} is not installed. Some metrics might not be available."
         false
       _ -> true
     end
@@ -106,21 +118,32 @@ defmodule MDMMinion.LinuxDeployerBackend do
 
   defp get_cpu_of_pid(pid) do
     cores_no = get_cores_no()
-    get_resource_of_pid(pid, "cpu") / cores_no
+    case get_resource_of_pid(pid, "cpu") do
+      {:error, _} = e ->
+        e
+      cpu ->
+        cpu / cores_no
+    end
   end
 
   defp get_mem_of_pid(pid) do
     get_resource_of_pid(pid, "mem")
   end
   
-  defp get_processes(session_id) do
-    cmd = "ps -e -o pgid,pid | awk -v p=#{session_id} '$1 == p {print $2}'"
-    :os.cmd(cmd |> String.to_atom)
-    |> to_string
-    |> String.split("\n")
-    |> Enum.filter(fn e -> e != "" end)
-    |> Enum.map(&Integer.parse/1)
-    |> Enum.map(fn e -> e |> elem(0) end)
+  defp get_processes(ppid) do
+    #cmd = "ps -e -o pgid,pid | awk -v p=#{session_id} '$1 == p {print $2}'" # uncomment to get back to session id concept
+    case pstree_installed? do
+      true ->
+        cmd = "pstree -p #{ppid} | grep -o '([0-9]\\+)' | grep -o '[0-9]\\+'"
+        :os.cmd(cmd |> String.to_atom)
+        |> to_string
+        |> String.split("\n")
+        |> Enum.filter(fn e -> e != "" end)
+        |> Enum.map(&Integer.parse/1)
+        |> Enum.map(fn e -> e |> elem(0) end)
+      false ->
+        {:error, :pstree_not_installed}
+    end
   end
 
   defp get_resource_of_pid(pid, resource) do
@@ -160,7 +183,10 @@ defmodule MDMMinion.LinuxDeployerBackend do
   defp services_dir, do: "~/mdm_services/" |> Path.expand
 
 
-  defp create_tmp_dir, do: File.mkdir!(tmp_dir())
+  defp ensure_tmp_dir_exists_and_empty do
+    File.rm_rf(tmp_dir())
+    File.mkdir!(tmp_dir())
+  end
 
 
 end

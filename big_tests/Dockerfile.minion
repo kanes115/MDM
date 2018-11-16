@@ -9,15 +9,18 @@ RUN apt-get update && apt-get install -y \
     util-linux \
     python3 \
     ifstat \
-    nethogs
+    nethogs \
+    sudo \
+    psmisc
 
+RUN mix local.rebar --force
 RUN mix local.hex --force
+RUN mix deps.get
 
-RUN mix compile_c
 RUN mix do compile
 
 ARG DOMAIN
 ENV DOMAIN=${DOMAIN}
 # Script checks if DOMAIN variable is empty
 # If so it uses IP
-CMD DOMAIN=${DOMAIN} ./start_minion.sh
+CMD SHELL=/bin/sh DOMAIN=${DOMAIN} ./start_minion.sh

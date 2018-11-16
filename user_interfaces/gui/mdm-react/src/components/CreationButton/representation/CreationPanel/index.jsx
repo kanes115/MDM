@@ -7,6 +7,7 @@ import ConfigurationButton from './ConfigurationButton';
 import CreationButtons from './CreationButtons';
 import DeploymentButton from './DeploymentButton';
 import MetricsButtons from './MetricsButtons';
+import StopButton from './StopButton';
 
 import './creation-panel.css';
 
@@ -25,6 +26,7 @@ const CreationPanel = ({
   <div className="panel">
     <CloseIcon onClose={deactivate} />
     <ul>
+      <StopButton />
       <DeploymentButton
         handleSystemDataCollection={handleSystemDataCollection}
         handleSystemDeployment={handleSystemDeployment}
