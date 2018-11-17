@@ -14,7 +14,7 @@ defmodule MDM.CollectMachineMetric do
   alias MDM.Event
   alias MDM.EventPusher
 
-  def interval, do: Applictaion.get_env(:mdm, :live_metrics_report_interval, 2000)
+  def interval, do: Application.get_env(:mdm, :live_metrics_report_interval, 2000)
 
   def get_task_fun(machines) do
     fn -> collect_loop(machines) end
