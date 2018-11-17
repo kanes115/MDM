@@ -79,7 +79,7 @@ defmodule MDMMinion.Service do
     code = status_parse(status)
     Logger.info "Service #{state.name} (id #{state.id}) stopping... (exit_status: #{inspect(code)})"
     # We inform pilot Deployer that this service went down unexpectedly
-    GenServer.cast(state.report_down_to, {:service_down, state.name})
+    GenServer.cast(state.report_down_to, {:service_down, state.name, code})
     {:noreply, %{state | alive?: false, exit_status: code}}
   end
 

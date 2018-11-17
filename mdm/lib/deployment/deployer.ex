@@ -106,17 +106,22 @@ defmodule MDM.Deployer do
   end
 
 
-  def handle_cast({:service_down, name}, state) do
+  def handle_cast({:service_down, name, code}, state) do
     # TODO if gui is not connected we have to create
     # an API for gathering information after reconnection
     # Now information about down services is not available
     # on connecting
     Logger.warn "Service #{name} went down"
-    MDM.Event.new_event(:service_down, %{service_name: name})
+    MDM.Event.new_event(:service_down, %{service_name: name, exit_status: exit_status2json_format(code)})
     |> MDM.EventPusher.push
     new_services_down = [name | state.services_down]
     {:noreply, %{state | services_down: new_services_down}}
   end
+
+  defp exit_status2json_format({:status, code}),
+  do: %{"type" => "status_code", "value" => code}
+  defp exit_status2json_format({:signal, code}),
+  do: %{"type" => "signal", "value" => code}
 
   def handle_info({:nodedown, _}, state) do
     {:noreply, %{state | state: :waiting_for_reqest}}
