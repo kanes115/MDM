@@ -10,7 +10,7 @@ defmodule MDM.Deployer do
   @type state() :: :waiting_for_reqest | :collected_data | :deployed
   @type t :: %__MODULE__{state: state()}
 
-  defstruct [:state, :jmmsr, :down_services]
+  defstruct [:state, :jmmsr, :services_down]
 
   def start_link() do
     GenServer.start_link(__MODULE__, %__MODULE__{state: :waiting_for_reqest}, name: __MODULE__)
