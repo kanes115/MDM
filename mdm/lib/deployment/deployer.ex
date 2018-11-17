@@ -10,7 +10,7 @@ defmodule MDM.Deployer do
   @type state() :: :waiting_for_reqest | :collected_data | :deployed
   @type t :: %__MODULE__{state: state()}
 
-  defstruct [:state, :jmmsr, :services_down]
+  defstruct [:state, :jmmsr, :services_down, :collected_data]
 
   def start_link() do
     GenServer.start_link(__MODULE__, %__MODULE__{state: :waiting_for_reqest}, name: __MODULE__)
@@ -42,7 +42,7 @@ defmodule MDM.Deployer do
       IO.inspect(jmmsr)
       parsed_data = Enum.map(data, &parse_collecting_result/1)
       resp = req |> answer("collected", 200, %{"collected_data" => parsed_data})
-      {:reply, resp, %{state | state: :collected_data, jmmsr: jmmsr}}
+      {:reply, resp, %{state | state: :collected_data, jmmsr: jmmsr, collected_data: parsed_data}}
     else
       {:error, %{fault_nodes: nodes}} ->
       Logger.error("Could not connect to nodes: #{inspect(nodes)}")
@@ -90,8 +90,12 @@ defmodule MDM.Deployer do
   end
   def handle_call(%Request{command_name: :get_active_system} = req, _, %{state: fsm} = state)
   when fsm == :collected_data or fsm == :deployed do
-    resp = req |> answer("active_system", 200, %{"is_up" => true, "jmmsr" => state.jmmsr,
-                                                 "services_down" => state.services_down})
+    is_deployed? = fsm == :deployed
+    resp = req |> answer("active_system", 200, %{"is_up" => true,
+                                                 "is_deployed" => is_deployed?,
+                                                 "jmmsr" => state.jmmsr,
+                                                 "services_down" => state.services_down,
+                                                 "collected_data" => state.collected_data})
     {:reply, resp, state}
   end
   def handle_call(%Request{command_name: :get_active_system} = req, _, %{state: fsm} = state)
