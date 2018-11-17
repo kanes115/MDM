@@ -5,7 +5,7 @@
          "service_executable": "start.sh",
          "containerized": false,
          "requirements": {
-            "os": ["linux"], 
+            "os": ["linux"],
             "ram": 25,
             "hdd": 200,
             "available_machines": [38]
@@ -16,7 +16,7 @@
          "service_executable": "start.sh",
          "containerized": false,
          "requirements": {
-            "os": ["linux"], 
+            "os": ["linux"],
             "ram": 8324,
             "hdd": 201,
             "available_machines": [39]
@@ -27,7 +27,7 @@
          "service_executable": "start.sh",
          "containerized": false,
          "requirements": {
-            "os": ["linux"], 
+            "os": ["linux"],
             "ram": 8324,
             "hdd": 201,
             "available_machines": [40]
@@ -37,7 +37,7 @@
 "machines": [
            {"id": 38,
             "name": "pecet1",
-            "ip": "172.31.0.5",
+            "domain": "minion1.com",
             "ssh_host": "LocalVM",
             "os": "linux"
            },

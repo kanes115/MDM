@@ -16,6 +16,13 @@ function deploySystem() {
   }));
 }
 
+function getActiveSystem() {
+  dispatcher.sendMessage(JSON.stringify({
+    command_name: 'get_active_system',
+    body: {},
+  }));
+}
+
 function validateModel(model) {
   dispatcher.sendMessage(JSON.stringify({
     command_name: 'check_correctness',
@@ -33,6 +40,7 @@ function stopSystem() {
 export {
   collectSystemData,
   deploySystem,
+  getActiveSystem,
   stopSystem,
   validateModel,
 };

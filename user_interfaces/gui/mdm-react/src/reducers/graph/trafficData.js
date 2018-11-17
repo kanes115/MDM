@@ -33,6 +33,63 @@ const initialState = {
 
 const trafficData = (state = initialState, action) => {
   switch (action.type) {
+    case actionTypes.ACTIVE_SYSTEM_RECEIVED: {
+      const isUp = _.get(action, 'payload.isUp', false);
+      const activeSystemState = _.get(action, 'payload.isDeployed', false) ? 'normal' : 'warning';
+      const activeSystem = _.get(action, 'payload.system', {});
+      // TODO update when error handling is complete
+      // const servicesDown = _.get(action, 'payload.servicesDown', []);
+
+      if (isUp) {
+        const machines = _.get(activeSystem, 'machines', []);
+        const services = _.get(activeSystem, 'services', []);
+        const newState = { ...state };
+        _.forEach(machines, (machine) => {
+          const {
+            nodes: newNodes,
+            connections: newConnections,
+          } = machineToTrafficData(newState, machine, activeSystemState);
+
+          newState.nodes = newNodes;
+          newState.connections = newConnections;
+        });
+
+        const groupedServices = _.groupBy(
+          services,
+          service => _.get(service, 'requirements.available_machines.0'),
+        );
+
+        const newNodes = [...newState.nodes];
+        newNodes.forEach((node, index) => {
+          if (index > 0) {
+            const machineId = _.get(node, 'metadata.id');
+            const servicesForMachine = _.get(groupedServices, `${machineId}`, []);
+            servicesForMachine.forEach((service) => {
+              const {
+                node: serviceAsNode,
+                connectionFrom,
+                connectionTo,
+              } = serviceToNodeAndConnection(service);
+              node.nodes.push(serviceAsNode);
+              node.connections.push(connectionFrom);
+              node.connections.push(connectionTo);
+            });
+          }
+        });
+
+        newState.name = 'Test';
+        newState.nodes = newNodes;
+        newState.updated = Date.now();
+
+        return {
+          ...newState,
+        };
+      }
+      return {
+        ...state,
+      };
+    }
+
     case actionTypes.CREATE_NEW_SYSTEM:
       return {
         ...state,

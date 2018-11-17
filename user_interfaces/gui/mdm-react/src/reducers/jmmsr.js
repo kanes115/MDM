@@ -50,6 +50,49 @@ const jmmsr = (state = initialState, action) => {
         },
       };
 
+    case actionTypes.ACTIVE_SYSTEM_RECEIVED: {
+      const isUp = _.get(action, 'payload.isUp', false);
+      const activeSystem = _.get(action, 'payload.system', {});
+      const collectedData = _.get(action, 'payload.collectedData', []);
+
+      const defaultSystemName = 'Test';
+      if (isUp) {
+        const machines = _.get(action, 'payload.system.machines', []);
+        const newMachines = machines.map((machine) => {
+          const machineDataIndex = _.findIndex(
+            collectedData,
+            data => data.machine.id === machine.id,
+          );
+
+          return {
+            ...machine,
+            resources: {
+              ...(_.get(collectedData, `${machineDataIndex}.machine.resources`, {})),
+            },
+          };
+        });
+        _.set(activeSystem, 'machines', newMachines);
+
+        return {
+          ...state,
+          activeSystemId: defaultSystemName,
+          form: {
+            ...state.form,
+            formObject: null,
+            formOpen: false,
+            formType: '',
+          },
+          systems: {
+            ...state.systems,
+            [defaultSystemName]: activeSystem,
+          },
+        };
+      }
+      return {
+        ...state,
+      };
+    }
+
     case actionTypes.CREATE_NEW_SYSTEM: {
       const newSystems = { ...state.systems };
       const createdSystem = _.cloneDeep(system);
