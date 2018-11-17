@@ -28,3 +28,8 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+
+config :mdm,
+  deploy_decider: MDM.DeployDeciderSimple,
+  live_metrics_report_interval: 2000 #ms
+

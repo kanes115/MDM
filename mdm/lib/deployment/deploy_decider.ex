@@ -10,7 +10,7 @@ defmodule MDM.DeployDecider do
     jmmsr |> get_backend().decide
   end
 
-  def get_backend, do: MDM.DeployDeciderSimple
+  def get_backend, do: Application.get_env(:mdm, :deploy_decider, MDM.DeployDeciderSimple)
 
   def to_body(decision) do
     decision

@@ -11,6 +11,8 @@ defmodule MDM.CollectServicesMetric do
   alias MDM.EventPusher
   alias MDM.Utils.Parallel
 
+  def interval, do: Application.get_env(:mdm, :live_metrics_report_interval, 2000)
+
   def get_task_fun(decision) do
     # if we want to have fresher pids, move it to per push function
     decision_with_pids = decision
@@ -25,7 +27,7 @@ defmodule MDM.CollectServicesMetric do
   defp collect_loop(decision) do
     receive do
     after
-      @interval ->
+      interval() ->
         metrics = get_metrics(decision)
         send_metrics(metrics)
         collect_loop(decision)

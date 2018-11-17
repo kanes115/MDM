@@ -1,7 +1,6 @@
 defmodule MDM.CollectMachineMetric do
   # TODO change file name
   require Logger
-  @interval 2_000 #ms
   @behaviour MDM.Monitor
 
   @moduledoc """
@@ -15,6 +14,8 @@ defmodule MDM.CollectMachineMetric do
   alias MDM.Event
   alias MDM.EventPusher
 
+  def interval, do: Applictaion.get_env(:mdm, :live_metrics_report_interval, 2000)
+
   def get_task_fun(machines) do
     fn -> collect_loop(machines) end
   end
@@ -22,7 +23,7 @@ defmodule MDM.CollectMachineMetric do
   defp collect_loop(machines) do
     receive do
     after
-      @interval ->
+      interval() ->
         metrics = get_metrics(machines)
         send_metrics(metrics)
         collect_loop(machines)
