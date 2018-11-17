@@ -10,14 +10,14 @@ defmodule MDM.Deployer do
   @type state() :: :waiting_for_reqest | :collected_data | :deployed
   @type t :: %__MODULE__{state: state()}
 
-  defstruct [:state, :jmmsr]
+  defstruct [:state, :jmmsr, :down_services]
 
   def start_link() do
     GenServer.start_link(__MODULE__, %__MODULE__{state: :waiting_for_reqest}, name: __MODULE__)
   end
 
   def commands do
-    [:collect_data, :deploy, :stop_system]
+    [:collect_data, :deploy, :stop_system, :get_active_system]
   end
 
   # Test API
@@ -87,8 +87,20 @@ defmodule MDM.Deployer do
     resp = req |> error_answer(423, %{"reason" => "System is already deployed. Can't collect data now."})
     {:reply, resp, state}
   end
+  def handle_call(%Request{command_name: :get_active_system} = req, _, %{state: fsm} = state)
+  when fsm == :collected_data or fsm == :deployed do
+    resp = req |> answer("active_system", 200, %{"is_up" => true, "jmmsr" => state.jmmsr,
+                                                 "services_down" => state.services_down})
+    {:reply, resp, state}
+  end
+  def handle_call(%Request{command_name: :get_active_system} = req, _, %{state: fsm} = state)
+  when fsm == :waiting_for_reqest do
+    resp = req |> answer("active_system", 200, %{"is_up" => false})
+    {:reply, resp, state}
+  end
 
-  defp handle_cast({:service_down, name}, state) do
+
+  def handle_cast({:service_down, name}, state) do
     # TODO if gui is not connected we have to create
     # an API for gathering information after reconnection
     # Now information about down services is not available
@@ -96,6 +108,8 @@ defmodule MDM.Deployer do
     Logger.warn "Service #{name} went down"
     MDM.Event.new_event(:service_down, %{service_name: name})
     |> MDM.EventPusher.push
+    new_services_down = [name | state.services_down]
+    {:noreply, %{state | services_down: new_services_down}}
   end
 
   def handle_info({:nodedown, _}, state) do
