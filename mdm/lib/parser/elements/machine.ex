@@ -36,6 +36,8 @@ defmodule MDM.Machine do
 
 
   ## API
+  
+  def get_id(%__MODULE__{id: id}), do: id
 
   def address(%__MODULE__{ip: ip, domain: nil}), do: ip
   def address(%__MODULE__{ip: nil, domain: domain}), do: domain
