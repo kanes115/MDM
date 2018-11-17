@@ -23,9 +23,10 @@ defmodule MDMMinion.Deployer do
     b = get_backend()
     # TODO what if unknown backend?
     b.start()
-    {:ok, %{backend: b, services_here: %{}, run_services: %{}}}
+    {:ok, %{backend: b, services_here: %{}, run_services: %{}, report_service_down_to: nil}}
   end
 
+  def handle_call({:report_services_down_to, pid}, _, state), do: {:reply, :ok, %{state | report_service_down_to: pid}}
   def handle_call({:save_file, file, service_name}, _from, %{backend: b} = s) do
     case b.save_file(file, service_name) do
       {:ok, file_path} ->
@@ -40,7 +41,7 @@ defmodule MDMMinion.Deployer do
     service_file = get_service_file(s, name) #TODO it's service dir not file (be more specific)
     ensure_service_permissions(service_file, start_script_path)
     child_spec = %{id: Service,
-      start: {Service, :start, [name, service_file, start_script_path]}}
+      start: {Service, :start, [name, service_file, start_script_path, s.report_service_down_to]}}
     {:ok, pid}
     = DynamicSupervisor.start_child(ServiceSup, child_spec)
     {:reply, :ok, update_run_services(s, name, pid)}

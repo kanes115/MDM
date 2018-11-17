@@ -57,6 +57,7 @@ defmodule MDM.Deployer do
     Logger.info("Deploying the system...")
     with {:ok, decision} <- MDM.DeployDecider.decide(jmmsr),
          :ok <- MDM.ServiceUploader.upload_services(decision),
+         :ok <- MDM.ServiceUploader.report_services_down_to(jmmsr |> MDM.Jmmsr.get_machines, self()),
          :ok <- MDM.ServiceUploader.prepare_routes(),
          :ok <- MDM.ServiceUploader.run_services()
     do
