@@ -18,6 +18,16 @@ services:
     ports:
       - "4000:8080"
 
+  metricsdb:
+    image: alexcheng/docker-grafana-influxdb
+    networks:
+        default:
+            aliases:
+                - mdmmetricsdb.com
+    ports:
+        - "8000:80"
+        - "8083:8083"
+
   minion1:
     networks:
         default:
