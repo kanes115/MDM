@@ -4,7 +4,8 @@ defmodule MDM.DeployDecider do
 
   @type decision :: [{MDM.Service, MDM.Machine}]
 
-  @callback decide(JmmsrParser.jmmsr()) :: decision() | {:decision_not_made, reason :: String.t}
+  @callback decide(JmmsrParser.jmmsr()) :: {:ok, decision()}
+                    | {:decision_not_made, reason :: String.t}
 
   def decide(jmmsr) do
     jmmsr |> get_backend().decide
@@ -15,7 +16,7 @@ defmodule MDM.DeployDecider do
   def to_body(decision) do
     decision
     |> Enum.map(fn {service, machine} ->
-      {MDM.Service.get_name(service), MDM.Machine.get_id(machine)} end)
+      %{"service" => MDM.Service.get_name(service), "machine" => MDM.Machine.get_id(machine)} end)
   end
 
 end
