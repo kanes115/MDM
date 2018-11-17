@@ -9,15 +9,18 @@ import {
 } from '../actions/graph/deployment';
 import {
   systemCheckSuccess,
+  activeSystemReceived,
 } from '../actions';
 import {
   machineMetricsReceived,
   serviceMetricsReceived,
 } from '../actions/metrics';
 
+import { getActiveSystem } from '../providers/websocket';
+
 export function onSocketOpen(emit) {
   return () => {
-    console.log('opening socket');
+    getActiveSystem();
   };
 }
 
@@ -76,6 +79,9 @@ export function mapMessageToAction(message) {
     }
     case 'checked': {
       return systemCheckSuccess(body);
+    }
+    case 'active_system': {
+      return activeSystemReceived(body);
     }
     case 'error': {
       return mapErrorToAction(message);

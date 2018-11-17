@@ -1,3 +1,6 @@
+import _ from 'lodash';
+
+import * as actionTypes from '../../actions';
 import * as deploymentActionTypes from '../../actions/graph/deployment';
 
 const initialState = {
@@ -11,6 +14,31 @@ const initialState = {
 const deployment = (state = initialState, action) => {
   console.log(action)
   switch (action.type) {
+    case actionTypes.ACTIVE_SYSTEM_RECEIVED: {
+      const isDeployed = _.get(action, 'payload.isDeployed', false);
+      const isUp = _.get(action, 'payload.isUp', false);
+
+      if (isDeployed && isUp) {
+        return {
+          ...state,
+          dataGathered: true,
+          deployed: true,
+          error: null,
+        };
+      }
+      if (!isDeployed && isUp) {
+        return {
+          ...state,
+          dataGathered: true,
+          gatheringData: false,
+          error: null,
+        };
+      }
+      return {
+        ...state,
+      };
+    }
+
     case deploymentActionTypes.START_GATHERING_DATA: {
       return {
         ...state,

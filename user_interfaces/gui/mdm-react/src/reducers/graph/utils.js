@@ -25,7 +25,7 @@ export function serviceToNodeAndConnection(service) {
   };
 }
 
-export function machineToTrafficData(state, newMachine) {
+export function machineToTrafficData(state, newMachine, status = 'danger') {
   const newNodes = [...state.nodes];
   const newConnections = [...state.connections];
 
@@ -42,7 +42,7 @@ export function machineToTrafficData(state, newMachine) {
     ],
     maxVolume: 10000,
     connections: [],
-    class: 'danger',
+    class: status,
     data: {
       classPercents: {},
     },
