@@ -12,8 +12,14 @@ defmodule MDM.Dashboard do
     :ets.new(:ids, [:set, :protected, :named_table])
     :ets.insert(:coords, {:last, %{x: 0, y: 0, h: 9, w: 12}})
     :ets.insert(:ids, {:last, 1})
-    formatter = get_formatter()
 
+    machines_panels(jmmsr) ++ services_panels(jmmsr)
+    |> json(title)
+
+  end
+
+  defp machines_panels(jmmsr) do
+    formatter = get_formatter()
     @metrics
     |> Enum.map(fn metric_n ->
       jmmsr
@@ -24,8 +30,22 @@ defmodule MDM.Dashboard do
       end)
       |> panel("Graph of #{metric_n} for machines", "")
     end)
-    |> json(title)
   end
+
+  defp services_panels(jmmsr) do
+    formatter = get_formatter()
+    @metrics
+    |> Enum.map(fn metric_n ->
+      jmmsr
+      |> MDM.Jmmsr.get_services()
+      |> Enum.map(fn %MDM.Service{name: service_n} ->
+        {type, metric} = PersistentMetrics.Commons.create_service_metric(service_n, metric_n)
+        formatter.format(type, metric) |> strange_metric_concat()
+      end)
+      |> panel("Graph of #{metric_n} for services", "")
+    end)
+  end
+
 
   def upload(dashboard) do
     host = get_grafana_host()
