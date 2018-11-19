@@ -34,8 +34,12 @@ defmodule MDM.MDMApp do
         start: {CorrectnessChecker, :start_link, []}
       },
       %{
-        id: PersistentMetrics,
-        start: {PersistentMetrics, :start_link, []}
+        id: PersistentMetrics.Machines,
+        start: {PersistentMetrics.Machines, :start_link, []}
+      },
+      %{
+        id: PersistentMetrics.Services,
+        start: {PersistentMetrics.Services, :start_link, []}
       },
       %{
         id: Deployer,
