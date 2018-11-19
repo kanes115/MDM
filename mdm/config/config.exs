@@ -44,7 +44,7 @@ config :exometer_core, report: [
       protocol: :http,
       host: "mdmmetricsdb.com",
       port: 8086,
-      db: "app"
+      db: "telegraf"
     ]
   ]
 ]

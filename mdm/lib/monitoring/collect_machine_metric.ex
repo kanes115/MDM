@@ -2,7 +2,6 @@ defmodule MDM.CollectMachineMetric do
   # TODO change file name
   require Logger
   @behaviour MDM.Monitor
-  use Elixometer
 
   @moduledoc """
   This is a module to monitor resources of the whole target machine.
@@ -25,7 +24,6 @@ defmodule MDM.CollectMachineMetric do
     receive do
     after
       interval() ->
-        update_counter("collecting_machines_metrics_counter_test", 1)
         metrics = get_metrics(machines)
         send_metrics(metrics)
         collect_loop(machines)

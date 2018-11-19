@@ -1,5 +1,6 @@
 defmodule MDM.WSCommunicator do
   use GenServer
+  use Elixometer
 
   require Logger
 
@@ -36,6 +37,7 @@ defmodule MDM.WSCommunicator do
     client = server |> Web.accept!
     client |> Web.accept! # we always accept for now
     Logger.info("Got connection...")
+    update_counter("connections_got", 1)
     EventPusher.subscribe(:service_metrics)
     EventPusher.subscribe(:machine_metrics)
     EventPusher.subscribe(:service_down)
