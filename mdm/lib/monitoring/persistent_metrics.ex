@@ -17,6 +17,11 @@ defmodule MDM.PersistentMetrics do
 
     defp parse_metric(label, %{"is_ok" => true, "val" => val}), do: [{label, val}]
     defp parse_metric(_, _), do: []
+
+    # We only have gauge now
+    def create_machine_metric(machine_name, metric_name), do: {"gauges", "machines.#{machine_name}.#{metric_name}"}
+
+    def create_service_metric(service_name, metric_name), do: {"gauges", "services.#{service_name}.#{metric_name}"}
   end
 
 
@@ -36,16 +41,14 @@ defmodule MDM.PersistentMetrics do
 
 
     def handle_cast({:push_event, %Event{event_name: :machine_metrics} = event}, state) do
-      machines_prefix = "machines"
       event.body["machines"]
       |> Enum.flat_map(
         fn %{"machine_name" => name, "metrics" => metrics} ->
-          metric_prefix = "#{machines_prefix}.#{name}"
           Commons.metrics_to_labels_and_values(metrics)
-          |> Enum.map(fn {label, value} -> {"#{metric_prefix}.#{label}", value} end)
+          |> Enum.map(fn {label, value} -> {Commons.create_machine_metric(name, label), value} end)
         end
       )
-      |> Enum.map(fn {label, value} -> update_gauge(label, value) end)
+      |> Enum.map(fn {{_type, label}, value} -> update_gauge(label, value) end)
       {:noreply, state}
     end
 
@@ -70,17 +73,15 @@ defmodule MDM.PersistentMetrics do
 
     # TODO extract common code. Probably key "service_name" could be just name.
     def handle_cast({:push_event, %Event{event_name: :service_metrics} = event}, state) do
-      services_prefix = "services"
       event.body["services"]
       |> Enum.filter(fn %{"is_down" => down?} -> not down? end)
       |> Enum.flat_map(
         fn %{"service_name" => name, "metrics" => metrics} ->
-          metric_prefix = "#{services_prefix}.#{name}"
           Commons.metrics_to_labels_and_values(metrics)
-          |> Enum.map(fn {label, value} -> {"#{metric_prefix}.#{label}", value} end)
+          |> Enum.map(fn {label, value} -> {Commons.create_service_metric(name, label), value} end)
         end
       )
-      |> Enum.map(fn {label, value} -> update_gauge(label, value) end)
+      |> Enum.map(fn {{_type, label}, value} -> update_gauge(label, value) end)
       {:noreply, state}
     end
 

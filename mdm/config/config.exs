@@ -35,7 +35,7 @@ config :mdm,
 
 config :elixometer, reporter: :exometer_report_influxdb,
   update_frequency: 5_000,
-  env: Mix.env,
+  env: "prod",
   metric_prefix: "mdm"
 
 config :exometer_core, report: [

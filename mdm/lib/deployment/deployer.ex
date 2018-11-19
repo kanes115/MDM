@@ -64,6 +64,9 @@ defmodule MDM.Deployer do
       MDM.Monitor.start_monitoring_machines(jmmsr |> MDM.Jmmsr.get_machines)
       MDM.Monitor.start_monitoring_services(decision)
       decision_body = decision |> MDM.DeployDecider.to_body
+      jmmsr
+      |> MDM.Dashboard.new("todo change title2")
+      |> MDM.Dashboard.upload()
       resp = req |> answer("deployed", 200, %{"decision" => decision_body})
       {:reply, resp, %{state | state: :deployed}}
     else
