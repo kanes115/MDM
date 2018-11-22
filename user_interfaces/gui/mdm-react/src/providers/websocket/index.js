@@ -2,10 +2,13 @@ import WebSocketMessageDispatcher from './dispatcher';
 
 const dispatcher = new WebSocketMessageDispatcher();
 
-function collectSystemData(system) {
+function collectSystemData(system, systemName) {
   dispatcher.sendMessage(JSON.stringify({
     command_name: 'collect_data',
-    body: system,
+    body: {
+      jmmsr: system,
+      system_name: systemName,
+    },
   }));
 }
 

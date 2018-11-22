@@ -4,7 +4,7 @@ import { collectSystemData, deploySystem } from '../../providers/websocket';
 
 export const START_GATHERING_DATA = 'START_GATHERING_DATA';
 
-export function startGatheringData(activeSystem) {
+export function startGatheringData(activeSystem, systemName) {
   const machines = _.get(activeSystem, 'machines', []);
   const newMachines = machines.map((machine) => {
     if (machine.ip === '') {
@@ -16,7 +16,7 @@ export function startGatheringData(activeSystem) {
     return machine;
   });
   _.set(activeSystem, 'machines', newMachines);
-  collectSystemData(activeSystem);
+  collectSystemData(activeSystem, systemName);
 
   return {
     type: START_GATHERING_DATA,
