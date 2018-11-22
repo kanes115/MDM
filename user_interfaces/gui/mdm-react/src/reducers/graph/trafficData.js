@@ -37,6 +37,7 @@ const trafficData = (state = initialState, action) => {
       const isUp = _.get(action, 'payload.isUp', false);
       const activeSystemState = _.get(action, 'payload.isDeployed', false) ? 'normal' : 'warning';
       const activeSystem = _.get(action, 'payload.system', {});
+      const activeSystemId = _.get(action, 'payload.systemName');
       // TODO update when error handling is complete
       // const servicesDown = _.get(action, 'payload.servicesDown', []);
 
@@ -77,7 +78,7 @@ const trafficData = (state = initialState, action) => {
           }
         });
 
-        newState.name = 'Test';
+        newState.name = activeSystemId;
         newState.nodes = newNodes;
         newState.updated = Date.now();
 
