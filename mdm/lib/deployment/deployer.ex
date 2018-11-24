@@ -13,7 +13,7 @@ defmodule MDM.Deployer do
   defstruct [:state, :jmmsr, :services_down, :collected_data]
 
   def start_link() do
-    GenServer.start_link(__MODULE__, %__MODULE__{state: :waiting_for_reqest}, name: __MODULE__)
+    GenServer.start_link(__MODULE__, %__MODULE__{state: :waiting_for_reqest, services_down: []}, name: __MODULE__)
   end
 
   def commands do
@@ -64,9 +64,10 @@ defmodule MDM.Deployer do
       MDM.Monitor.start_monitoring_machines(jmmsr |> MDM.Jmmsr.get_machines)
       MDM.Monitor.start_monitoring_services(decision)
       decision_body = decision |> MDM.DeployDecider.to_body
-      jmmsr
       #TODO change title of dashboard when we get system name from gui
-      |> MDM.Dashboard.new("todo change title2")
+      datetime = DateTime.utc_now() |> DateTime.to_string
+      jmmsr
+      |> MDM.Dashboard.new("change title (#{datetime})")
       |> MDM.Dashboard.upload()
       resp = req |> answer("deployed", 200, %{"decision" => decision_body})
       {:reply, resp, %{state | state: :deployed}}
@@ -98,7 +99,7 @@ defmodule MDM.Deployer do
     is_deployed? = fsm == :deployed
     resp = req |> answer("active_system", 200, %{"is_up" => true,
                                                  "is_deployed" => is_deployed?,
-                                                 "jmmsr" => state.jmmsr,
+                                                 "jmmsr" => state.jmmsr |> MDM.Jmmsr.to_map,
                                                  "services_down" => state.services_down,
                                                  "collected_data" => state.collected_data})
     {:reply, resp, state}

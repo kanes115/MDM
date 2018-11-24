@@ -15,6 +15,13 @@ defmodule MDM.Jmmsr do
     end
   end
 
+  def to_map(jmmsr0) do
+    jmmsr = Map.from_struct(jmmsr0)
+    jmmsr_elements()
+    |> Enum.reduce(jmmsr, fn converter, jmmsr ->
+      MDM.JmmsrElement.unconvert(converter, jmmsr) end)
+  end
+
   def get_machines(%__MODULE__{machines: m}), do: m
 
   def get_services(%__MODULE__{services: s}), do: s
