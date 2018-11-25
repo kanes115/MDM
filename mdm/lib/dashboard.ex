@@ -49,20 +49,30 @@ defmodule MDM.Dashboard do
 
 
   def upload(dashboard) do
-    host = get_grafana_host()
+    host = get_grafana_address()
     user_pass = get_user_pass()
     body = Poison.encode!(dashboard)
     content_type = 'application/json'
     Application.ensure_all_started(:inets)
     Logger.info "Sending rquest with header: 'Basic #{Base.encode64(user_pass)}'"
-    {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, _body}} =
+    {:ok, {{'HTTP/1.1', 200, 'OK'}, _headers, body_str}} =
       :httpc.request(:post, {'http://#{host}/api/dashboards/db', [{'Authorization', 'Basic #{Base.encode64(user_pass)}'}], content_type, body}, [], [])
+    %{"url" => url} = Poison.decode!(body_str)
+    "#{host}#{url}"
   end
 
-  # TODO make it configurable
-  defp get_grafana_host, do: 'mdmmetricsdb.com:3003'
+  defp get_grafana_address do
+    host = Application.get_env(:mdm, :grafana_host)
+    port = Application.get_env(:mdm, :grafana_port)
+    "#{host}:#{Integer.to_string(port)}"
+    |> to_charlist
+  end
 
-  defp get_user_pass, do: "root:root"
+  defp get_user_pass do
+    user = Application.get_env(:mdm, :grafana_user)
+    pass = Application.get_env(:mdm, :grafana_pass)
+    "#{user}:#{pass}"
+  end
 
   defp strange_metric_concat(metric_parts) when is_list(metric_parts) do
     # TODO it is strange because somehow elixometer concatenates those parts

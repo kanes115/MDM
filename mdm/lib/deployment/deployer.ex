@@ -67,10 +67,13 @@ defmodule MDM.Deployer do
       MDM.Monitor.start_monitoring_services(decision)
       decision_body = decision |> MDM.DeployDecider.to_body
       datetime = DateTime.utc_now() |> DateTime.to_string
+      dashboard_link =
       jmmsr
       |> MDM.Dashboard.new("#{state.system_name} (#{datetime})", state.system_name)
       |> MDM.Dashboard.upload()
-      resp = req |> answer("deployed", 200, %{"decision" => decision_body})
+      resp = req |> answer("deployed", 200,
+                           %{"decision" => decision_body,
+                             "dashboard_link" => dashboard_link})
       {:reply, resp, %{state | state: :deployed}}
     else
       error ->
