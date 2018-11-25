@@ -8,39 +8,39 @@ defmodule MDM.Dashboard do
 
   alias MDM.PersistentMetrics
 
-  def new(jmmsr, title) do
+  def new(jmmsr, title, system_name) do
     :ets.new(:coords, [:set, :protected, :named_table])
     :ets.new(:ids, [:set, :protected, :named_table])
     :ets.insert(:coords, {:last, %{x: 0, y: 0, h: 9, w: 12}})
     :ets.insert(:ids, {:last, 1})
 
-    machines_panels(jmmsr) ++ services_panels(jmmsr)
+    machines_panels(jmmsr, system_name) ++ services_panels(jmmsr, system_name)
     |> json(title)
 
   end
 
-  defp machines_panels(jmmsr) do
+  defp machines_panels(jmmsr, system_name) do
     formatter = get_formatter()
     @metrics
     |> Enum.map(fn metric_n ->
       jmmsr
       |> MDM.Jmmsr.get_machines()
       |> Enum.map(fn %MDM.Machine{name: machine_n} ->
-        {type, metric} = PersistentMetrics.Commons.create_machine_metric(machine_n, metric_n)
+        {type, metric} = PersistentMetrics.Commons.create_machine_metric(system_name, machine_n, metric_n)
         formatter.format(type, metric) |> strange_metric_concat()
       end)
       |> panel("Graph of #{metric_n} for machines", "")
     end)
   end
 
-  defp services_panels(jmmsr) do
+  defp services_panels(jmmsr, system_name) do
     formatter = get_formatter()
     @metrics
     |> Enum.map(fn metric_n ->
       jmmsr
       |> MDM.Jmmsr.get_services()
       |> Enum.map(fn %MDM.Service{name: service_n} ->
-        {type, metric} = PersistentMetrics.Commons.create_service_metric(service_n, metric_n)
+        {type, metric} = PersistentMetrics.Commons.create_service_metric(system_name, service_n, metric_n)
         formatter.format(type, metric) |> strange_metric_concat()
       end)
       |> panel("Graph of #{metric_n} for services", "")

@@ -61,12 +61,14 @@ defmodule MDM.Deployer do
          :ok <- MDM.ServiceUploader.prepare_routes(),
          :ok <- MDM.ServiceUploader.run_services()
     do
+      MDM.PersistentMetrics.Machines.set_system_name(state.system_name)
+      MDM.PersistentMetrics.Services.set_system_name(state.system_name)
       MDM.Monitor.start_monitoring_machines(jmmsr |> MDM.Jmmsr.get_machines)
       MDM.Monitor.start_monitoring_services(decision)
       decision_body = decision |> MDM.DeployDecider.to_body
       datetime = DateTime.utc_now() |> DateTime.to_string
       jmmsr
-      |> MDM.Dashboard.new("#{state.system_name} (#{datetime})")
+      |> MDM.Dashboard.new("#{state.system_name} (#{datetime})", state.system_name)
       |> MDM.Dashboard.upload()
       resp = req |> answer("deployed", 200, %{"decision" => decision_body})
       {:reply, resp, %{state | state: :deployed}}
@@ -82,6 +84,8 @@ defmodule MDM.Deployer do
   def handle_call(%Request{command_name: :stop_system} = req, _, %{state: :deployed} = state) do
     Logger.info "Stopping the system"
     MDM.Monitor.stop_monitoring()
+    MDM.PersistentMetrics.Machines.remove_metrics()
+    MDM.PersistentMetrics.Services.remove_metrics()
     body = 
       MDM.ServiceUploader.stop_services() # might return fault nodes(?)
       |> stop_result_to_body()
