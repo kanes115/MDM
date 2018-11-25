@@ -10,7 +10,7 @@ defmodule MDM.Deployer do
   @type state() :: :waiting_for_reqest | :collected_data | :deployed
   @type t :: %__MODULE__{state: state()}
 
-  defstruct [:state, :jmmsr, :services_down, :collected_data]
+  defstruct [:state, :jmmsr, :services_down, :collected_data, :system_name]
 
   def start_link() do
     GenServer.start_link(__MODULE__, %__MODULE__{state: :waiting_for_reqest, services_down: []}, name: __MODULE__)
@@ -31,7 +31,7 @@ defmodule MDM.Deployer do
 
   # We will maybe sending in body back some diff of jmmsr with machines info.
   # TODO we have to establish some common protocol for DIFFs.
-  def handle_call(%Request{command_name: :collect_data, body: jmmsr0} = req, _, %__MODULE__{state: fsm} = state) 
+  def handle_call(%Request{command_name: :collect_data, body: %{"jmmsr" => jmmsr0, "system_name" => system_name}} = req, _, %__MODULE__{state: fsm} = state) 
   when fsm == :waiting_for_reqest or fsm == :collected_data do
     Logger.info("Got request to collect target machines info...")
     with {:ok, jmmsr} <- MDM.Jmmsr.new(jmmsr0),
@@ -42,7 +42,7 @@ defmodule MDM.Deployer do
       IO.inspect(jmmsr)
       parsed_data = Enum.map(data, &parse_collecting_result/1)
       resp = req |> answer("collected", 200, %{"collected_data" => parsed_data})
-      {:reply, resp, %{state | state: :collected_data, jmmsr: jmmsr, collected_data: parsed_data}}
+      {:reply, resp, %{state | state: :collected_data, jmmsr: jmmsr, collected_data: parsed_data, system_name: system_name}}
     else
       {:error, %{fault_nodes: nodes}} ->
       Logger.error("Could not connect to nodes: #{inspect(nodes)}")
@@ -64,10 +64,9 @@ defmodule MDM.Deployer do
       MDM.Monitor.start_monitoring_machines(jmmsr |> MDM.Jmmsr.get_machines)
       MDM.Monitor.start_monitoring_services(decision)
       decision_body = decision |> MDM.DeployDecider.to_body
-      #TODO change title of dashboard when we get system name from gui
       datetime = DateTime.utc_now() |> DateTime.to_string
       jmmsr
-      |> MDM.Dashboard.new("change title (#{datetime})")
+      |> MDM.Dashboard.new("#{state.system_name} (#{datetime})")
       |> MDM.Dashboard.upload()
       resp = req |> answer("deployed", 200, %{"decision" => decision_body})
       {:reply, resp, %{state | state: :deployed}}
