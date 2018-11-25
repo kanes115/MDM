@@ -2,6 +2,7 @@ defmodule MDM.Dashboard do
   #TODO move metrics to more appropriate place? Or not?
   @metrics ["cpu", "mem", "net_in", "net_out"]
   @default_formatter Elixometer.Utils
+   @refresh_every "10s"
 
   require Logger
 
@@ -242,6 +243,7 @@ defmodule MDM.Dashboard do
         "id": nil,
         "links": [],
         "panels": panels,
+        "refresh": @refresh_every,
         "schemaVersion": 16,
         "style": "dark",
         "tags": [],
