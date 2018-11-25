@@ -52,10 +52,10 @@ const jmmsr = (state = initialState, action) => {
 
     case actionTypes.ACTIVE_SYSTEM_RECEIVED: {
       const isUp = _.get(action, 'payload.isUp', false);
+      const activeSystemId = _.get(action, 'payload.systemName');
       const activeSystem = _.get(action, 'payload.system', {});
       const collectedData = _.get(action, 'payload.collectedData', []);
 
-      const defaultSystemName = 'Test';
       if (isUp) {
         const machines = _.get(action, 'payload.system.machines', []);
         const newMachines = machines.map((machine) => {
@@ -75,7 +75,7 @@ const jmmsr = (state = initialState, action) => {
 
         return {
           ...state,
-          activeSystemId: defaultSystemName,
+          activeSystemId,
           form: {
             ...state.form,
             formObject: null,
@@ -84,7 +84,7 @@ const jmmsr = (state = initialState, action) => {
           },
           systems: {
             ...state.systems,
-            [defaultSystemName]: activeSystem,
+            [activeSystemId]: activeSystem,
           },
         };
       }

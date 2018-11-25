@@ -249,6 +249,7 @@ export function activeSystemReceived(body) {
       isDeployed: _.get(body, 'is_deployed', false),
       isUp: _.get(body, 'is_up', false),
       system: _.get(body, 'jmmsr', {}),
+      systemName: _.get(body, 'system_name', 'system'),
       servicesDown: _.get(body, 'services_down', []),
       collectedData: _.get(body, 'collected_data', []),
     },

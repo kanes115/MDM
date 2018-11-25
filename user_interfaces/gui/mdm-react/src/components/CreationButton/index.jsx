@@ -40,9 +40,9 @@ class CreationButtonWrapper extends Component {
     };
 
     handleSystemDataCollection = () => {
-        const { activeSystem, gatherData } = this.props;
+        const { activeSystem, activeSystemId, gatherData } = this.props;
 
-        gatherData(activeSystem);
+        gatherData(activeSystem, activeSystemId);
     };
 
     handleSystemDeployment = () => {
@@ -97,6 +97,7 @@ function mapStateToProps({
 
   return {
     activeSystem,
+    activeSystemId,
     formOpen,
     isSystemActive,
     modelling,
@@ -107,13 +108,14 @@ function mapStateToProps({
 function mapDispatchToProps(dispatch) {
   return {
     deploy: () => dispatch(startDeploying()),
-    gatherData: activeSystem => dispatch(startGatheringData(activeSystem)),
+    gatherData: (activeSystem, systemName) => dispatch(startGatheringData(activeSystem, systemName)),
     openCreationForm: formType => dispatch(openForm(formType)),
   };
 }
 
 CreationButtonWrapper.propTypes = {
   activeSystem: PropTypes.shape({}),
+  activeSystemId: PropTypes.string.isRequired,
   deploy: PropTypes.func.isRequired,
   formOpen: PropTypes.bool.isRequired,
   gatherData: PropTypes.func.isRequired,
