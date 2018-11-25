@@ -22,6 +22,14 @@ defmodule MDM.ServiceUploader do
     GenServer.start_link(__MODULE__, %__MODULE__{}, name: __MODULE__)
   end
 
+  def report_services_down_to(machines, pid) do
+    machines
+    |> Enum.map(fn machine ->
+      GenServer.call({MDMMinion.Deployer, MDM.Machine.node_name(machine)},
+                     {:report_services_down_to, pid}) end)
+    :ok
+  end
+
   @spec upload_services(MDM.DeployDecider.decision()) :: :ok |
             {:error, {:fault_machines, [{:error, Machine.t, reason()}]}}
   def upload_services(decision),

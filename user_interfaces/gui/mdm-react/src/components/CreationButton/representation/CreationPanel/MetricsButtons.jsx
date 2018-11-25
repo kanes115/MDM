@@ -15,7 +15,14 @@ class MetricsButtons extends Component {
         >
           <i className="material-icons">data_usage</i>
           {' '}
-          {'Metrics'}
+          {'Live metrics'}
+        </li>
+        <li
+          onClick={() => window.open('https://mdm-persistent-metrics.com')}
+        >
+          <i className="material-icons">bar_chart</i>
+          {' '}
+          {'All metrics'}
         </li>
       </ul>
     );

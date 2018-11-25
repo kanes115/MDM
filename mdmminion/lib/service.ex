@@ -17,16 +17,18 @@ defmodule MDMMinion.Service do
              :exec_path,
              :id,
              :alive?,
-             :exit_status]
+             :exit_status,
+             :report_down_to]
 
   @doc "Exec path is relative to service dir"
-  def start(name, service_dir, exec_path) do
+  def start(name, service_dir, exec_path, report_down_to) do
     b = get_backend()
     File.mkdir(@log_dir)
     state = %__MODULE__{backend: b,
                         name: name,
                         service_dir: service_dir,
-                        exec_path: exec_path}
+                        exec_path: exec_path,
+                        report_down_to: report_down_to}
     GenServer.start(__MODULE__, state)
   end
 
@@ -76,6 +78,8 @@ defmodule MDMMinion.Service do
   def handle_info({:DOWN, _, :process, _, status}, state) do
     code = status_parse(status)
     Logger.info "Service #{state.name} (id #{state.id}) stopping... (exit_status: #{inspect(code)})"
+    # We inform pilot Deployer that this service went down unexpectedly
+    GenServer.cast(state.report_down_to, {:service_down, state.name, code})
     {:noreply, %{state | alive?: false, exit_status: code}}
   end
 

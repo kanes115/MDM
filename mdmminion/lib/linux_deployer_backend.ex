@@ -129,18 +129,30 @@ defmodule MDMMinion.LinuxDeployerBackend do
   defp get_mem_of_pid(pid) do
     get_resource_of_pid(pid, "mem")
   end
-  
+
   defp get_processes(ppid) do
     #cmd = "ps -e -o pgid,pid | awk -v p=#{session_id} '$1 == p {print $2}'" # uncomment to get back to session id concept
     case pstree_installed? do
       true ->
         cmd = "pstree -p #{ppid} | grep -o '([0-9]\\+)' | grep -o '[0-9]\\+'"
-        :os.cmd(cmd |> String.to_atom)
-        |> to_string
-        |> String.split("\n")
-        |> Enum.filter(fn e -> e != "" end)
-        |> Enum.map(&Integer.parse/1)
-        |> Enum.map(fn e -> e |> elem(0) end)
+        cmd_res = :os.cmd(cmd |> String.to_atom)
+                  |> to_string
+        try do
+          cmd_res
+          |> String.split("\n")
+          |> Enum.filter(fn e -> e != "" end)
+          |> Enum.map(&Integer.parse/1)
+          |> Enum.map(fn e -> e |> elem(0) end)
+        rescue
+          e ->
+            # TODO there is a hazard here probably. If service dies and we already
+            # asked about metrics we will get no processes which will make the
+            # above code to break. This rescue should help. We print error to see
+            # if this is true.
+            Logger.warn " [KUBA, if you see this log, send it to me] There was an error when trying to collect processes.
+             Can't parse pstree result:\n#{cmd_res}"
+             []
+        end
       false ->
         {:error, :pstree_not_installed}
     end

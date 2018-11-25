@@ -239,3 +239,19 @@ export function reorganizeMachines(activeSystem) {
     },
   };
 }
+
+export const ACTIVE_SYSTEM_RECEIVED = 'ACTIVE_SYSTEM_RECEIVED';
+
+export function activeSystemReceived(body) {
+  return {
+    type: ACTIVE_SYSTEM_RECEIVED,
+    payload: {
+      isDeployed: _.get(body, 'is_deployed', false),
+      isUp: _.get(body, 'is_up', false),
+      system: _.get(body, 'jmmsr', {}),
+      systemName: _.get(body, 'system_name', 'system'),
+      servicesDown: _.get(body, 'services_down', []),
+      collectedData: _.get(body, 'collected_data', []),
+    },
+  };
+}

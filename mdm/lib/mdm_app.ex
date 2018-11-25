@@ -9,6 +9,7 @@ defmodule MDM.MDMApp do
   alias MDM.MonitorTasksSup
   alias MDM.Monitor
   alias MDM.EventPusher
+  alias MDM.PersistentMetrics
 
 
   def start(_type, _args) do
@@ -31,6 +32,14 @@ defmodule MDM.MDMApp do
       %{
         id: CorrectnessChecker,
         start: {CorrectnessChecker, :start_link, []}
+      },
+      %{
+        id: PersistentMetrics.Machines,
+        start: {PersistentMetrics.Machines, :start_link, []}
+      },
+      %{
+        id: PersistentMetrics.Services,
+        start: {PersistentMetrics.Services, :start_link, []}
       },
       %{
         id: Deployer,

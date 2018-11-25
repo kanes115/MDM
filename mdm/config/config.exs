@@ -28,3 +28,28 @@ use Mix.Config
 # here (which is why it is important to import them last).
 #
 #     import_config "#{Mix.env}.exs"
+
+config :mdm,
+  deploy_decider: MDM.DeployDeciderSimple,
+  live_metrics_report_interval: 2000, #ms
+  grafana_host: "mdmmetricsdb.com",
+  grafana_port: 3003,
+  grafana_user: "root",
+  grafana_pass: "root"
+
+config :elixometer, reporter: :exometer_report_influxdb,
+  update_frequency: 5_000,
+  env: "prod",
+  metric_prefix: "mdm"
+
+config :exometer_core, report: [
+  reporters: [
+    exometer_report_influxdb: [
+      protocol: :http,
+      host: "mdmmetricsdb.com",
+      port: 8086,
+      db: "telegraf"
+    ]
+  ]
+]
+

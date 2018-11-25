@@ -2,16 +2,26 @@ import WebSocketMessageDispatcher from './dispatcher';
 
 const dispatcher = new WebSocketMessageDispatcher();
 
-function collectSystemData(system) {
+function collectSystemData(system, systemName) {
   dispatcher.sendMessage(JSON.stringify({
     command_name: 'collect_data',
-    body: system,
+    body: {
+      jmmsr: system,
+      system_name: systemName,
+    },
   }));
 }
 
 function deploySystem() {
   dispatcher.sendMessage(JSON.stringify({
     command_name: 'deploy',
+    body: {},
+  }));
+}
+
+function getActiveSystem() {
+  dispatcher.sendMessage(JSON.stringify({
+    command_name: 'get_active_system',
     body: {},
   }));
 }
@@ -33,6 +43,7 @@ function stopSystem() {
 export {
   collectSystemData,
   deploySystem,
+  getActiveSystem,
   stopSystem,
   validateModel,
 };

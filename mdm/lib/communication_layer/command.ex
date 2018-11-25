@@ -33,6 +33,7 @@ defmodule MDM.Command do
     defp to_command_name("collect_data"), do: :collect_data
     defp to_command_name("check_correctness"), do: :check_correctness
     defp to_command_name("stop_system"), do: :stop_system
+    defp to_command_name("get_active_system"), do: :get_active_system
     defp to_command_name(_), do: {:error, :unknown_command}
 
   end
