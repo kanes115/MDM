@@ -12,6 +12,7 @@ class AppDetails extends Component {
   render() {
     const {
       activeSystem,
+      canModify,
       deploymentError,
       errorOccurred,
       // isModelEmpty,
@@ -28,6 +29,7 @@ class AppDetails extends Component {
         />
         <DetailsContent
           activeSystem={activeSystem}
+          canModify={canModify}
           onDeleteClick={onDeleteClick}
           onEditClick={onEditClick}
         />
@@ -43,6 +45,7 @@ AppDetails.propTypes = {
     machines: PropTypes.array,
     services: PropTypes.array,
   }),
+  canModify: PropTypes.bool.isRequired,
   deploymentError: PropTypes.shape(),
   errorOccurred: PropTypes.bool,
   // isModelEmpty: PropTypes.bool.isRequired,

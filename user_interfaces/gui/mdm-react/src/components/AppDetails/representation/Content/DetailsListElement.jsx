@@ -29,22 +29,26 @@ const DetailsListElement = ({
             : (<i className="material-icons">expand_more</i>)
           }
         </button>
-        <button
-          className="mdm-details-element-option"
-          type="button"
-          onClick={onEditClick}
-          disabled={!canModify}
-        >
-          <i className="material-icons">edit</i>
-        </button>
-        <button
-          className="mdm-details-element-option"
-          type="button"
-          onClick={onDeleteClick}
-          disabled={!canModify}
-        >
-          <i className="material-icons">delete</i>
-        </button>
+        {
+          canModify && (
+            <button
+              className="mdm-details-element-option"
+              type="button"
+              onClick={onEditClick}
+            >
+              <i className="material-icons">edit</i>
+            </button>
+          )
+        }
+        {canModify && (
+          <button
+            className="mdm-details-element-option"
+            type="button"
+            onClick={onDeleteClick}
+          >
+            <i className="material-icons">delete</i>
+          </button>
+        )}
       </div>
     </div>
     {isExpanded && children}

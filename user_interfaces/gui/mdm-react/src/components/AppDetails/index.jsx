@@ -16,6 +16,7 @@ class AppDetailsContainer extends Component {
   render() {
     const {
       activeSystem,
+      canModify,
       deploymentError,
       errorOccurred,
       isModelEmpty,
@@ -26,6 +27,7 @@ class AppDetailsContainer extends Component {
     return (
       <AppDetails
         activeSystem={activeSystem}
+        canModify={canModify}
         deploymentError={deploymentError}
         errorOccurred={errorOccurred}
         isModelEmpty={isModelEmpty}
@@ -43,6 +45,7 @@ AppDetailsContainer.propTypes = {
     machines: PropTypes.array,
     services: PropTypes.array,
   }),
+  canModify: PropTypes.bool.isRequired,
   deploymentError: PropTypes.shape(),
   errorOccurred: PropTypes.bool,
   isModelEmpty: PropTypes.bool.isRequired,
@@ -56,7 +59,15 @@ AppDetailsContainer.defaultProps = {
 };
 
 function mapStateToProps({
-  graph: { deployment: { error } },
+  graph: {
+    deployment: {
+      dataGathered,
+      deployed,
+      deploying,
+      gatheringData,
+      error,
+    },
+  },
   jmmsr: { activeSystemId, systems },
 }) {
   const activeSystem = systems[activeSystemId];
@@ -64,9 +75,11 @@ function mapStateToProps({
     && _.get(activeSystem, 'machines.length', 0) === 0
     && _.get(activeSystem, 'services.length', 0) === 0;
   const errorOccurred = !!error;
+  const canModify = !dataGathered && !deployed && !deploying && !gatheringData;
 
   return {
     activeSystem,
+    canModify,
     deploymentError: error,
     errorOccurred,
     isModelEmpty,

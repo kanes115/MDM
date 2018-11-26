@@ -22,7 +22,7 @@ class ServiceList extends Component {
   };
 
   render() {
-    const { services, onDeleteClick, onEditClick } = this.props;
+    const { canModify, services, onDeleteClick, onEditClick } = this.props;
     const { expanded } = this.state;
 
     return services.length > 0 && (
@@ -34,7 +34,7 @@ class ServiceList extends Component {
           {services.map(service => (
             <ServiceListElement
               key={service.name}
-              canModify={true}
+              canModify={canModify}
               isExpanded={expanded[service.name]}
               onDeleteClick={() => onDeleteClick('service', service)}
               onEditClick={() => onEditClick('service', service)}
@@ -49,6 +49,7 @@ class ServiceList extends Component {
 }
 
 ServiceList.propTypes = {
+  canModify: PropTypes.bool.isRequired,
   services: PropTypes.arrayOf(PropTypes.object).isRequired,
   onDeleteClick: PropTypes.func.isRequired,
   onEditClick: PropTypes.func.isRequired,
