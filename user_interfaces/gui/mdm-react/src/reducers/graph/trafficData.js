@@ -236,7 +236,24 @@ const trafficData = (state = initialState, action) => {
       };
     }
     case deploymentActionTypes.SYSTEM_DEPLOYMENT_SUCCESS: {
+      const decision = _.get(action, 'payload.body.decision', []);
       const { nodes } = state;
+
+      const servicesForMachines = _.reduce(
+        decision,
+        (accumulator, decisionObject) => {
+          const machineServicesLength = _.get(accumulator, `${decisionObject.machine}.length`, 0);
+          if (machineServicesLength === 0) {
+            _.set(accumulator, `${decisionObject.machine}`, [decisionObject.service]);
+          }
+          else {
+            accumulator[decisionObject.machine].push(decisionObject.service);
+          }
+
+          return accumulator;
+        },
+        {},
+      );
 
       const newNodes = nodes.map((node, index) => {
         if (index === 0) {
@@ -247,33 +264,17 @@ const trafficData = (state = initialState, action) => {
           class: 'normal',
         };
       });
-
-      return {
-        ...state,
-        nodes: newNodes,
-        updated: Date.now(),
-      };
-    }
-
-    case actionTypes.REORGANIZE_MACHINES: {
-      const activeSystemServices = _.get(action, 'payload.activeSystem.services', []);
-      const newNodes = [...state.nodes];
-      const newConnections = [...state.connections];
-
-      const groupedServices = _.groupBy(
-        activeSystemServices,
-        service => _.get(service, 'requirements.available_machines.0'),
-      );
       newNodes.forEach((node, index) => {
         if (index > 0) {
           const machineId = _.get(node, 'metadata.id');
-          const servicesForMachine = _.get(groupedServices, `${machineId}`, []);
+          const servicesForMachine = servicesForMachines[machineId];
           servicesForMachine.forEach((service) => {
+            const serviceObject = { name: service };
             const {
               node: serviceAsNode,
               connectionFrom,
               connectionTo,
-            } = serviceToNodeAndConnection(service);
+            } = serviceToNodeAndConnection(serviceObject);
             node.nodes.push(serviceAsNode);
             node.connections.push(connectionFrom);
             node.connections.push(connectionTo);
@@ -284,7 +285,6 @@ const trafficData = (state = initialState, action) => {
       return {
         ...state,
         nodes: newNodes,
-        connections: newConnections,
         updated: Date.now(),
       };
     }

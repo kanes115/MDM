@@ -79,7 +79,7 @@ export function mapMessageToAction(message) {
       return systemDataCollected(body);
     }
     case 'deployed': {
-      return systemDeployed();
+      return systemDeployed(body);
     }
     case 'checked': {
       return systemCheckSuccess(body);

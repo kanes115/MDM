@@ -621,6 +621,41 @@ const jmmsr = (state = initialState, action) => {
       };
     }
 
+    case deploymentActionTypes.SYSTEM_DEPLOYMENT_SUCCESS: {
+      const decision = _.get(action, 'payload.body.decision', []);
+      const services = _.get(state, `systems.${state.activeSystemId}.services`, []);
+      const serviceToMachine = _.reduce(
+        decision,
+        (accumulator, decisionObject) => {
+          accumulator[decisionObject.service] = decisionObject.machine;
+          return accumulator;
+        },
+        {},
+      );
+
+      const newServices = _.map(
+        services,
+        service => ({
+          ...service,
+          requirements: {
+            ...(_.get(service, 'requirements', {})),
+            available_machines: [serviceToMachine[service.name]],
+          },
+        }),
+      );
+
+      return {
+        ...state,
+        systems: {
+          ...state.systems,
+          [state.activeSystemId]: {
+            ...state.systems[state.activeSystemId],
+            services: newServices,
+          },
+        },
+      };
+    }
+
 
     default:
       return state;

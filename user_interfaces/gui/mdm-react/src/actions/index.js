@@ -229,17 +229,6 @@ export function closeMetricsPanel() {
   };
 }
 
-export const REORGANIZE_MACHINES = 'REORGANIZE_MACHINES';
-
-export function reorganizeMachines(activeSystem) {
-  return {
-    type: REORGANIZE_MACHINES,
-    payload: {
-      activeSystem,
-    },
-  };
-}
-
 export const ACTIVE_SYSTEM_RECEIVED = 'ACTIVE_SYSTEM_RECEIVED';
 
 export function activeSystemReceived(body) {
