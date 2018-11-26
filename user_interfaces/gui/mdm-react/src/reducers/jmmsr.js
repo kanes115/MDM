@@ -607,6 +607,20 @@ const jmmsr = (state = initialState, action) => {
       };
     }
 
+    case actionTypes.CLEAR_MODEL: {
+      const clearedSystem = _.cloneDeep(system);
+      const systemName = _.get(state, `systems.${state.activeSystemId}.name`, 'default');
+      _.set(clearedSystem, 'name', systemName);
+
+      return {
+        ...state,
+        systems: {
+          ...state.systems,
+          [state.activeSystemId]: clearedSystem,
+        },
+      };
+    }
+
 
     default:
       return state;

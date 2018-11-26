@@ -255,3 +255,14 @@ export function activeSystemReceived(body) {
     },
   };
 }
+
+export const CLEAR_MODEL = 'CLEAR_MODEL';
+
+export function clearModel(name) {
+  return {
+    type: CLEAR_MODEL,
+    payload: {
+      name,
+    },
+  };
+}

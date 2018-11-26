@@ -379,6 +379,16 @@ const trafficData = (state = initialState, action) => {
       };
     }
 
+    case actionTypes.CLEAR_MODEL: {
+      const name = _.get(action, 'payload.name', 'default');
+
+      return {
+        ...initialState,
+        name,
+        updated: Date.now(),
+      };
+    }
+
     default:
       return state;
   }
