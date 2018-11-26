@@ -8,9 +8,9 @@ import ModelPage from './representation/index';
 
 class ModelPageWrapper extends Component {
   render() {
-    const { isSystemActive, openSystemCreationForm } = this.props;
+    const { downloadingSystem, isSystemActive, openSystemCreationForm } = this.props;
 
-    return (
+    return !downloadingSystem && (
       <ModelPage
         isSystemActive={isSystemActive}
         openSystemCreationForm={openSystemCreationForm}
@@ -19,8 +19,9 @@ class ModelPageWrapper extends Component {
   }
 }
 
-function mapStateToProps({ jmmsr: { activeSystemId } }) {
+function mapStateToProps({ jmmsr: { activeSystemId, downloadingSystem } }) {
   return {
+    downloadingSystem,
     isSystemActive: activeSystemId.length > 0,
   };
 }
@@ -32,6 +33,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 ModelPageWrapper.propTypes = {
+  downloadingSystem: PropTypes.bool.isRequired,
   isSystemActive: PropTypes.bool.isRequired,
   openSystemCreationForm: PropTypes.func.isRequired,
 };

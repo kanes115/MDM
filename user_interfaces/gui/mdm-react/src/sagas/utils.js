@@ -10,6 +10,7 @@ import {
 import {
   systemCheckSuccess,
   activeSystemReceived,
+  getActiveSystemInit,
 } from '../actions';
 import {
   machineMetricsReceived,
@@ -22,6 +23,10 @@ import { getActiveSystem } from '../providers/websocket';
 export function onSocketOpen(emit) {
   return () => {
     getActiveSystem();
+    emit({
+      msg: 'get_active_system',
+      body: {},
+    });
   };
 }
 
@@ -86,6 +91,9 @@ export function mapMessageToAction(message) {
     }
     case 'active_system': {
       return activeSystemReceived(body);
+    }
+    case 'get_active_system': {
+      return getActiveSystemInit();
     }
     case 'error': {
       return mapErrorToAction(message);

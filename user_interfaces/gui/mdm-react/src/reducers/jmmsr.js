@@ -7,6 +7,7 @@ import { system } from '../utils/jmmsr/schema';
 
 const initialState = {
   activeSystemId: '',
+  downloadingSystem: true,
   fileLoader: {
     error: null,
     file: null,
@@ -50,6 +51,13 @@ const jmmsr = (state = initialState, action) => {
         },
       };
 
+    case actionTypes.GET_ACTIVE_SYSTEM: {
+      return {
+        ...state,
+        downloadingSystem: true,
+      };
+    }
+
     case actionTypes.ACTIVE_SYSTEM_RECEIVED: {
       const isUp = _.get(action, 'payload.isUp', false);
       const activeSystemId = _.get(action, 'payload.systemName');
@@ -75,6 +83,7 @@ const jmmsr = (state = initialState, action) => {
 
         return {
           ...state,
+          downloadingSystem: false,
           activeSystemId,
           form: {
             ...state.form,
@@ -90,6 +99,7 @@ const jmmsr = (state = initialState, action) => {
       }
       return {
         ...state,
+        downloadingSystem: false,
       };
     }
 

@@ -255,3 +255,11 @@ export function clearModel(name) {
     },
   };
 }
+
+export const GET_ACTIVE_SYSTEM = 'GET_ACTIVE_SYSTEM';
+
+export function getActiveSystemInit() {
+  return {
+    type: GET_ACTIVE_SYSTEM,
+  };
+}
