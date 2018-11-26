@@ -19,3 +19,14 @@ export function serviceMetricsReceived(eventBody) {
     },
   };
 }
+
+export const SERVICE_DOWN_RECEIVED = 'SERVICE_DOWN_RECEIVED';
+
+export function serviceDownReceived(eventBody) {
+  return {
+    type: SERVICE_DOWN_RECEIVED,
+    payload: {
+      eventBody,
+    },
+  };
+}

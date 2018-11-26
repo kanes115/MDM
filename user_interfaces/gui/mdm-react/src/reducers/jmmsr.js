@@ -552,6 +552,39 @@ const jmmsr = (state = initialState, action) => {
       return state;
     }
 
+    case metricsActionTypes.SERVICE_DOWN_RECEIVED: {
+      const systemId = state.activeSystemId;
+      const activeSystem = state.systems[systemId];
+      const serviceName = _.get(action, 'payload.eventBody.service_name');
+
+      const services = [..._.get(state, `systems.${systemId}.live_metrics.services`, [])];
+      const downServiceIndex = _.findIndex(
+        services,
+        service => service.service_name === serviceName,
+      );
+
+      if (downServiceIndex !== -1) {
+        _.set(services, `${downServiceIndex}.is_down`, true);
+      }
+
+      if (systemId && activeSystem) {
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [systemId]: {
+              ...activeSystem,
+              live_metrics: {
+                ...state.systems[systemId].live_metrics,
+                services,
+              },
+            },
+          },
+        };
+      }
+      return state;
+    }
+
     case actionTypes.OPEN_METRICS_PANEL: {
       return {
         ...state,

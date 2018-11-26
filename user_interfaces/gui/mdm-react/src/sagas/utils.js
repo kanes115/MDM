@@ -14,6 +14,7 @@ import {
 import {
   machineMetricsReceived,
   serviceMetricsReceived,
+  serviceDownReceived,
 } from '../actions/metrics';
 
 import { getActiveSystem } from '../providers/websocket';
@@ -64,6 +65,9 @@ export function mapMessageToAction(message) {
       }
       case 'service_metrics': {
         return serviceMetricsReceived(body);
+      }
+      case 'service_down': {
+        return serviceDownReceived(body);
       }
       default:
         break;
