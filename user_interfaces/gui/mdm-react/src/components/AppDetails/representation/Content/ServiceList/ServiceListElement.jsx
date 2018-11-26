@@ -7,6 +7,7 @@ import Service from './Service';
 const ServiceListElement = ({
   canModify,
   isExpanded,
+  machineIdToNameMap,
   onDeleteClick,
   onEditClick,
   service,
@@ -20,13 +21,17 @@ const ServiceListElement = ({
     title={service.name}
     toggleExpanded={() => toggleMachineExpanded(service.name)}
   >
-    <Service service={service} />
+    <Service
+      machineIdToNameMap={machineIdToNameMap}
+      service={service}
+    />
   </DetailsListElement>
 );
 
 ServiceListElement.propTypes = {
   canModify: PropTypes.bool.isRequired,
   isExpanded: PropTypes.bool,
+  machineIdToNameMap: PropTypes.shape({}),
   onDeleteClick: PropTypes.func.isRequired,
   onEditClick: PropTypes.func.isRequired,
   service: PropTypes.shape({}).isRequired,
@@ -34,6 +39,7 @@ ServiceListElement.propTypes = {
 };
 ServiceListElement.defaultProps = {
   isExpanded: false,
+  machineIdToNameMap: {},
 };
 
 export default ServiceListElement;

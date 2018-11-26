@@ -9,6 +9,17 @@ import ServiceList from './ServiceList';
 class AppDetailsContent extends Component {
   render() {
     const { activeSystem, canModify, onDeleteClick, onEditClick } = this.props;
+    const machines = _.get(activeSystem, 'machines', []);
+    const machineIdToName = _.reduce(
+      machines,
+      (accumulator, machine) => {
+        const machineId = _.get(machine, 'id');
+
+        accumulator[machineId] = _.get(machine, 'name');
+        return accumulator;
+      },
+      {},
+    );
 
     return (
       <div>
@@ -21,6 +32,7 @@ class AppDetailsContent extends Component {
         <ServiceList
           canModify={canModify}
           services={_.get(activeSystem, 'services', [])}
+          machineIdToNameMap={machineIdToName}
           onDeleteClick={onDeleteClick}
           onEditClick={onEditClick}
         />
