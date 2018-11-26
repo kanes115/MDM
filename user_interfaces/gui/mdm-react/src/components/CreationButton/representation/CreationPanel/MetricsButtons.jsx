@@ -6,7 +6,7 @@ import { openMetricsPanel } from '../../../../actions';
 
 class MetricsButtons extends Component {
   render() {
-    const { deployed, openPanel } = this.props;
+    const { dashboardLink, deployed, openPanel } = this.props;
 
     return deployed && (
       <ul>
@@ -18,7 +18,7 @@ class MetricsButtons extends Component {
           {'Live metrics'}
         </li>
         <li
-          onClick={() => window.open('https://mdm-persistent-metrics.com')}
+          onClick={() => window.open(dashboardLink)}
         >
           <i className="material-icons">bar_chart</i>
           {' '}
@@ -30,19 +30,24 @@ class MetricsButtons extends Component {
 }
 
 MetricsButtons.propTypes = {
+  dashboardLink: PropTypes.string,
   deployed: PropTypes.bool.isRequired,
   openPanel: PropTypes.func.isRequired,
 };
-MetricsButtons.defaultProps = {};
+MetricsButtons.defaultProps = {
+  dashboardLink: null,
+};
 
 function mapStateToProps({
   graph: {
     deployment: {
+      dashboardLink,
       deployed,
     },
   },
 }) {
   return {
+    dashboardLink,
     deployed,
   };
 }

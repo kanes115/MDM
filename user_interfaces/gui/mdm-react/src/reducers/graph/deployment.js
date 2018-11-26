@@ -9,6 +9,7 @@ const initialState = {
   deploying: false,
   gatheringData: false,
   error: null,
+  dashboardLink: null,
 };
 
 const deployment = (state = initialState, action) => {
@@ -71,10 +72,13 @@ const deployment = (state = initialState, action) => {
       };
     }
     case deploymentActionTypes.SYSTEM_DEPLOYMENT_SUCCESS: {
+      const dashboardLink = _.get(action, 'payload.body.dashboard_link', null);
+
       return {
         ...state,
         deployed: true,
         deploying: false,
+        dashboardLink,
       };
     }
     case deploymentActionTypes.SYSTEM_DEPLOYMENT_ERROR: {
