@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import c from 'classnames';
 
 import '../../AppDetails/representation/Content/details-list-element.css';
 
@@ -8,10 +9,11 @@ const MetricsListElement = ({
   isExpanded,
   title,
   toggleExpanded,
+  warning,
 }) => (
   <li>
     <div className="mdm-details-element">
-      <div className="title">
+      <div className={c('title', { warning })}>
         <div className="element-indicator" />
         {title}
       </div>
@@ -37,9 +39,11 @@ MetricsListElement.propTypes = {
   isExpanded: PropTypes.bool,
   title: PropTypes.string.isRequired,
   toggleExpanded: PropTypes.func.isRequired,
+  warning: PropTypes.bool,
 };
 MetricsListElement.defaultProps = {
   isExpanded: false,
+  warning: false,
 };
 
 export default MetricsListElement;
