@@ -1,4 +1,5 @@
 import * as actionTypes from '../../actions/graph/view';
+import * as jmmsrActionTypes from '../../actions';
 
 const initialState = {
   searchTerm: '',
@@ -34,6 +35,12 @@ const view = (state = initialState, action) => {
       return {
         ...state,
         ...action.payload.view,
+      };
+    }
+
+    case jmmsrActionTypes.CLEAR_MODEL: {
+      return {
+        ...initialState,
       };
     }
 

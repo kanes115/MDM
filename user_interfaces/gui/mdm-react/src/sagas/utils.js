@@ -10,10 +10,12 @@ import {
 import {
   systemCheckSuccess,
   activeSystemReceived,
+  getActiveSystemInit,
 } from '../actions';
 import {
   machineMetricsReceived,
   serviceMetricsReceived,
+  serviceDownReceived,
 } from '../actions/metrics';
 
 import { getActiveSystem } from '../providers/websocket';
@@ -21,6 +23,10 @@ import { getActiveSystem } from '../providers/websocket';
 export function onSocketOpen(emit) {
   return () => {
     getActiveSystem();
+    emit({
+      msg: 'get_active_system',
+      body: {},
+    });
   };
 }
 
@@ -65,6 +71,9 @@ export function mapMessageToAction(message) {
       case 'service_metrics': {
         return serviceMetricsReceived(body);
       }
+      case 'service_down': {
+        return serviceDownReceived(body);
+      }
       default:
         break;
     }
@@ -75,13 +84,16 @@ export function mapMessageToAction(message) {
       return systemDataCollected(body);
     }
     case 'deployed': {
-      return systemDeployed();
+      return systemDeployed(body);
     }
     case 'checked': {
       return systemCheckSuccess(body);
     }
     case 'active_system': {
       return activeSystemReceived(body);
+    }
+    case 'get_active_system': {
+      return getActiveSystemInit();
     }
     case 'error': {
       return mapErrorToAction(message);

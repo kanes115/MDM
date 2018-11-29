@@ -15,6 +15,10 @@
     max-width: 145px;
 }
 
+.mdm-details-element .title.warning {
+    color: crimson;
+}
+
 .mdm-details-element .title .element-indicator {
     width: 0;
     height: 0;

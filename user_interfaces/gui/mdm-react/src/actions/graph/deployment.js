@@ -70,9 +70,12 @@ export function startDeploying() {
 
 export const SYSTEM_DEPLOYMENT_SUCCESS = 'SYSTEM_DEPLOYMENT_SUCCESS';
 
-export function systemDeployed() {
+export function systemDeployed(body) {
   return {
     type: SYSTEM_DEPLOYMENT_SUCCESS,
+    payload: {
+      body,
+    },
   };
 }
 

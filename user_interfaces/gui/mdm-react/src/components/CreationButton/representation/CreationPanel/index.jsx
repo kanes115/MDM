@@ -8,6 +8,7 @@ import CreationButtons from './CreationButtons';
 import DeploymentButton from './DeploymentButton';
 import MetricsButtons from './MetricsButtons';
 import StopButton from './StopButton';
+import ClearModelButton from './ClearModelButton';
 
 import './creation-panel.css';
 
@@ -37,6 +38,9 @@ const CreationPanel = ({
         handleSystemCreation={handleSystemCreation}
         isSystemActive={isSystemActive}
         modelling={modelling}
+      />
+      <ClearModelButton
+        isSystemActive={isSystemActive}
       />
     </ul>
     <CreationButtons

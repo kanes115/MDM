@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import _ from 'lodash';
 import ElementField from "../ElementField";
 
-const Machine = ({ service }) => (
+const Machine = ({ machineIdToNameMap, service }) => (
   <div className="element-details">
     <ElementField
       hide={!service.name}
@@ -53,15 +53,18 @@ const Machine = ({ service }) => (
         hide={(_.get(service, 'requirements.available_machines', [])).length === 0}
         nested
         label="Machines:"
-        value={_.get(service, 'requirements.available_machines', []).map(machine => `${machine} `)}
+        value={_.get(service, 'requirements.available_machines', []).map(machine => `${machineIdToNameMap[machine]} `)}
       />
     </div>
   </div>
 );
 
 Machine.propTypes = {
+  machineIdToNameMap: PropTypes.shape({}),
   service: PropTypes.shape().isRequired,
 };
-Machine.defaultProps = {};
+Machine.defaultProps = {
+  machineIdToNameMap: {},
+};
 
 export default Machine;

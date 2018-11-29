@@ -22,7 +22,7 @@ class MachineList extends Component {
   };
 
   render() {
-    const { machines, onDeleteClick, onEditClick } = this.props;
+    const { canModify, machines, onDeleteClick, onEditClick } = this.props;
     const { expanded } = this.state;
 
     return machines.length > 0 && (
@@ -34,7 +34,7 @@ class MachineList extends Component {
           {machines.map(machine => (
             <MachineListElement
               key={machine.id}
-              canModify={true}
+              canModify={canModify}
               isExpanded={expanded[machine.id]}
               machine={machine}
               onDeleteClick={() => onDeleteClick('machine', machine)}
@@ -49,6 +49,7 @@ class MachineList extends Component {
 }
 
 MachineList.propTypes = {
+  canModify: PropTypes.bool.isRequired,
   machines: PropTypes.arrayOf(PropTypes.object).isRequired,
   onDeleteClick: PropTypes.func.isRequired,
   onEditClick: PropTypes.func.isRequired,

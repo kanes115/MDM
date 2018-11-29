@@ -6,6 +6,8 @@ import './App.css';
 import { AppContent, AppHeader, AppNavigation } from '../components/index';
 import { initializeWebSocketChannel } from '../actions/websocketActions';
 
+import { EmptyState } from '../components';
+
 class App extends Component {
   componentDidMount() {
     const { initializeChannel } = this.props;
@@ -15,8 +17,19 @@ class App extends Component {
 
 
   render() {
+    const { downloadingSystem } = this.props;
+
     return (
       <div className="mdm">
+        {downloadingSystem && (
+          <div className="overlay">
+            <div className="loader">
+              <EmptyState iconName="hourglass_empty">
+                {'Connecting to pilot...'}
+              </EmptyState>
+            </div>
+          </div>
+        )}
         <AppHeader />
         <AppNavigation />
         <AppContent />
@@ -26,8 +39,15 @@ class App extends Component {
 }
 
 App.propTypes = {
+  downloadingSystem: PropTypes.bool.isRequired,
   initializeChannel: PropTypes.func.isRequired,
 };
+
+function mapStateToProps({ jmmsr: { downloadingSystem } }) {
+  return {
+    downloadingSystem,
+  };
+}
 
 function mapDispatchToProps(dispatch) {
   return {
@@ -35,4 +55,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(null, mapDispatchToProps)(App);
+export default connect(mapStateToProps, mapDispatchToProps)(App);

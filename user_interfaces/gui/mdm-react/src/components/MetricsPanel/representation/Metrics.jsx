@@ -7,22 +7,26 @@ import ElementField from '../../AppDetails/representation/Content/ElementField';
 const SingleMetrics = ({ metrics }) => (
   <div className="element-details">
     <ElementField
-      hide={!_.get(metrics, 'metrics.cpu.is_ok', true)}
+      label="Status"
+      value={_.get(metrics, 'is_down', false) ? 'Service is down' : 'Service is up'}
+    />
+    <ElementField
+      hide={!_.get(metrics, 'metrics.cpu.is_ok', true) || _.get(metrics, 'is_down', false)}
       label="CPU Usage"
       value={`${parseFloat(_.get(metrics, 'metrics.cpu.val', 0)).toFixed(2)} ${_.get(metrics, 'metrics.cpu.unit', '%')}`}
     />
     <ElementField
-      hide={!_.get(metrics, 'metrics.mem.is_ok', true)}
+      hide={!_.get(metrics, 'metrics.mem.is_ok', true) || _.get(metrics, 'is_down', false)}
       label="Memory Usage"
       value={`${parseFloat(_.get(metrics, 'metrics.mem.val', 0)).toFixed(2)} ${_.get(metrics, 'metrics.mem.unit', '%')}`}
     />
     <ElementField
-      hide={!_.get(metrics, 'metrics.net_in.is_ok', true)}
+      hide={!_.get(metrics, 'metrics.net_in.is_ok', true) || _.get(metrics, 'is_down', false)}
       label="Network in"
       value={`${parseFloat(_.get(metrics, 'metrics.net_in.val', 0)).toFixed(2)} ${_.get(metrics, 'metrics.net_in.unit', 'KB/s')}`}
     />
     <ElementField
-      hide={!_.get(metrics, 'metrics.net_out.is_ok', true)}
+      hide={!_.get(metrics, 'metrics.net_out.is_ok', true) || _.get(metrics, 'is_down', false)}
       label="Network out"
       value={`${parseFloat(_.get(metrics, 'metrics.net_out.val', 0)).toFixed(2)} ${_.get(metrics, 'metrics.net_out.unit', 'KB/s')}`}
     />

@@ -45,7 +45,7 @@ class ConnectionList extends Component {
   };
 
   render() {
-    const { connections, onDeleteClick, onEditClick } = this.props;
+    const { canModify, connections, onDeleteClick, onEditClick } = this.props;
 
     return connections.length > 0 && (
       <div>
@@ -56,7 +56,7 @@ class ConnectionList extends Component {
           {connections.map(connection => (
             <ConnectionListElement
               key={`${connection.service_from}-${connection.service_to}`}
-              canModify={true}
+              canModify={canModify}
               isExpanded={this.isExpanded(connection)}
               connection={connection}
               onDeleteClick={() => onDeleteClick('connection', connection)}
@@ -71,6 +71,7 @@ class ConnectionList extends Component {
 }
 
 ConnectionList.propTypes = {
+  canModify: PropTypes.bool.isRequired,
   connections: PropTypes.arrayOf(PropTypes.object).isRequired,
   onDeleteClick: PropTypes.func.isRequired,
   onEditClick: PropTypes.func.isRequired,

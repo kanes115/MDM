@@ -229,17 +229,6 @@ export function closeMetricsPanel() {
   };
 }
 
-export const REORGANIZE_MACHINES = 'REORGANIZE_MACHINES';
-
-export function reorganizeMachines(activeSystem) {
-  return {
-    type: REORGANIZE_MACHINES,
-    payload: {
-      activeSystem,
-    },
-  };
-}
-
 export const ACTIVE_SYSTEM_RECEIVED = 'ACTIVE_SYSTEM_RECEIVED';
 
 export function activeSystemReceived(body) {
@@ -253,5 +242,24 @@ export function activeSystemReceived(body) {
       servicesDown: _.get(body, 'services_down', []),
       collectedData: _.get(body, 'collected_data', []),
     },
+  };
+}
+
+export const CLEAR_MODEL = 'CLEAR_MODEL';
+
+export function clearModel(name) {
+  return {
+    type: CLEAR_MODEL,
+    payload: {
+      name,
+    },
+  };
+}
+
+export const GET_ACTIVE_SYSTEM = 'GET_ACTIVE_SYSTEM';
+
+export function getActiveSystemInit() {
+  return {
+    type: GET_ACTIVE_SYSTEM,
   };
 }

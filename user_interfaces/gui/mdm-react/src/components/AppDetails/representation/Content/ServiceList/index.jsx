@@ -22,7 +22,13 @@ class ServiceList extends Component {
   };
 
   render() {
-    const { services, onDeleteClick, onEditClick } = this.props;
+    const {
+      canModify,
+      services,
+      machineIdToNameMap,
+      onDeleteClick,
+      onEditClick,
+    } = this.props;
     const { expanded } = this.state;
 
     return services.length > 0 && (
@@ -34,8 +40,9 @@ class ServiceList extends Component {
           {services.map(service => (
             <ServiceListElement
               key={service.name}
-              canModify={true}
+              canModify={canModify}
               isExpanded={expanded[service.name]}
+              machineIdToNameMap={machineIdToNameMap}
               onDeleteClick={() => onDeleteClick('service', service)}
               onEditClick={() => onEditClick('service', service)}
               service={service}
@@ -49,10 +56,14 @@ class ServiceList extends Component {
 }
 
 ServiceList.propTypes = {
+  canModify: PropTypes.bool.isRequired,
+  machineIdToNameMap: PropTypes.shape({}),
   services: PropTypes.arrayOf(PropTypes.object).isRequired,
   onDeleteClick: PropTypes.func.isRequired,
   onEditClick: PropTypes.func.isRequired,
 };
-ServiceList.defaultProps = {};
+ServiceList.defaultProps = {
+  machineIdToNameMap: {},
+};
 
 export default ServiceList;

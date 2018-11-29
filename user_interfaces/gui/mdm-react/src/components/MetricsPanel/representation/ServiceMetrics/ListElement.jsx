@@ -10,6 +10,7 @@ const ServiceMetricsListElement = ({ isExpanded, metrics, toggleServiceExpanded 
     isExpanded={isExpanded}
     title={_.get(metrics, 'service_name')}
     toggleExpanded={() => toggleServiceExpanded(_.get(metrics, 'service_name'))}
+    warning={_.get(metrics, 'is_down', false)}
   >
     <SingleServiceMetrics metrics={metrics} />
   </MetricsListElement>

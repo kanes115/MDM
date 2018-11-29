@@ -7,6 +7,7 @@ import { system } from '../utils/jmmsr/schema';
 
 const initialState = {
   activeSystemId: '',
+  downloadingSystem: true,
   fileLoader: {
     error: null,
     file: null,
@@ -50,6 +51,13 @@ const jmmsr = (state = initialState, action) => {
         },
       };
 
+    case actionTypes.GET_ACTIVE_SYSTEM: {
+      return {
+        ...state,
+        downloadingSystem: true,
+      };
+    }
+
     case actionTypes.ACTIVE_SYSTEM_RECEIVED: {
       const isUp = _.get(action, 'payload.isUp', false);
       const activeSystemId = _.get(action, 'payload.systemName');
@@ -75,6 +83,7 @@ const jmmsr = (state = initialState, action) => {
 
         return {
           ...state,
+          downloadingSystem: false,
           activeSystemId,
           form: {
             ...state.form,
@@ -90,6 +99,7 @@ const jmmsr = (state = initialState, action) => {
       }
       return {
         ...state,
+        downloadingSystem: false,
       };
     }
 
@@ -552,6 +562,39 @@ const jmmsr = (state = initialState, action) => {
       return state;
     }
 
+    case metricsActionTypes.SERVICE_DOWN_RECEIVED: {
+      const systemId = state.activeSystemId;
+      const activeSystem = state.systems[systemId];
+      const serviceName = _.get(action, 'payload.eventBody.service_name');
+
+      const services = [..._.get(state, `systems.${systemId}.live_metrics.services`, [])];
+      const downServiceIndex = _.findIndex(
+        services,
+        service => service.service_name === serviceName,
+      );
+
+      if (downServiceIndex !== -1) {
+        _.set(services, `${downServiceIndex}.is_down`, true);
+      }
+
+      if (systemId && activeSystem) {
+        return {
+          ...state,
+          systems: {
+            ...state.systems,
+            [systemId]: {
+              ...activeSystem,
+              live_metrics: {
+                ...state.systems[systemId].live_metrics,
+                services,
+              },
+            },
+          },
+        };
+      }
+      return state;
+    }
+
     case actionTypes.OPEN_METRICS_PANEL: {
       return {
         ...state,
@@ -570,6 +613,55 @@ const jmmsr = (state = initialState, action) => {
           ...state.metricsPanel,
           panelOpen: false,
           panelType: '',
+        },
+      };
+    }
+
+    case actionTypes.CLEAR_MODEL: {
+      const clearedSystem = _.cloneDeep(system);
+      const systemName = _.get(state, `systems.${state.activeSystemId}.name`, 'default');
+      _.set(clearedSystem, 'name', systemName);
+
+      return {
+        ...state,
+        systems: {
+          ...state.systems,
+          [state.activeSystemId]: clearedSystem,
+        },
+      };
+    }
+
+    case deploymentActionTypes.SYSTEM_DEPLOYMENT_SUCCESS: {
+      const decision = _.get(action, 'payload.body.decision', []);
+      const services = _.get(state, `systems.${state.activeSystemId}.services`, []);
+      const serviceToMachine = _.reduce(
+        decision,
+        (accumulator, decisionObject) => {
+          accumulator[decisionObject.service] = decisionObject.machine;
+          return accumulator;
+        },
+        {},
+      );
+
+      const newServices = _.map(
+        services,
+        service => ({
+          ...service,
+          requirements: {
+            ...(_.get(service, 'requirements', {})),
+            available_machines: [serviceToMachine[service.name]],
+          },
+        }),
+      );
+
+      return {
+        ...state,
+        systems: {
+          ...state.systems,
+          [state.activeSystemId]: {
+            ...state.systems[state.activeSystemId],
+            services: newServices,
+          },
         },
       };
     }
