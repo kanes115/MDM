@@ -9,6 +9,7 @@ import DeploymentButton from './DeploymentButton';
 import MetricsButtons from './MetricsButtons';
 import StopButton from './StopButton';
 import ClearModelButton from './ClearModelButton';
+import DownloadButton from './DownloadButton';
 
 import './creation-panel.css';
 
@@ -40,6 +41,9 @@ const CreationPanel = ({
         modelling={modelling}
       />
       <ClearModelButton
+        isSystemActive={isSystemActive}
+      />
+      <DownloadButton
         isSystemActive={isSystemActive}
       />
     </ul>
