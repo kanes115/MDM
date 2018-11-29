@@ -97,3 +97,22 @@ export function backToDeployment() {
     type: BACK_TO_MODELLING,
   };
 }
+
+export const INITIALIZE_SYSTEM_STOP = 'INITIALIZE_SYSTEM_STOP';
+
+export function initSystemStop() {
+  return {
+    type: INITIALIZE_SYSTEM_STOP,
+  };
+}
+
+export const SYSTEM_STOPPED = 'SYSTEM_STOPPED';
+
+export function handleSystemStopped(body) {
+  return {
+    type: SYSTEM_STOPPED,
+    payload: {
+      body,
+    },
+  };
+}

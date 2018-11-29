@@ -666,6 +666,32 @@ const jmmsr = (state = initialState, action) => {
       };
     }
 
+    case deploymentActionTypes.SYSTEM_STOPPED: {
+      const machineLiveMetrics = _.get(state, `systems.${state.activeSystemId}.live_metrics.machines`, []);
+      const serviceLiveMetrics = _.get(state, `systems.${state.activeSystemId}.live_metrics.services`, []);
+
+      const newMachineMetrics = machineLiveMetrics.map(() => ({
+        is_down: true,
+      }));
+      const newServiceMetrics = serviceLiveMetrics.map(() => ({
+        is_down: true,
+      }));
+
+      return {
+        ...state,
+        systems: {
+          ...state.systems,
+          [state.activeSystemId]: {
+            ...state.systems[state.activeSystemId],
+            live_metrics: {
+              ...state.systems[state.activeSystemId].live_metrics,
+              machines: newMachineMetrics,
+              services: newServiceMetrics,
+            },
+          },
+        },
+      };
+    }
 
     default:
       return state;
