@@ -25,6 +25,7 @@ const initialState = {
   metricsPanel: {
     panelOpen: false,
   },
+  stoppedSystemInfoOpen: false,
   systems: {},
 };
 
@@ -667,18 +668,21 @@ const jmmsr = (state = initialState, action) => {
     }
 
     case deploymentActionTypes.SYSTEM_STOPPED: {
+      const stoppedServices = _.get(action, 'payload.body.stopped_services', []);
       const machineLiveMetrics = _.get(state, `systems.${state.activeSystemId}.live_metrics.machines`, []);
-      const serviceLiveMetrics = _.get(state, `systems.${state.activeSystemId}.live_metrics.services`, []);
 
-      const newMachineMetrics = machineLiveMetrics.map(() => ({
+      const newMachineMetrics = machineLiveMetrics.map((machineMetrics) => ({
+        ...machineMetrics,
         is_down: true,
       }));
-      const newServiceMetrics = serviceLiveMetrics.map(() => ({
+      const newServiceMetrics = stoppedServices.map(stoppedService => ({
+        ...stoppedService,
         is_down: true,
       }));
 
       return {
         ...state,
+        stoppedSystemInfoOpen: true,
         systems: {
           ...state.systems,
           [state.activeSystemId]: {
@@ -690,6 +694,13 @@ const jmmsr = (state = initialState, action) => {
             },
           },
         },
+      };
+    }
+
+    case actionTypes.CLOSE_STOPPED_SYSTEM_INFO: {
+      return {
+        ...state,
+        stoppedSystemInfoOpen: false,
       };
     }
 

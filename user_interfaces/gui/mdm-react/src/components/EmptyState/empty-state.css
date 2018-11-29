@@ -12,6 +12,8 @@
 
     background-color: gray;
     box-shadow: 6px 8px 12px #111111;
+
+    border-radius: 8px;
 }
 
 .mdm-empty-state .icon {
@@ -25,4 +27,38 @@
 .mdm-empty-state .message .action {
     color: #ffbf00;
     cursor: pointer;
+}
+
+.mdm-empty-state .message button.action {
+    background-color: #222222;
+    border-color: #444444;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: #eeeeee;
+    padding: 4px 8px;
+}
+
+.mdm-empty-state .message button.action:hover {
+    background-color: #333333;
+    border-color: #555555;
+}
+
+.mdm-empty-state ul.summary {
+    padding-left: 0;
+    text-align: left;
+}
+
+.mdm-empty-state ul.summary li.summary-item {
+    padding-left: 0;
+    list-style: none;
+}
+
+.mdm-empty-state ul.summary li.summary-item .key {
+    font-size: 1.1rem;
+}
+
+.mdm-empty-state ul.summary li.summary-item .value {
+    padding-left: 8px;
+    color: #333333;
+    font-size: 1rem;
 }
