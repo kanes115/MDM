@@ -40,9 +40,11 @@ defmodule MDM.Deployer do
     do
       Logger.info("parsed JMMSR:")
       IO.inspect(jmmsr)
+      Logger.info("Machines' data:")
+      IO.inspect(data)
       parsed_data = Enum.map(data, &parse_collecting_result/1)
       resp = req |> answer("collected", 200, %{"collected_data" => parsed_data})
-      {:reply, resp, %{state | state: :collected_data, jmmsr: jmmsr, collected_data: parsed_data, system_name: system_name}}
+      {:reply, resp, %{state | state: :collected_data, jmmsr: %{jmmsr | machines: data}, collected_data: parsed_data, system_name: system_name}}
     else
       {:error, %{fault_nodes: nodes}} ->
       Logger.error("Could not connect to nodes: #{inspect(nodes)}")
@@ -53,7 +55,7 @@ defmodule MDM.Deployer do
         {:reply, resp, %{state | state: :waiting_for_reqest}}
     end
   end
-  def handle_call(%Request{command_name: :deploy} = req, _, %__MODULE__{state: :collected_data, jmmsr: jmmsr} = state) do
+  def handle_call(%Request{command_name: :deploy} = req, _, %__MODULE__{state: :collected_data, jmmsr: jmmsr, data: data} = state) do
     Logger.info("Deploying the system...")
     with {:ok, decision} <- MDM.DeployDecider.decide(jmmsr),
          :ok <- MDM.ServiceUploader.upload_services(decision),
