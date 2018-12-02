@@ -29,6 +29,16 @@ defmodule MDMMinion.LinuxGathererBackend do
                     |> strip_newline
                     |> Float.parse
     {res_int, :kb}
+  end
+
+  def cpu_cores do
+    cmd = :"cat /proc/cpuinfo | awk '/^processor/{print $3}' | wc -l"
+    res = :os.cmd(cmd)
+    {res_int, ""} = res
+                    |> to_string
+                    |> strip_newline
+                    |> Float.parse
+    {res_int, :cores}
 
   end
 
