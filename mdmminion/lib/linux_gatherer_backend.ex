@@ -21,6 +21,17 @@ defmodule MDMMinion.LinuxGathererBackend do
     {res_int, :kb}
   end
 
+  def machine_hdd do
+    cmd = :"df -k | awk '$NF == \"/\"{print $4}'"
+    res = :os.cmd(cmd)
+    {res_int, ""} = res
+                    |> to_string
+                    |> strip_newline
+                    |> Float.parse
+    {res_int, :kb}
+
+  end
+
 
   defp strip_newline(str), do: String.trim(str, "\n")
 
