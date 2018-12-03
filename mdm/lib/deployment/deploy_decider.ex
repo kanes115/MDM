@@ -8,7 +8,7 @@ defmodule MDM.DeployDecider do
                     | {:decision_not_made, reason :: String.t}
 
   def decide(jmmsr) do
-    jmmsr |> get_backend().decide
+    get_backend().decide(jmmsr)
   end
 
   def get_backend, do: Application.get_env(:mdm, :deploy_decider, MDM.DeployDeciderSimple)

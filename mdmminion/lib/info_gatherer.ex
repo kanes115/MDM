@@ -5,7 +5,7 @@ defmodule MDMMinion.InfoGatherer do
 
   require Logger
 
-  @type unit :: :kb | :mhz | :cores
+  @type unit :: :kb | :mhz | :cores | nil
   @type single_resource :: {float(), unit()}
   @type gatherer_backend :: atom()
 
@@ -41,7 +41,8 @@ defmodule MDMMinion.InfoGatherer do
       cpu: backend.machine_cpu_max,
       mem: backend.machine_mem_max,
       hdd: backend.machine_hdd,
-      cpu_cores: backend.cpu_cores
+      cpu_cores: backend.cpu_cores,
+      os: {:os.type |> elem(1), nil}
     }
   end
 
