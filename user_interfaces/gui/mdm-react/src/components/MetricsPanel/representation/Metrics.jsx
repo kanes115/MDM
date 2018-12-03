@@ -8,7 +8,7 @@ const SingleMetrics = ({ metrics }) => (
   <div className="element-details">
     <ElementField
       label="Status"
-      value={_.get(metrics, 'is_down', false) ? 'Service is down' : 'Service is up'}
+      value={_.get(metrics, 'is_down', false) ? 'Down' : 'Up'}
     />
     <ElementField
       hide={!_.get(metrics, 'metrics.cpu.is_ok', true) || _.get(metrics, 'is_down', false)}

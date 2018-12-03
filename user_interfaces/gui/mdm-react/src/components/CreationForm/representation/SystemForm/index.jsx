@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import {connect} from 'react-redux';
 
 import {createNewSystem} from '../../../../actions';
@@ -18,9 +19,15 @@ class SystemFormWrapper extends Component {
     };
 
     onSubmit = () => {
-        const {values: {name}} = this.systemCreationFormAPI.getState();
+        const { values: { name }, errors } = this.systemCreationFormAPI.getState();
 
-        this.props.createSystem(name);
+        if (_.get(name, 'length', 0) === 0) {
+            this.systemCreationFormAPI.setError('name', 'System name must not be empty');
+        }
+
+        if (_.isEmpty(errors) && _.get(name, 'length', 0) !== 0) {
+          this.props.createSystem(name);
+        }
     };
 
     render() {

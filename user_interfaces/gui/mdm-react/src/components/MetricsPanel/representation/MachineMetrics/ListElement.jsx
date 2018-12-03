@@ -10,6 +10,7 @@ const MachineMetricsListElement = ({ isExpanded, metrics, toggleMachineExpanded 
     isExpanded={isExpanded}
     title={_.get(metrics, 'machine_name')}
     toggleExpanded={() => toggleMachineExpanded(_.get(metrics, 'machine_name'))}
+    warning={_.get(metrics, 'is_down', false)}
   >
     <SingleMachineMetrics metrics={metrics} />
   </MetricsListElement>

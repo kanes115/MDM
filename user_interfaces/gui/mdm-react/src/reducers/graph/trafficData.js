@@ -389,6 +389,49 @@ const trafficData = (state = initialState, action) => {
       };
     }
 
+    case deploymentActionTypes.SYSTEM_STOPPED: {
+      const nodes = [...state.nodes];
+      const connections = [...state.connections];
+      const newNodes = nodes.map((machine, index) => {
+        if (index === 0) {
+          return machine;
+        }
+        const newMachine = { ...machine };
+        _.set(newMachine, 'metadata', {
+          cpu: 0,
+          mem: 0,
+        });
+        _.set(newMachine, 'class', 'danger');
+        newMachine.connections.forEach((connection) => {
+          _.set(connection, 'metrics', {
+            danger: 0,
+            normal: 0,
+            warning: 0,
+          });
+        });
+
+        return newMachine;
+      });
+      const newConnections = connections.map((connection) => {
+        const newConnection = { ...connection };
+        _.set(newConnection, 'metrics', {
+          danger: 0,
+          normal: 0,
+          warning: 0,
+        });
+
+        return newConnection;
+      });
+
+
+      return {
+        ...state,
+        nodes: newNodes,
+        connections: newConnections,
+        updated: Date.now(),
+      };
+    }
+
     default:
       return state;
   }

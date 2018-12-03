@@ -8,6 +8,7 @@ const initialState = {
   deployed: false,
   deploying: false,
   gatheringData: false,
+  stopping: false,
   error: null,
   dashboardLink: null,
 };
@@ -98,6 +99,23 @@ const deployment = (state = initialState, action) => {
         deployed: false,
         deploying: false,
         gatheringData: false,
+      };
+    }
+    case deploymentActionTypes.INITIALIZE_SYSTEM_STOP: {
+      return {
+        ...state,
+        stopping: true,
+      };
+    }
+    case deploymentActionTypes.SYSTEM_STOPPED: {
+      return {
+        ...state,
+        dataGathered: false,
+        deployed: false,
+        deploying: false,
+        gatheringData: false,
+        stopping: false,
+        error: null,
       };
     }
     default:

@@ -2,6 +2,7 @@ import {
   WEB_SOCKET_MESSAGE_RECEIVED,
 } from '../actions/websocketActions';
 import {
+  handleSystemStopped,
   systemDataCollected,
   systemDataCollectionError,
   systemDeployed,
@@ -94,6 +95,9 @@ export function mapMessageToAction(message) {
     }
     case 'get_active_system': {
       return getActiveSystemInit();
+    }
+    case 'stopped': {
+      return handleSystemStopped(body);
     }
     case 'error': {
       return mapErrorToAction(message);

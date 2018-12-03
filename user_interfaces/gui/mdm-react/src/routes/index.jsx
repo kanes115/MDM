@@ -6,6 +6,8 @@ import './App.css';
 import { AppContent, AppHeader, AppNavigation } from '../components/index';
 import { initializeWebSocketChannel } from '../actions/websocketActions';
 
+import StoppedSystemInfo from './StoppedSystemInfo';
+
 import { EmptyState } from '../components';
 
 class App extends Component {
@@ -17,7 +19,7 @@ class App extends Component {
 
 
   render() {
-    const { downloadingSystem } = this.props;
+    const { downloadingSystem, stoppedSystemInfoOpen } = this.props;
 
     return (
       <div className="mdm">
@@ -30,6 +32,9 @@ class App extends Component {
             </div>
           </div>
         )}
+        {stoppedSystemInfoOpen && (
+          <StoppedSystemInfo />
+        )}
         <AppHeader />
         <AppNavigation />
         <AppContent />
@@ -41,11 +46,18 @@ class App extends Component {
 App.propTypes = {
   downloadingSystem: PropTypes.bool.isRequired,
   initializeChannel: PropTypes.func.isRequired,
+  stoppedSystemInfoOpen: PropTypes.bool.isRequired,
 };
 
-function mapStateToProps({ jmmsr: { downloadingSystem } }) {
+function mapStateToProps({
+  jmmsr: {
+    downloadingSystem,
+    stoppedSystemInfoOpen,
+  },
+}) {
   return {
     downloadingSystem,
+    stoppedSystemInfoOpen,
   };
 }
 

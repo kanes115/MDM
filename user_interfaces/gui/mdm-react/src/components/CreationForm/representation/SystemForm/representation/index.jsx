@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import _ from 'lodash';
 import { Form } from 'informed';
 
 import {
@@ -7,6 +8,8 @@ import {
   FormSection,
   InputField,
 } from '../../../../FormElements';
+
+import validateSystemName from './validation';
 
 import './system-form.css';
 
@@ -25,8 +28,12 @@ class SystemForm extends Component {
             <FormSection title="Basic information">
               <InputField
                 id="system-name"
+                error={_.get(formState, 'errors.name')}
                 field="name"
                 label="System name"
+                validate={validateSystemName}
+                validateOnBlur
+                validateOnChange
               />
             </FormSection>
 

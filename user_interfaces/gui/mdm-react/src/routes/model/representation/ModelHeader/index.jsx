@@ -12,7 +12,7 @@ class ModelHeader extends Component {
     const { activeSystemName, goBack, view } = this.props;
     const path = _.join([activeSystemName, ...view.currentView], ' / ');
 
-    return (
+    return path.length > 0 && (
       <div className="mdm-model-header">
         <i
           className="back material-icons"

@@ -263,3 +263,11 @@ export function getActiveSystemInit() {
     type: GET_ACTIVE_SYSTEM,
   };
 }
+
+export const CLOSE_STOPPED_SYSTEM_INFO = 'CLOSE_STOPPED_SYSTEM_INFO';
+
+export function closeStoppedSystemInfo() {
+  return {
+    type: CLOSE_STOPPED_SYSTEM_INFO,
+  };
+}
