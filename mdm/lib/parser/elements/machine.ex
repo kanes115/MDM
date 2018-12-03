@@ -48,6 +48,8 @@ defmodule MDM.Machine do
 
   def add_resources(machine, resources), do: %{machine | resources: resources}
 
+  def get_resources(%__MODULE__{resources: res}), do: res
+
   def find_machine_by_address(machines, address) do
     case machines |> Enum.filter(fn machine -> of_address?(machine, address) end) do
       [] -> :not_found

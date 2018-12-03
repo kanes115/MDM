@@ -44,6 +44,8 @@ defmodule MDM.Service do
     add_pid(service, pid)
   end
 
+  def get_requirements(%__MODULE__{requirements: reqs}), do: reqs
+
   def get_pid(%__MODULE__{pid: pid}), do: pid
   
   def get_available_machines(%__MODULE__{requirements: %{available_machines: a}}),

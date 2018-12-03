@@ -40,9 +40,11 @@ defmodule MDM.Deployer do
     do
       Logger.info("parsed JMMSR:")
       IO.inspect(jmmsr)
+      Logger.info("Machines' data:")
+      IO.inspect(data)
       parsed_data = Enum.map(data, &parse_collecting_result/1)
       resp = req |> answer("collected", 200, %{"collected_data" => parsed_data})
-      {:reply, resp, %{state | state: :collected_data, jmmsr: jmmsr, collected_data: parsed_data, system_name: system_name}}
+      {:reply, resp, %{state | state: :collected_data, jmmsr: %{jmmsr | machines: data}, collected_data: parsed_data, system_name: system_name}}
     else
       {:error, %{fault_nodes: nodes}} ->
       Logger.error("Could not connect to nodes: #{inspect(nodes)}")
