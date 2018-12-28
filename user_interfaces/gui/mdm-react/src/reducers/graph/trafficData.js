@@ -267,7 +267,7 @@ const trafficData = (state = initialState, action) => {
       newNodes.forEach((node, index) => {
         if (index > 0) {
           const machineId = _.get(node, 'metadata.id');
-          const servicesForMachine = servicesForMachines[machineId];
+          const servicesForMachine = _.get(servicesForMachines, machineId, []);
           servicesForMachine.forEach((service) => {
             const serviceObject = { name: service };
             const {
