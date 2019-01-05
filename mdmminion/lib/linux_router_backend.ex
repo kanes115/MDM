@@ -6,7 +6,7 @@ defmodule MDMMinion.LinuxRouterBackend do
     res0 =
     routes
     |> Enum.map(&route_command/1)
-    |> Enum.map(fn cmd -> 
+    |> Enum.map(fn cmd ->
       Logger.info("Executing #{cmd}")
       :os.cmd(cmd) end)
 
@@ -30,7 +30,8 @@ defmodule MDMMinion.LinuxRouterBackend do
 
   defp save_aliases do
     # this line is not that important
-    :os.cmd("echo \"export HOSTALIASES=/etc/host.aliases\" >> /etc/bash.bashrc && . /etc/bash.bashrc" |> String.to_atom) 
+    :os.cmd("echo \"export HOSTALIASES=/etc/host.aliases\" >> /etc/profile && . /etc/profile" |> String.to_atom) # noninteractive
+    :os.cmd("echo \"export HOSTALIASES=/etc/host.aliases\" >> /etc/.bashrc && . /etc/.bashrc" |> String.to_atom) # interactive
     case System.put_env("HOSTALIASES", "/etc/host.aliases") do
       :ok -> []
       error -> {:error, error}

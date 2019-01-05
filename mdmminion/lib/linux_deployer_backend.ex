@@ -171,10 +171,10 @@ defmodule MDMMinion.LinuxDeployerBackend do
       {val, "\n"} ->
         val
       _ ->
-        warn? and
-        Logger.warn(
-          "Couldn't parse #{inspect(res)}. It probably means pid died meanwhile"
-        )
+        #warn? and
+        #Logger.warn(
+        #  "Couldn't parse #{inspect(res)}. It probably means pid died meanwhile"
+        #)
         {:error, :cant_parse}
     end
 
