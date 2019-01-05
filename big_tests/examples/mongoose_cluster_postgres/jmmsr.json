@@ -21,6 +21,17 @@
             "hdd": 201,
             "available_machines": [39]
          }
+        },
+        {"name": "nginx",
+         "service_dir": "/examples/mongoose_cluster_postgres/nginx/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 832,
+            "hdd": 20,
+            "available_machines": [40]
+         }
         }
     ],
 "machines": [
