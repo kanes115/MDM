@@ -32,6 +32,7 @@ defmodule MDMMinion.LinuxRouterBackend do
     # this line is not that important
     :os.cmd("echo \"export HOSTALIASES=/etc/host.aliases\" >> /etc/profile && . /etc/profile" |> String.to_atom) # noninteractive
     :os.cmd("echo \"export HOSTALIASES=/etc/host.aliases\" >> /etc/.bashrc && . /etc/.bashrc" |> String.to_atom) # interactive
+    :os.cmd("echo \"HOSTALIASES=/etc/host.aliases\" >> /etc/environment" |> String.to_atom)
     case System.put_env("HOSTALIASES", "/etc/host.aliases") do
       :ok -> []
       error -> {:error, error}

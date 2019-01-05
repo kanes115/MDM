@@ -43,7 +43,9 @@ defmodule MDMMinion.Service do
                     {:group, 0},
                     :monitor,
                     :kill_group,
-                    {:kill_timeout, 5}
+                    {:kill_timeout, 5},
+                    {:env, [{"HOSTALIASES" |> to_char_list, "/etc/host.aliases" |> to_char_list}]} # TODO should not be here but in router module somehow
+                    # This env must be set also here (for the process of service because those set in system files won't be reloaded)
                    ])
     Logger.info("Service #{state.name} started with os pid #{os_pid}")
     {:ok, %__MODULE__{state | alive?: true, id: os_pid}}
