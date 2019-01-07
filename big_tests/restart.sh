@@ -29,4 +29,9 @@ elif (( $# >= 1 )); then
 fi
 docker-compose down
 docker-compose rm -f
+
+docker stop docker-statsd-influxdb-grafana || true
+docker rm docker-statsd-influxdb-grafana || true
+
+./start_persistent_metricsdb.sh
 docker-compose up

@@ -31,7 +31,7 @@ use Mix.Config
 
 config :mdm,
   deploy_decider: MDM.DeployDeciderGreedy,
-  live_metrics_report_interval: 2000, #ms
+  live_metrics_report_interval: 300, #ms
   grafana_host: "mdmmetricsdb.com",
   grafana_port: 3003,
   grafana_user: "root",
