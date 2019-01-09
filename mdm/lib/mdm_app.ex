@@ -14,6 +14,7 @@ defmodule MDM.MDMApp do
 
   def start(_type, _args) do
     Supervisor.start_link(children(), strategy: :one_for_one, name: __MODULE__)
+    MDM.Dashboard.init
   end
 
 

@@ -8,9 +8,12 @@ defmodule MDM.Dashboard do
 
   alias MDM.PersistentMetrics
 
-  def new(jmmsr, title, system_name) do
+  def init do
     :ets.new(:coords, [:set, :protected, :named_table])
     :ets.new(:ids, [:set, :protected, :named_table])
+  end
+
+  def new(jmmsr, title, system_name) do
     :ets.insert(:coords, {:last, %{x: 0, y: 0, h: 9, w: 12}})
     :ets.insert(:ids, {:last, 1})
 
