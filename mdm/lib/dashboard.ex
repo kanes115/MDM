@@ -9,8 +9,8 @@ defmodule MDM.Dashboard do
   alias MDM.PersistentMetrics
 
   def init do
-    :ets.new(:coords, [:set, :protected, :named_table])
-    :ets.new(:ids, [:set, :protected, :named_table])
+    :ets.new(:coords, [:set, :public, :named_table])
+    :ets.new(:ids, [:set, :public, :named_table])
   end
 
   def new(jmmsr, title, system_name) do
