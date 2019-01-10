@@ -155,7 +155,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
             # above code to break. This rescue should help. We print error to see
             # if this is true.
             Logger.warn " [KUBA, if you see this log, send it to me] There was an error when trying to collect processes.
-             Can't parse pstree result:\n#{cmd_res}"
+             Can't parse pstree result (command was: #{cmd}) :\n#{cmd_res}"
              []
         end
       false ->

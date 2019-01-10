@@ -35,13 +35,23 @@ defmodule MDM.CollectServicesMetric do
 
   defp get_metrics(decision) do
     decision
-    |> Parallel.map(&get_metric/1)
+    |> Parallel.map(&get_metric_timed/1)
     |> Parallel.map(&parse_metric/1)
+  end
+
+  defp get_metric_timed(decision_el) do
+    {time, val} =
+    :timer.tc(fn() -> get_metric(decision_el) end)
+    case time > 5000 * 1000 do
+      true -> Logger.warn "Call for metrics lasted long! (time: #{time / 1000})"
+      false -> :ok
+    end
+    val
   end
 
   defp get_metric({service, _}) do
     pid = MDM.Service.get_pid(service)
-    case GenServer.call(pid, :get_metrics) do
+    case GenServer.call(pid, :get_metrics, :infinity) do
       {:ok, metrics} ->
         {service, metrics}
       {:error, :service_down} ->
