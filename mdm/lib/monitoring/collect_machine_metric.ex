@@ -26,7 +26,7 @@ defmodule MDM.CollectMachineMetric do
     receive do
     after
       interval() ->
-        metrics = Monitor.maybe_log_timeout_warning(fn -> get_metrics(machines) end)
+        metrics = Monitor.log_on_timeout(fn -> get_metrics(machines) end, "Call for machine metrics")
         send_metrics(metrics)
         collect_loop(machines)
     end

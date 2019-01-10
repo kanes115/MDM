@@ -25,11 +25,11 @@ defmodule MDM.Monitor do
   def start_monitoring_services(decision),
     do: GenServer.call(__MODULE__, {:start_monitoring_services, decision})
 
-  def maybe_log_timeout_warning(fetch_func) do
+  def log_on_timeout(fetch_func, what \\ "Something", timeout_ms \\ 5000) do
     {time, val} =
     :timer.tc(fetch_func)
-    case microsecs2millisecs(time) > 5000 do
-      true -> Logger.warn "Call for metrics lasted long! (time: #{microsecs2millisecs(time)})"
+    case microsecs2millisecs(time) > timeout_ms do
+      true -> Logger.warn "#{what} lasted long! (time: #{microsecs2millisecs(time)})"
       false -> :ok
     end
     val

@@ -54,9 +54,9 @@ defmodule MDMMinion.Service do
   def bash_execution(script_path), do: ". ./#{script_path}"
 
   def handle_call(:get_metrics, _, %{alive?: true} = state) do
-    cpu_usage = state.backend.get_cpu_usage(state.id)
-    mem_usage = state.backend.get_mem_usage(state.id)
-    net_usage = state.backend.get_net_usage(state.id)
+    cpu_usage = log_on_timeout(fn -> state.backend.get_cpu_usage(state.id) end, "Getting cpu")
+    mem_usage = log_on_timeout(fn -> state.backend.get_mem_usage(state.id) end, "Getting mem")
+    net_usage = log_on_timeout(fn -> state.backend.get_net_usage(state.id) end, "Getting net")
     metric = %{cpu: cpu_usage, mem: mem_usage, net: net_usage}
     {:reply, {:ok, metric}, state}
   end
@@ -116,4 +116,17 @@ defmodule MDMMinion.Service do
       _ -> :undefined
     end
   end
+
+  def log_on_timeout(func, what \\ "Something", timeout_ms \\ 5000) do
+    {time, val} =
+    :timer.tc(func)
+    case microsecs2millisecs(time) > timeout_ms do
+      true -> Logger.warn "#{what} lasted long! (time: #{microsecs2millisecs(time)})"
+      false -> :ok
+    end
+    val
+  end
+
+  defp microsecs2millisecs(e), do: e / 1000
+
 end

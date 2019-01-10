@@ -42,7 +42,7 @@ defmodule MDM.CollectServicesMetric do
   end
 
   defp get_metric_timed(decision_el) do
-    Monitor.maybe_log_timeout_warning(fn() -> get_metric(decision_el) end)
+    Monitor.log_on_timeout(fn() -> get_metric(decision_el) end, "Call for service metrics")
   end
 
   defp get_metric({service, _}) do
