@@ -13,7 +13,8 @@ apt-get update && apt-get install -y \
     dnsutils \
     telnet \
     net-tools \
-    vim
+    vim \
+    smem
 
 wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb
 sudo apt-get update

@@ -163,6 +163,10 @@ defmodule MDMMinion.LinuxDeployerBackend do
     end
   end
 
+  defp get_resource_of_pid(pid, "MEM") do
+    cmd = "smem -p -c \"pid pss\" | awk '$1 == \"#{pid}\"{gsub(/%/, \"\", $2); print $2}'"
+    execute_to_float(cmd)
+  end
   defp get_resource_of_pid(pid, resource) do
     cmd = "top -bn1 -p #{pid |> to_string} | awk '$1 == \"PID\"{pids=1;for(i=1;i<=NF;i++){col[$i]=i;}next;}pids{res++;print $col[\"%#{resource}\"];}END{if(!res)print \"0.0\"}'"
     execute_to_float(cmd)
