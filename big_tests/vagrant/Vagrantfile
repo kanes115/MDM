@@ -10,6 +10,7 @@ Vagrant.configure("2") do |config|
         pilot.vm.provision "file", source: "../../mdm", destination: "/home/vagrant/mdm"
         pilot.vm.provision "file", source: "./start_pilot_vagrant.sh", destination: "/home/vagrant/start.sh"
         pilot.vm.provision "file", source: "../examples", destination: "~/examples"
+        pilot.vm.provision "file", source: "./update_pilot.sh", destination: "/home/vagrant/update.sh"
         pilot.vm.provision :shell, path: "bootstrap_pilot.sh"
         pilot.vm.provision :shell, path: "configure_routes_vagrant.sh"
         pilot.vm.provision :shell, path: "start_metrics_vagrant.sh"
@@ -21,6 +22,7 @@ Vagrant.configure("2") do |config|
             subconfig.vm.box = BOX_IMAGE
             subconfig.vm.provision "file", source: "../../mdmminion", destination: "/home/vagrant/mdmminion"
             subconfig.vm.provision "file", source: "./start_minion_vagrant.sh", destination: "/home/vagrant/start.sh"
+            subconfig.vm.provision "file", source: "./update_minion.sh", destination: "/home/vagrant/update.sh"
             subconfig.vm.provision :shell, path: "bootstrap_minion.sh"
             subconfig.vm.provision :shell, path: "configure_routes_vagrant.sh"
             subconfig.vm.network "private_network", ip: "10.240.0.#{i+15}"

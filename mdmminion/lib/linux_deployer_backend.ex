@@ -41,6 +41,8 @@ defmodule MDMMinion.LinuxDeployerBackend do
   def get_mem_usage(ppid) do
     case pstree_installed?() do
       true ->
+        cmd = "smem -p -c \"pid pss\" > /tmp/mems_res"
+        :os.cmd(cmd |> String.to_atom)
         get_processes(ppid)
         |> Parallel.map(&get_mem_of_pid/1)
         |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
@@ -132,7 +134,8 @@ defmodule MDMMinion.LinuxDeployerBackend do
   end
 
   defp get_mem_of_pid(pid) do
-    get_resource_of_pid(pid, "MEM")
+    cmd = "awk '$1 == \"#{pid}\"{gsub(/%/, \"\", $2); print $2}' < /tmp/mems_res"
+    execute_to_float(cmd)
   end
 
   defp get_processes(ppid) do
@@ -163,10 +166,6 @@ defmodule MDMMinion.LinuxDeployerBackend do
     end
   end
 
-  defp get_resource_of_pid(pid, "MEM") do
-    cmd = "smem -p -c \"pid pss\" | awk '$1 == \"#{pid}\"{gsub(/%/, \"\", $2); print $2}'"
-    execute_to_float(cmd)
-  end
   defp get_resource_of_pid(pid, resource) do
     cmd = "top -bn1 -p #{pid |> to_string} | awk '$1 == \"PID\"{pids=1;for(i=1;i<=NF;i++){col[$i]=i;}next;}pids{res++;print $col[\"%#{resource}\"];}END{if(!res)print \"0.0\"}'"
     execute_to_float(cmd)
