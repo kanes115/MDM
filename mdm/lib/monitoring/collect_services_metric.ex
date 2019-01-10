@@ -1,6 +1,5 @@
 defmodule MDM.CollectServicesMetric do
   require Logger
-  @interval 2_000 #ms
   @behaviour MDM.Monitor
 
   @moduledoc """
