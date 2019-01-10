@@ -31,14 +31,14 @@ use Mix.Config
 
 config :mdm,
   deploy_decider: MDM.DeployDeciderGreedy,
-  live_metrics_report_interval: 300, #ms
+  live_metrics_report_interval: 2000, #ms
   grafana_host: "mdmmetricsdb.com",
   grafana_port: 3003,
   grafana_user: "root",
   grafana_pass: "root"
 
 config :elixometer, reporter: :exometer_report_influxdb,
-  update_frequency: 5_000,
+  update_frequency: 3_000,
   env: "prod",
   metric_prefix: "mdm"
 
