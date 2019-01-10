@@ -8,6 +8,8 @@ defmodule MDM.CollectServicesMetric do
 
   alias MDM.Event
   alias MDM.EventPusher
+  alias MDM.Event
+  alias MDM.Monitor
   alias MDM.Utils.Parallel
 
   def interval, do: Application.get_env(:mdm, :live_metrics_report_interval, 2000)
@@ -40,13 +42,7 @@ defmodule MDM.CollectServicesMetric do
   end
 
   defp get_metric_timed(decision_el) do
-    {time, val} =
-    :timer.tc(fn() -> get_metric(decision_el) end)
-    case time > 5000 * 1000 do
-      true -> Logger.warn "Call for metrics lasted long! (time: #{time / 1000})"
-      false -> :ok
-    end
-    val
+    Monitor.maybe_log_timeout_warning(fn() -> get_metric(decision_el) end)
   end
 
   defp get_metric({service, _}) do

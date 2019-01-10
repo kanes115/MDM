@@ -13,6 +13,8 @@ defmodule MDM.CollectMachineMetric do
   alias MDM.Machine
   alias MDM.Event
   alias MDM.EventPusher
+  alias MDM.Monitor
+  alias MDM.Utils.Parallel
 
   def interval, do: Application.get_env(:mdm, :live_metrics_report_interval, 2000)
 
@@ -24,7 +26,7 @@ defmodule MDM.CollectMachineMetric do
     receive do
     after
       interval() ->
-        metrics = get_metrics(machines)
+        metrics = Monitor.maybe_log_timeout_warning(fn -> get_metrics(machines) end)
         send_metrics(metrics)
         collect_loop(machines)
     end
