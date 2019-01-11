@@ -25,6 +25,18 @@ defmodule MDMMinion.LinuxDeployerBackend do
     service_dir
   end
 
+  @doc "Returns a state of a service needed to clean up after it"
+  def service_state(ppid) do
+    get_processes(ppid)
+  end
+
+  @doc "Cleans up after the service.
+        Kills all processes in the process tree that might have survived."
+  def cleanup(processes) do
+    processes
+    |> Parallel.map(fn p -> :os.cmd("kill -9 #{Integer.to_string(p)}" |> String.to_atom) end)
+  end
+
   def get_cpu_usage(ppid) do
     case pstree_installed? do
       true ->
@@ -148,7 +160,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
     execute_to_float(cmd)
   end
 
-  defp get_processes(ppid) do
+  def get_processes(ppid) do
     #cmd = "ps -e -o pgid,pid | awk -v p=#{session_id} '$1 == p {print $2}'" # uncomment to get back to session id concept
     case pstree_installed? do
       true ->

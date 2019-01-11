@@ -64,6 +64,8 @@ defmodule MDMMinion.Service do
     {:reply, {:error, :service_down}, state}
   end
   def handle_call(:stop, _, %{alive?: true} = state) do
+    service_state = state.backend.get_processes(state.id)
+    res =
     case :exec.stop_and_wait(state.id, 6000) do
       {:error, :timeout} ->
         Logger.info "Service #{state.name} (id #{state.id}) is being stopped... (killed)"
@@ -72,6 +74,8 @@ defmodule MDMMinion.Service do
         Logger.info "Service #{state.name} (os_pid #{state.id}) is being stopped... (exit_status: #{inspect(status_parse(status))})"
         {:stop, :normal, {:ok, status_parse(status)},  %{state | alive?: false}}
     end
+    state.backend.cleanup(service_state)
+    res
   end
   def handle_call(:stop, _, state) do
     {:stop, :normal, {:ok, state.exit_status}, state}
