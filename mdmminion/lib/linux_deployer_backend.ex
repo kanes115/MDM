@@ -25,7 +25,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
     service_dir
   end
 
-    def get_cpu_usage(ppid) do
+  def get_cpu_usage(ppid) do
     case pstree_installed? do
       true ->
         ppid
@@ -79,7 +79,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
   defp get_per_pid_net_stats do
     # TODO this is a little bit volatile so we probably need to fix
     # the version of nethogs (in case it's api changes or sth)
-    cmd = "nethogs -bc 2 2> /dev/null | awk '{$1=$1};1'"
+    cmd = "nethogs -tc 2 2> /dev/null | awk '{$1=$1};1'"
     :os.cmd(cmd |> String.to_atom)
     |> to_string
     |> String.split("\nRefreshing:\n")
@@ -96,6 +96,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
     try do
       [process, out, inn] = line
                             |> String.split(" ")
+                            |> take_last_n(3)
       pid = process
             |> String.split("/")
             |> Enum.reverse
@@ -106,8 +107,17 @@ defmodule MDMMinion.LinuxDeployerBackend do
       {in_f, _} = Float.parse(inn)
       {pid, in_f, out_f}
     rescue
-      e -> :unknown
+      e ->
+        Logger.warn "Could not parse nethogs line. Ignoring this entry (error: #{inspect(e)}\nfor line: #{inspect(line)})"
+        :unknown
     end
+  end
+
+  defp take_last_n(list, n) do
+    list
+    |> Enum.reverse
+    |> Enum.take(n)
+    |> Enum.reverse
   end
 
   defp nethogs_installed?, do: installed?("nethogs")
@@ -209,5 +219,4 @@ defmodule MDMMinion.LinuxDeployerBackend do
     File.mkdir!(tmp_dir())
   end
 
-
-end
+  end
