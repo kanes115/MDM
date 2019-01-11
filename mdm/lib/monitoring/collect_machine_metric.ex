@@ -34,7 +34,7 @@ defmodule MDM.CollectMachineMetric do
 
   defp get_metrics(machines) do
     machines
-    |> Enum.map(fn machine ->
+    |> Parallel.map(fn machine ->
       {
         machine.name,
         get_cpu(Machine.node_name(machine)),
