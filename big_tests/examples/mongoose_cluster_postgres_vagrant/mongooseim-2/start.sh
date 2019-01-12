@@ -18,6 +18,7 @@ cp ./etc/* /etc/mongooseim/
 
 # Run and cluster mongooseim
 mongooseimctl start
+mongooseimctl started
 mongooseimctl join_cluster -f mongooseim@mongooseim-1
 mongooseimctl stop
 mongooseimctl foreground
