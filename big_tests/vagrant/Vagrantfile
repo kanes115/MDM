@@ -7,6 +7,7 @@ Vagrant.configure("2") do |config|
         pilot.vm.box = BOX_IMAGE
         pilot.vm.network "forwarded_port", guest: 8080, host: 4000
         pilot.vm.network "forwarded_port", guest: 3003, host: 3003
+        pilot.vm.synced_folder "../examples", "/examples"
         pilot.vm.provision "file", source: "../../mdm", destination: "/home/vagrant/mdm"
         pilot.vm.provision "file", source: "./start_pilot_vagrant.sh", destination: "/home/vagrant/start.sh"
         pilot.vm.provision "file", source: "../examples", destination: "~/examples"
@@ -19,6 +20,15 @@ Vagrant.configure("2") do |config|
 
     (1..MINIONS_COUNT).each do |i|
         config.vm.define "minion#{i}" do |subconfig|
+
+            subconfig.vm.provider "virtualbox" do |v|
+                # MIM for load of 300 users needs around 1600 - 2000 Mb to run without having to use swap. We can show how we get to know that experimentally in the video!
+                # First let's show with default 500Mb, point memory consumption and use of cpu for process other tham MIM (virtual memory mapper).
+                # Then show how it works with more memory, i.e. 4096.
+                v.memory = 4096
+                v.cpus = 2
+            end
+
             subconfig.vm.box = BOX_IMAGE
             subconfig.vm.provision "file", source: "../../mdmminion", destination: "/home/vagrant/mdmminion"
             subconfig.vm.provision "file", source: "./start_minion_vagrant.sh", destination: "/home/vagrant/start.sh"

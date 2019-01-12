@@ -4,6 +4,3 @@ cd MDM
 git checkout add_test_system || true
 cd -
 cp -r MDM/mdm ./
-
-rm -rf /examples
-cp -r MDM/big_tests/examples ./
