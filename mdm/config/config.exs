@@ -30,7 +30,7 @@ use Mix.Config
 #     import_config "#{Mix.env}.exs"
 
 config :mdm,
-  deploy_decider: MDM.DeployDeciderGreedy,
+  deploy_decider: MDM.DeployDeciderSimple,
   live_metrics_report_interval: 2000, #ms
   grafana_host: "mdmmetricsdb.com",
   grafana_port: 3003,
