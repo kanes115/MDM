@@ -1,7 +1,7 @@
 {
     "services": [
         {"name": "mongooseim",
-         "service_dir": "/examples/mongoose_cluster_postgres_vagrant/mongooseim/",
+         "service_dir": "/examples/mongoose_postgres_vagrant/mongooseim/",
          "service_executable": "start.sh",
          "containerized": false,
          "requirements": {
@@ -12,7 +12,7 @@
          }
         },
         {"name": "postgres",
-         "service_dir": "/examples/mongoose_cluster_postgres_vagrant/postgres/",
+         "service_dir": "/examples/mongoose_postgres_vagrant/postgres/",
          "service_executable": "start.sh",
          "containerized": false,
          "requirements": {
@@ -23,7 +23,7 @@
          }
         },
         {"name": "nginx",
-         "service_dir": "/examples/mongoose_cluster_postgres_vagrant/nginx/",
+         "service_dir": "/examples/mongoose_postgres_vagrant/nginx/",
          "service_executable": "start.sh",
          "containerized": false,
          "requirements": {
