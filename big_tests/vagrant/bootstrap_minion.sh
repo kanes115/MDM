@@ -14,7 +14,8 @@ apt-get update && apt-get install -y \
     telnet \
     net-tools \
     vim \
-    smem
+    smem \
+    curl
 
 wget https://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb
 sudo apt-get update
