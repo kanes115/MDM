@@ -31,7 +31,7 @@ defmodule MDM.Deployer do
 
   # We will maybe sending in body back some diff of jmmsr with machines info.
   # TODO we have to establish some common protocol for DIFFs.
-  def handle_call(%Request{command_name: :collect_data, body: %{"jmmsr" => jmmsr0, "system_name" => system_name}} = req, _, %__MODULE__{state: fsm} = state) 
+  def handle_call(%Request{command_name: :collect_data, body: %{"jmmsr" => jmmsr0, "system_name" => system_name}} = req, _, %__MODULE__{state: fsm} = state)
   when fsm == :waiting_for_reqest or fsm == :collected_data do
     Logger.info("Got request to collect target machines info...")
     with {:ok, jmmsr} <- MDM.Jmmsr.new(jmmsr0),
@@ -91,7 +91,7 @@ defmodule MDM.Deployer do
     MDM.Monitor.stop_monitoring()
     #MDM.PersistentMetrics.Machines.remove_metrics()
     #MDM.PersistentMetrics.Services.remove_metrics()
-    body = 
+    body =
       MDM.ServiceUploader.stop_services() # might return fault nodes(?)
       |> stop_result_to_body()
     #    MDM.ServiceUploader.clean_service_files()
@@ -131,10 +131,12 @@ defmodule MDM.Deployer do
     {:noreply, %{state | services_down: new_services_down}}
   end
 
-  defp exit_status2json_format({:status, code}),
+  def exit_status2json_format({:status, code}),
   do: %{"type" => "status_code", "value" => code}
-  defp exit_status2json_format({:signal, code}),
-  do: %{"type" => "signal", "value" => code}
+  def exit_status2json_format({:signal, code}),
+  do: %{"type" => "signal", "value" => "Got signal #{inspect(code)}"}
+  def exit_status2json_format(:forced),
+  do: %{"type" => "forced", "value" => "Killed"}
 
   def handle_info({:nodedown, _}, state) do
     {:noreply, %{state | state: :waiting_for_reqest}}

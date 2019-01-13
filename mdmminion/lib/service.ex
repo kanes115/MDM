@@ -18,7 +18,8 @@ defmodule MDMMinion.Service do
              :id,
              :alive?,
              :exit_status,
-             :report_down_to]
+             :report_down_to,
+             :exit_code]
 
   @doc "Exec path is relative to service dir"
   def start(name, service_dir, exec_path, report_down_to) do
@@ -62,24 +63,25 @@ defmodule MDMMinion.Service do
     {:reply, {:ok, metric}, state}
   end
   def handle_call(:get_metrics, _, %{alive?: false} = state) do
-    {:reply, {:error, :service_down}, state}
+    {:reply, {:error, :service_down, state.exit_code}, state}
   end
   def handle_call(:stop, _, %{alive?: true} = state) do
-    service_state = state.backend.get_processes(state.id)
+    service_state = state.backend.service_state(state.id)
     res =
     case :exec.stop_and_wait(state.id, 6000) do
       {:error, :timeout} ->
         Logger.info "Service #{state.name} (id #{state.id}) is being stopped... (killed)"
-        {:stop, :normal, {:ok, :forced}, %{state | alive?: false}}
+        {:stop, :normal, {:ok, :forced}, %{state | alive?: false, exit_code: :forced}}
       status ->
-        Logger.info "Service #{state.name} (os_pid #{state.id}) is being stopped... (exit_status: #{inspect(status_parse(status))})"
-        {:stop, :normal, {:ok, status_parse(status)},  %{state | alive?: false}}
+        status2 = status_parse(status)
+        Logger.info "Service #{state.name} (os_pid #{state.id}) is being stopped... (exit_status: #{inspect(status2)})"
+        {:stop, :normal, {:ok, status2},  %{state | alive?: false, exit_code: status2}}
     end
     state.backend.cleanup(service_state)
     res
   end
   def handle_call(:stop, _, state) do
-    {:stop, :normal, {:ok, state.exit_status}, state}
+    {:stop, :normal, {:ok, state.exit_code}, state}
   end
 
   def handle_info({:DOWN, _, :process, _, status}, state) do
@@ -87,7 +89,7 @@ defmodule MDMMinion.Service do
     Logger.info "Service #{state.name} (id #{state.id}) stopping... (exit_status: #{inspect(code)})"
     # We inform pilot Deployer that this service went down unexpectedly
     GenServer.cast(state.report_down_to, {:service_down, state.name, code})
-    {:noreply, %{state | alive?: false, exit_status: code}}
+    {:noreply, %{state | alive?: false, exit_code: code}}
   end
 
   defp status_parse(:normal), do: {:status, 0}

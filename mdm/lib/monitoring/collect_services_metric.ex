@@ -50,8 +50,8 @@ defmodule MDM.CollectServicesMetric do
     case GenServer.call(pid, :get_metrics, :infinity) do
       {:ok, metrics} ->
         {service, metrics}
-      {:error, :service_down} ->
-        {:error, service, :service_down}
+      {:error, :service_down, code} ->
+        {:error, service, :service_down, code}
     end
   end
 
@@ -61,8 +61,8 @@ defmodule MDM.CollectServicesMetric do
     |> EventPusher.push()
   end
 
-  defp parse_metric({:error, service, :service_down}) do
-    %{"service_name" => MDM.Service.get_name(service), "is_down" => true}
+  defp parse_metric({:error, service, :service_down, code}) do
+    %{"service_name" => MDM.Service.get_name(service), "is_down" => true, "exit_status" => MDM.Deployer.exit_status2json_format(code)}
   end
   defp parse_metric({service, %{cpu: cpu, mem: mem, net: net}}) do
     cpu_m = parse_cpu(cpu)
