@@ -567,6 +567,7 @@ const jmmsr = (state = initialState, action) => {
       const systemId = state.activeSystemId;
       const activeSystem = state.systems[systemId];
       const serviceName = _.get(action, 'payload.eventBody.service_name');
+      const exitStatus = _.get(action, 'payload.eventBody.exit_status', null);
 
       const services = [..._.get(state, `systems.${systemId}.live_metrics.services`, [])];
       const downServiceIndex = _.findIndex(
@@ -576,6 +577,9 @@ const jmmsr = (state = initialState, action) => {
 
       if (downServiceIndex !== -1) {
         _.set(services, `${downServiceIndex}.is_down`, true);
+        if (exitStatus !== null) {
+          _.set(services, `${downServiceIndex}.exit_status`, exitStatus);
+        }
       }
 
       if (systemId && activeSystem) {

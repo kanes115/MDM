@@ -11,6 +11,11 @@ const SingleMetrics = ({ metrics }) => (
       value={_.get(metrics, 'is_down', false) ? 'Down' : 'Up'}
     />
     <ElementField
+      label="Exit Status"
+      hide={!_.get(metrics, 'exit_status', null)}
+      value={_.get(metrics, 'exit_status.value', null)}
+    />
+    <ElementField
       hide={!_.get(metrics, 'metrics.cpu.is_ok', true) || _.get(metrics, 'is_down', false)}
       label="CPU Usage"
       value={`${parseFloat(_.get(metrics, 'metrics.cpu.val', 0)).toFixed(2)} ${_.get(metrics, 'metrics.cpu.unit', '%')}`}
