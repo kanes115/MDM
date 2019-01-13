@@ -8,5 +8,5 @@ erl_crash.dump
 *.beam
 /config/*.secret.exs
 .idea/
-priv/
 .DS_Store
+.vagrant/

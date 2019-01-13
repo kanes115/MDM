@@ -1,6 +1,5 @@
 defmodule MDM.CollectServicesMetric do
   require Logger
-  @interval 2_000 #ms
   @behaviour MDM.Monitor
 
   @moduledoc """
@@ -9,6 +8,8 @@ defmodule MDM.CollectServicesMetric do
 
   alias MDM.Event
   alias MDM.EventPusher
+  alias MDM.Event
+  alias MDM.Monitor
   alias MDM.Utils.Parallel
 
   def interval, do: Application.get_env(:mdm, :live_metrics_report_interval, 2000)
@@ -36,13 +37,17 @@ defmodule MDM.CollectServicesMetric do
 
   defp get_metrics(decision) do
     decision
-    |> Parallel.map(&get_metric/1)
+    |> Parallel.map(&get_metric_timed/1)
     |> Parallel.map(&parse_metric/1)
+  end
+
+  defp get_metric_timed(decision_el) do
+    Monitor.log_on_timeout(fn() -> get_metric(decision_el) end, "Call for service metrics")
   end
 
   defp get_metric({service, _}) do
     pid = MDM.Service.get_pid(service)
-    case GenServer.call(pid, :get_metrics) do
+    case GenServer.call(pid, :get_metrics, :infinity) do
       {:ok, metrics} ->
         {service, metrics}
       {:error, :service_down} ->

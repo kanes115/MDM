@@ -11,7 +11,12 @@ RUN apt-get update && apt-get install -y \
     ifstat \
     nethogs \
     sudo \
-    psmisc
+    psmisc \
+    dnsutils \
+    telnet \
+    net-tools \
+    vim \
+    smem
 
 RUN mix local.rebar --force
 RUN mix local.hex --force

@@ -48,6 +48,8 @@ services:
       args:
           - DOMAIN=minion2.com
   minion3:
+    ports:
+        - "5222:5222"
     networks:
         default:
             aliases:

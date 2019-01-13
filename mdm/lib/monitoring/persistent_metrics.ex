@@ -89,7 +89,7 @@ defmodule MDM.PersistentMetrics do
       |> Enum.flat_map(
         fn %{"service_name" => name, "metrics" => metrics} ->
           Commons.metrics_to_labels_and_values(metrics)
-          |> Enum.map(fn {label, value} -> {Commons.create_service_metric(system_name, name, label), value} end)
+          |> Enum.map(fn {label, value} -> {Commons.create_service_metric(system_name, name, label), value / 1} end)
         end
       )
       |> Enum.map(fn {{_type, label}, value} -> update_gauge(label, value) end)
@@ -101,5 +101,5 @@ defmodule MDM.PersistentMetrics do
     end
   end
 
-  
+
 end

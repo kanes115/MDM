@@ -3,8 +3,10 @@ defmodule MDMMinion.LinuxDeployerBackend do
   @behaviour MDMMinion.Service
   require Logger
 
+  alias MDMMinion.Utils.Parallel
+
   ## Deployer callbacks
-  
+
   def start, do: ensure_tmp_dir_exists_and_empty()
 
   def save_file(file, prefix) do
@@ -22,15 +24,31 @@ defmodule MDMMinion.LinuxDeployerBackend do
                             cwd: service_dir |> to_charlist)
     service_dir
   end
-  
+
+  def prepare_to_monitor do
+    MDMMinion.NethogsExecutor.ensure_started
+  end
+
+  @doc "Returns a state of a service needed to clean up after it"
+  def service_state(ppid) do
+    get_processes(ppid)
+  end
+
+  @doc "Cleans up after the service.
+        Kills all processes in the process tree that might have survived."
+  def cleanup(processes) do
+    processes
+    |> Parallel.map(fn p -> :os.cmd("kill -9 #{Integer.to_string(p)}" |> String.to_atom) end)
+  end
+
   def get_cpu_usage(ppid) do
     case pstree_installed? do
       true ->
-        res = get_processes(ppid)
-              |> Enum.map(&get_cpu_of_pid/1)
-              |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
-              |> Enum.sum
-              res
+        ppid
+        |> get_processes
+        |> Parallel.map(&get_cpu_of_pid/1)
+        |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
+        |> Enum.sum
       false ->
         {:error, :pstree_not_intalled}
     end
@@ -39,11 +57,12 @@ defmodule MDMMinion.LinuxDeployerBackend do
   def get_mem_usage(ppid) do
     case pstree_installed?() do
       true ->
-        res = get_processes(ppid)
-              |> Enum.map(&get_mem_of_pid/1)
-              |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
-              |> Enum.sum
-              res
+        cmd = "smem -p -c \"pid pss\" > /tmp/mems_res"
+        :os.cmd(cmd |> String.to_atom)
+        get_processes(ppid)
+        |> Parallel.map(&get_mem_of_pid/1)
+        |> Enum.filter(fn e -> e != {:error, :cant_parse} end) # it should mean the process died, we warn in logs about this situation
+        |> Enum.sum
       false ->
         {:error, :pstree_not_intalled}
     end
@@ -52,9 +71,9 @@ defmodule MDMMinion.LinuxDeployerBackend do
   def get_net_usage(ppid) do
     case pstree_installed?() and nethogs_installed?() do
       true ->
-        stats = get_per_pid_net_stats()
+        stats = MDMMinion.NethogsExecutor.get_per_pid_net_stats()
         res = get_processes(ppid)
-              |> Enum.map(fn pid -> get_net_of_pid(stats, pid) end)
+              |> Parallel.map(fn pid -> get_net_of_pid(stats, pid) end)
               |> Enum.reduce({0, 0},
                              fn({inn, out}, {in_acc, out_acc}) -> {inn + in_acc, out + out_acc} end)
                                res
@@ -63,7 +82,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
     end
   end
 
-  
+
   ## Private
 
   defp get_net_of_pid(stats, pid) do
@@ -71,36 +90,6 @@ defmodule MDMMinion.LinuxDeployerBackend do
       nil -> {0.0, 0.0} # If it's not here it means it does not use network
       {^pid, net_in, net_out} -> {net_in, net_out}
     end
-  end
-
-  defp get_per_pid_net_stats do
-    # TODO this is a little bit volatile so we probably need to fix
-    # the version of nethogs (in case it's api changes or sth)
-    cmd = "nethogs -bc 2 2> /dev/null | awk '{$1=$1};1'"
-    :os.cmd(cmd |> String.to_atom)
-    |> to_string
-    |> String.split("\nRefreshing:\n")
-    |> Enum.at(2)
-    |> String.split("\n")
-    |> Enum.filter(fn e -> e != "" end) # Splitting on newline leaves one empty string
-    |> Enum.map(&parse_nethogs_line/1)
-    |> Enum.filter(fn e -> e != :unknown end)
-  end
-
-  @spec parse_nethogs_line(String.t) :: {pid :: integer(), net_in :: float(), net_out :: float()} | :unknown
-  defp parse_nethogs_line("unknown" <> _), do: :unknown # there is a collective net stat for unknonwn pids, we omit it
-  defp parse_nethogs_line(line) do
-    [process, out, inn] = line
-                          |> String.split(" ")
-    pid = process
-          |> String.split("/")
-          |> Enum.reverse
-          |> Enum.at(1)
-          |> Integer.parse
-          |> elem(0)
-    {out_f, _} = Float.parse(out)
-    {in_f, _} = Float.parse(inn)
-    {pid, in_f, out_f}
   end
 
   defp nethogs_installed?, do: installed?("nethogs")
@@ -118,7 +107,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
 
   defp get_cpu_of_pid(pid) do
     cores_no = get_cores_no()
-    case get_resource_of_pid(pid, "cpu") do
+    case get_resource_of_pid(pid, "CPU") do
       {:error, _} = e ->
         e
       cpu ->
@@ -127,14 +116,15 @@ defmodule MDMMinion.LinuxDeployerBackend do
   end
 
   defp get_mem_of_pid(pid) do
-    get_resource_of_pid(pid, "mem")
+    cmd = "awk '$1 == \"#{pid}\"{gsub(/%/, \"\", $2); print $2}' < /tmp/mems_res"
+    execute_to_float(cmd)
   end
 
-  defp get_processes(ppid) do
+  def get_processes(ppid) do
     #cmd = "ps -e -o pgid,pid | awk -v p=#{session_id} '$1 == p {print $2}'" # uncomment to get back to session id concept
     case pstree_installed? do
       true ->
-        cmd = "pstree -p #{ppid} | grep -o '([0-9]\\+)' | grep -o '[0-9]\\+'"
+        cmd = "ps -o %p -p $(pstree -p #{ppid} | grep -o '([0-9]\\+)' | grep -o '[0-9]\\+') | tail -n +2 | awk '{$1=$1};1'"
         cmd_res = :os.cmd(cmd |> String.to_atom)
                   |> to_string
         try do
@@ -150,7 +140,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
             # above code to break. This rescue should help. We print error to see
             # if this is true.
             Logger.warn " [KUBA, if you see this log, send it to me] There was an error when trying to collect processes.
-             Can't parse pstree result:\n#{cmd_res}"
+             Can't parse pstree result (command was: #{cmd}) :\n#{cmd_res}"
              []
         end
       false ->
@@ -159,21 +149,22 @@ defmodule MDMMinion.LinuxDeployerBackend do
   end
 
   defp get_resource_of_pid(pid, resource) do
-    cmd = "ps -p #{pid |> to_string} -o %#{resource} | tail -n 1 | awk '{$1=$1};1'"
+    cmd = "top -bn1 -p #{pid |> to_string} | awk '$1 == \"PID\"{pids=1;for(i=1;i<=NF;i++){col[$i]=i;}next;}pids{res++;print $col[\"%#{resource}\"];}END{if(!res)print \"0.0\"}'"
     execute_to_float(cmd)
   end
 
   defp execute_to_float(cmd, warn? \\ true) do
-    res = :os.cmd(cmd |> String.to_atom)
+    res0 = :os.cmd(cmd |> String.to_atom)
     |> to_string
-    |> Float.parse
+
+    res = res0 |> Float.parse
     case res do
       {val, "\n"} ->
         val
       _ ->
         warn? and
         Logger.warn(
-          "Couldn't parse #{inspect(res)}. It probably means pid died meanwhile"
+          "Couldn't parse #{inspect(res0)}. It probably means pid died meanwhile"
         )
         {:error, :cant_parse}
     end
@@ -200,5 +191,4 @@ defmodule MDMMinion.LinuxDeployerBackend do
     File.mkdir!(tmp_dir())
   end
 
-
-end
+  end

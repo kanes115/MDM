@@ -24,6 +24,7 @@ defmodule MDMMinion.Service do
   def start(name, service_dir, exec_path, report_down_to) do
     b = get_backend()
     File.mkdir(@log_dir)
+    b.prepare_to_monitor()
     state = %__MODULE__{backend: b,
                         name: name,
                         service_dir: service_dir,
@@ -43,7 +44,9 @@ defmodule MDMMinion.Service do
                     {:group, 0},
                     :monitor,
                     :kill_group,
-                    {:kill_timeout, 5}
+                    {:kill_timeout, 5},
+                    {:env, [{"HOSTALIASES" |> to_char_list, "/etc/host.aliases" |> to_char_list}]} # TODO should not be here but in router module somehow
+                    # This env must be set also here (for the process of service because those set in system files won't be reloaded)
                    ])
     Logger.info("Service #{state.name} started with os pid #{os_pid}")
     {:ok, %__MODULE__{state | alive?: true, id: os_pid}}
@@ -52,9 +55,9 @@ defmodule MDMMinion.Service do
   def bash_execution(script_path), do: ". ./#{script_path}"
 
   def handle_call(:get_metrics, _, %{alive?: true} = state) do
-    cpu_usage = state.backend.get_cpu_usage(state.id)
-    mem_usage = state.backend.get_mem_usage(state.id)
-    net_usage = state.backend.get_net_usage(state.id)
+    cpu_usage = log_on_timeout(fn -> state.backend.get_cpu_usage(state.id) end, "Getting cpu")
+    mem_usage = log_on_timeout(fn -> state.backend.get_mem_usage(state.id) end, "Getting mem")
+    net_usage = log_on_timeout(fn -> state.backend.get_net_usage(state.id) end, "Getting net")
     metric = %{cpu: cpu_usage, mem: mem_usage, net: net_usage}
     {:reply, {:ok, metric}, state}
   end
@@ -62,6 +65,8 @@ defmodule MDMMinion.Service do
     {:reply, {:error, :service_down}, state}
   end
   def handle_call(:stop, _, %{alive?: true} = state) do
+    service_state = state.backend.get_processes(state.id)
+    res =
     case :exec.stop_and_wait(state.id, 6000) do
       {:error, :timeout} ->
         Logger.info "Service #{state.name} (id #{state.id}) is being stopped... (killed)"
@@ -70,6 +75,8 @@ defmodule MDMMinion.Service do
         Logger.info "Service #{state.name} (os_pid #{state.id}) is being stopped... (exit_status: #{inspect(status_parse(status))})"
         {:stop, :normal, {:ok, status_parse(status)},  %{state | alive?: false}}
     end
+    state.backend.cleanup(service_state)
+    res
   end
   def handle_call(:stop, _, state) do
     {:stop, :normal, {:ok, state.exit_status}, state}
@@ -114,4 +121,17 @@ defmodule MDMMinion.Service do
       _ -> :undefined
     end
   end
+
+  def log_on_timeout(func, what \\ "Something", timeout_ms \\ 5000) do
+    {time, val} =
+    :timer.tc(func)
+    case microsecs2millisecs(time) > timeout_ms do
+      true -> Logger.warn "#{what} lasted long! (time: #{microsecs2millisecs(time)})"
+      false -> :ok
+    end
+    val
+  end
+
+  defp microsecs2millisecs(e), do: e / 1000
+
 end

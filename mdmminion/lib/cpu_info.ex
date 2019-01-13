@@ -2,7 +2,7 @@ defmodule MDMMinion.CPUInfo do
   use GenServer
   require Logger
 
-  @probe_time 200 #ms
+  @probe_time 150 #ms
 
   def start_link do
     Logger.info "Starting #{__MODULE__}"

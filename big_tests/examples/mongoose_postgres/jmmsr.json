@@ -1,0 +1,65 @@
+{
+    "services": [
+        {"name": "mongooseim",
+         "service_dir": "/examples/mongoose_postgres/mongooseim/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 250,
+            "hdd": 200,
+            "available_machines": [38]
+         }
+        },
+        {"name": "postgres",
+         "service_dir": "/examples/mongoose_postgres/postgres/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 8324,
+            "hdd": 201,
+            "available_machines": [39]
+         }
+        },
+        {"name": "nginx",
+         "service_dir": "/examples/mongoose_postgres/nginx/",
+         "service_executable": "start.sh",
+         "containerized": false,
+         "requirements": {
+            "os": ["linux"], 
+            "ram": 832,
+            "hdd": 20,
+            "available_machines": [40]
+         }
+        }
+    ],
+"machines": [
+           {"id": 38,
+            "name": "pecet1",
+            "ip": "minion1.com",
+            "ssh_host": "LocalVM",
+            "os": "linux"
+           },
+            {"id": 39,
+            "name": "pecet2",
+            "domain": "minion2.com",
+            "ssh_host": "unknown",
+            "os": "linux"
+           },
+            {"id": 40,
+            "name": "pecet3",
+            "domain": "minion3.com",
+            "ssh_host": "unknown",
+            "os": "linux"
+           }
+          ],
+"connections": [
+             ],
+"config": {"metrics": ["cpuUsage"],
+          "persist": true,
+          "persist_machine": 34,
+          "pilot_machine": 34
+        },
+"live_metrics": []
+}
