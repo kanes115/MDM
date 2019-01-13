@@ -25,6 +25,10 @@ defmodule MDMMinion.LinuxDeployerBackend do
     service_dir
   end
 
+  def prepare_to_monitor do
+    MDMMinion.NethogsExecutor.ensure_started
+  end
+
   @doc "Returns a state of a service needed to clean up after it"
   def service_state(ppid) do
     get_processes(ppid)
@@ -67,7 +71,7 @@ defmodule MDMMinion.LinuxDeployerBackend do
   def get_net_usage(ppid) do
     case pstree_installed?() and nethogs_installed?() do
       true ->
-        stats = get_per_pid_net_stats()
+        stats = MDMMinion.NethogsExecutor.get_per_pid_net_stats()
         res = get_processes(ppid)
               |> Parallel.map(fn pid -> get_net_of_pid(stats, pid) end)
               |> Enum.reduce({0, 0},
@@ -86,50 +90,6 @@ defmodule MDMMinion.LinuxDeployerBackend do
       nil -> {0.0, 0.0} # If it's not here it means it does not use network
       {^pid, net_in, net_out} -> {net_in, net_out}
     end
-  end
-
-  defp get_per_pid_net_stats do
-    # TODO this is a little bit volatile so we probably need to fix
-    # the version of nethogs (in case it's api changes or sth)
-    cmd = "nethogs -tc 2 2> /dev/null | awk '{$1=$1};1'"
-    :os.cmd(cmd |> String.to_atom)
-    |> to_string
-    |> String.split("\nRefreshing:\n")
-    |> Enum.at(2)
-    |> String.split("\n")
-    |> Enum.filter(fn e -> e != "" end) # Splitting on newline leaves one empty string
-    |> Enum.map(&parse_nethogs_line/1)
-    |> Enum.filter(fn e -> e != :unknown end)
-  end
-
-  @spec parse_nethogs_line(String.t) :: {pid :: integer(), net_in :: float(), net_out :: float()} | :unknown
-  defp parse_nethogs_line("unknown" <> _), do: :unknown # there is a collective net stat for unknonwn pids, we omit it
-  defp parse_nethogs_line(line) do
-    try do
-      [process, out, inn] = line
-                            |> String.split(" ")
-                            |> take_last_n(3)
-      pid = process
-            |> String.split("/")
-            |> Enum.reverse
-            |> Enum.at(1)
-            |> Integer.parse
-            |> elem(0)
-      {out_f, _} = Float.parse(out)
-      {in_f, _} = Float.parse(inn)
-      {pid, in_f, out_f}
-    rescue
-      e ->
-        Logger.warn "Could not parse nethogs line. Ignoring this entry (error: #{inspect(e)}\nfor line: #{inspect(line)})"
-        :unknown
-    end
-  end
-
-  defp take_last_n(list, n) do
-    list
-    |> Enum.reverse
-    |> Enum.take(n)
-    |> Enum.reverse
   end
 
   defp nethogs_installed?, do: installed?("nethogs")

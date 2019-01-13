@@ -24,6 +24,7 @@ defmodule MDMMinion.Service do
   def start(name, service_dir, exec_path, report_down_to) do
     b = get_backend()
     File.mkdir(@log_dir)
+    b.prepare_to_monitor()
     state = %__MODULE__{backend: b,
                         name: name,
                         service_dir: service_dir,
