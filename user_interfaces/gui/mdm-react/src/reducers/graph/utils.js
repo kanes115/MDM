@@ -12,14 +12,12 @@ export function serviceToNodeAndConnection(service) {
       source: 'INTERNET',
       target: _.get(service, 'name'),
       metrics: {},
-      notices: [],
       class: 'normal',
     },
     connectionFrom: {
       source: _.get(service, 'name'),
       target: 'INTERNET',
       metrics: {},
-      notices: [],
       class: 'normal',
     },
   };
@@ -56,14 +54,12 @@ export function machineToTrafficData(state, newMachine, status = 'danger') {
     source: 'INTERNET',
     target: _.get(newMachine, 'name'),
     metrics: {},
-    notices: [],
     class: 'normal',
   });
   newConnections.push({
     source: _.get(newMachine, 'name'),
     target: 'INTERNET',
     metrics: {},
-    notices: [],
     class: 'normal',
   });
 
