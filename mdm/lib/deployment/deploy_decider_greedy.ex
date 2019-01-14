@@ -57,7 +57,8 @@ defmodule MDM.DeployDeciderGreedy do
     # provided units must conform to what we use in resources, TODO: make gui send units?
     (res.os |> elem(0)) in Enum.map(req.os, fn b -> :erlang.binary_to_atom(b, :utf8) end) and # TODO make sure the types are converted in parser!
     res.mem |> elem(0) >= req.ram and
-    res.hdd  |> elem(0) >= req.hdd
+    res.hdd  |> elem(0) >= req.hdd and
+    Machine.get_id(machine) in req.available_machines
   end
 
   defp give_core_points(machine) do
